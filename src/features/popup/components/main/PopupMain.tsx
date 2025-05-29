@@ -1,9 +1,10 @@
 import React from 'react';
 
-import {
-  Header,
-  ServiceList,
-} from '@/features/popup/components/main';
+import { IoSettingsOutline } from 'react-icons/io5';
+
+import { Divider, ServiceIcon } from '@/components';
+import { ServiceListMenu } from '@/features/popup/components/main';
+import { AIService } from '@/types';
 
 /**
  * The component for managing extensions.
@@ -16,16 +17,19 @@ export const PopupMain: React.FC = () => {
    */
   return (
     <main className="h-screen flex flex-col overflow-hidden">
-      <div className="container mx-auto flex flex-col h-full gap-3">
-        <div className="flex flex-col gap-3 px-4 pt-4 pb-0">
-          <Header>Summarize with</Header>
-        </div>
-
-        <div className="flex-1 overflow-y-auto">
-          <div className="h-full">
-            <ServiceList />
-          </div>
-        </div>
+      <div className="container mx-auto h-full flex flex-col items-start gap-1 px-2 pt-2">
+        <ServiceListMenu>Summarize this page</ServiceListMenu>
+        {Object.entries(AIService).map(([_, service], index) => (
+          <ServiceListMenu onClick={() => {}}>
+            <ServiceIcon service={service} className="w-4 h-4" />
+            {service}
+          </ServiceListMenu>
+        ))}
+        <Divider />
+        <ServiceListMenu onClick={() => {}}>
+          <IoSettingsOutline className="w-4 h-4" />
+          Settings
+        </ServiceListMenu>
       </div>
     </main>
   );
