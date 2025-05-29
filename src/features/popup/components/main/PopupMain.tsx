@@ -2,7 +2,10 @@ import React from 'react';
 
 import { IoSettingsOutline } from 'react-icons/io5';
 
-import { Divider, ServiceIcon } from '@/components';
+import {
+  Divider,
+  ServiceIcon,
+} from '@/components';
 import { ServiceListMenu } from '@/features/popup/components/main';
 import { AIService } from '@/types';
 
@@ -21,7 +24,7 @@ export const PopupMain: React.FC = () => {
         <ServiceListMenu>Summarize this page</ServiceListMenu>
         {Object.entries(AIService).map(([_, service], index) => (
           <ServiceListMenu onClick={() => {}}>
-            <ServiceIcon service={service} className="w-4 h-4" />
+            <ServiceIcon service={service} className="w-4 h-4 transform" />
             {service}
           </ServiceListMenu>
         ))}

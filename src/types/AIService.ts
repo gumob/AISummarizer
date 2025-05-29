@@ -1,7 +1,7 @@
 export enum AIService {
   CHATGPT = 'ChatGPT',
-  GROK = 'Grok',
-  CLAUDE = 'Claude',
   GEMINI = 'Gemini',
+  CLAUDE = 'Claude',
+  GROK = 'Grok',
   DEEPSEEK = 'DeepSeek',
 }
