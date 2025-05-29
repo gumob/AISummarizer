@@ -1,0 +1,104 @@
+name: Release Chrome Extension
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      # @Reference: https://zenn.dev/link/comments/ab5ad0d93dac67
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Security audit
+        run: pnpm audit
+
+      - name: Clean dist directory
+        run: rm -rf dist
+
+      - name: Code quality checks
+        run: |
+          pnpm run prettier-check
+          pnpm run eslint-check
+          pnpm run type-check
+
+      - name: Build extension
+        run: pnpm run build
+
+      - name: Package extension
+        run: |
+          # Check if dist/prod directory exists
+          if [ ! -d "dist/prod" ]; then
+            echo "::error::dist/prod directory not found. Please run build first."
+            exit 1
+          fi
+
+          # Remove existing zip file
+          rm -f ai-summarizer-*.zip
+
+          # Create ZIP file
+          cd dist/prod
+          zip -r "../../ai-summarizer-${VERSION}.zip" .
+          cd ../..
+
+          echo "Successfully created ai-summarizer-${VERSION}.zip"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: extension-build
+          path: ai-summarizer-${VERSION}.zip
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ai-summarizer-${VERSION}.zip
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # @Reference: https://github.com/MobileFirstLLC/cws-publish
+      # @Reference: https://github.com/fregante/chrome-webstore-upload
+      # @Reference: https://github.com/fregante/chrome-webstore-upload-keys
+      - name: Upload to Chrome Web Store
+        uses: mobilefirstllc/cws-publish@latest
+        with:
+          action: 'publish' # one of: upload, publish, testers
+          client_id: ${{ secrets.CLIENT_ID }}
+          client_secret: ${{ secrets.CLIENT_SECRET }}
+          refresh_token: ${{ secrets.REFRESH_TOKEN }}
+          extension_id: ${{ secrets.EXTENSION_ID }}
+          zip_file: ai-summarizer-${VERSION}.zip

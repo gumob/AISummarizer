@@ -1,0 +1,18 @@
+export default {
+  semi: true,
+  singleQuote: true,
+  tabWidth: 2,
+  trailingComma: 'es5',
+  printWidth: 160,
+  bracketSpacing: true,
+  arrowParens: 'avoid',
+  bracketSameLine: false,
+  singleAttributePerLine: false,
+  plugins: ['@trivago/prettier-plugin-sort-imports'],
+  importOrder: ['^react$', '^react-(.*)$', '^@(\\w.*)/(.*)$', '^@/(.*)$', '^[./]'],
+  importOrderSeparation: true,
+  importOrderSortSpecifiers: true,
+  importOrderParserPlugins: ['typescript', 'jsx', 'decorators-legacy'],
+  importOrderCaseInsensitive: true,
+  importOrderGroupNamespaceSpecifiers: true,
+};

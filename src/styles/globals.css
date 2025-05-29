@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+}
+
+:root {
+  --foreground-color: oklch(27.4% 0.006 286.033);
+  --background-color: oklch(96.7% 0.001 286.375);
+  --scrollbar-track-color: transparent;
+  --scrollbar-thumb-color: oklch(55.2% 0.016 285.938);
+  --scrollbar-thumb-hover-color: oklch(70.5% 0.015 286.067);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-color: oklch(96.7% 0.001 286.375);
+    --background-color: oklch(27.4% 0.006 286.033);
+    --scrollbar-track-color: transparent;
+    --scrollbar-thumb-color: oklch(55.2% 0.016 285.938);
+    --scrollbar-thumb-hover-color: oklch(70.5% 0.015 286.067);
+  }
+}
+
+body {
+  color: var(--foreground-color);
+  background: var(--background-color);
+  min-width: 600px;
+  min-height: 600px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track-color);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb-color);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover-color);
+  opacity: 0.8;
+}
