@@ -11,7 +11,7 @@ import {
  * The component for managing profile export/import.
  * @returns The ExtensionHeader component
  */
-export const ExtensionHeader: React.FC = () => {
+export const Header: React.FC = () => {
   const { exportFile, importFile } = useBackup();
   const fileInputRef = useRef<HTMLInputElement>(null);
 

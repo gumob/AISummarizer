@@ -1,6 +1,10 @@
-import { TagsIcon, ToggleLeftIcon, ToggleRightIcon } from 'lucide-react';
-
 import React from 'react';
+
+import {
+  TagsIcon,
+  ToggleLeftIcon,
+  ToggleRightIcon,
+} from 'lucide-react';
 
 import { DefaultBackgroundButton } from '@/components';
 import { useExtensionContext } from '@/contexts';
