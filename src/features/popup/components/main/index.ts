@@ -3,7 +3,7 @@ export * from './ExtensionTagList';
 export * from './ExtensionTagListEditButton';
 export * from './ExtensionTagListItem';
 export * from './ExtensionSearchBar';
-export * from './ServiceListButton';
+export * from './ServiceListMenu';
 export * from './ServiceList';
 export * from './PopupMain';
 export * from './ExtensionCardMenu';

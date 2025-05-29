@@ -18,7 +18,7 @@ export const PopupMain: React.FC = () => {
     <main className="h-screen flex flex-col overflow-hidden">
       <div className="container mx-auto flex flex-col h-full gap-3">
         <div className="flex flex-col gap-3 px-4 pt-4 pb-0">
-          <Header />
+          <Header>Summarize with</Header>
         </div>
 
         <div className="flex-1 overflow-y-auto">
