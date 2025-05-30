@@ -1,8 +1,5 @@
 import { chromeAPI } from '@/api';
-import {
-  logger,
-  updateExtensionIcon,
-} from '@/utils';
+import { logger, updateExtensionIcon } from '@/utils';
 
 /**
  * Background script
@@ -137,6 +134,18 @@ function createContextMenu() {
           contexts: ['page'],
         });
         chrome.contextMenus.create({
+          title: 'Copy to clipboard',
+          parentId: root,
+          id: 'copy',
+          contexts: ['page'],
+        });
+        chrome.contextMenus.create({
+          type: 'separator',
+          parentId: root,
+          id: 'divider2',
+          contexts: ['page'],
+        });
+        chrome.contextMenus.create({
           title: 'Settings',
           parentId: root,
           id: 'settings',
@@ -187,6 +196,9 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
       break;
     case 'deepseek':
       logger.debug('Deepseek clicked');
+      break;
+    case 'copy':
+      logger.debug('Copy clicked');
       break;
     case 'settings':
       chrome.runtime.openOptionsPage();
