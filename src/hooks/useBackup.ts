@@ -1,6 +1,3 @@
-import { useGlobalContext } from '@/contexts';
-import { TagModel } from '@/models';
-import { useExtensionStore, useTagStore } from '@/stores';
 import { logger } from '@/utils';
 
 /**
@@ -36,16 +33,6 @@ interface BackupData {
  * @returns Object containing exportFile and importFile functions
  */
 export const useBackup = () => {
-  /**
-   * Get required functions from hooks and stores:
-   * - refreshExtensions: Updates the extension list after import
-   * - exportTags/importTags: Handles saving/loading tag data
-   * - importExtensions: Updates extension states in the store
-   */
-  const { refreshExtensions } = useGlobalContext();
-  const { exportTags, importTags } = useTagStore();
-  const { importExtensions } = useExtensionStore();
-
   /**
    * Converts a date to ISO format
    * @param date - The date to convert
@@ -118,69 +105,7 @@ export const useBackup = () => {
    * 5. Creates a downloadable file with timestamp
    * 6. Triggers browser download
    */
-  const exportFile = async () => {
-    try {
-      /**
-       * Get current tag configuration and extension states
-       */
-      const { tags, extensionTags } = exportTags();
-      const { extensions: storedExtensions } = useExtensionStore.getState();
-      const backupVersion = getBackupVersion();
-
-      /**
-       * Create a profile object containing only necessary extension data
-       * and convert dates to ISO format
-       */
-      const profiles: BackupData = {
-        version: backupVersion,
-        tags: tags.map(tag => ({
-          ...tag,
-          createdAt: convertToISOString(tag.createdAt),
-          updatedAt: convertToISOString(tag.updatedAt),
-        })),
-        extensionTags,
-        extensions: storedExtensions.map(ext => ({
-          id: ext.id,
-          enabled: ext.enabled,
-          locked: ext.locked,
-        })),
-      };
-
-      /**
-       * Convert profile to JSON and create downloadable file
-       */
-      const data = JSON.stringify(profiles, null, 2);
-      const blob = new Blob([data], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-
-      /**
-       * Generate filename with current timestamp
-       * Format: AISummarizer-YYYYMMDD-HHMM.json
-       */
-      const now = new Date();
-      const timestamp =
-        now.getFullYear().toString() +
-        (now.getMonth() + 1).toString().padStart(2, '0') +
-        now.getDate().toString().padStart(2, '0') +
-        '-' +
-        now.getHours().toString().padStart(2, '0') +
-        now.getMinutes().toString().padStart(2, '0');
-      a.download = `AISummarizer-${timestamp}.json`;
-
-      /**
-       * Trigger download and cleanup
-       */
-      a.click();
-      URL.revokeObjectURL(url);
-
-      logger.info(`Successfully exported profile ${backupVersion}`);
-    } catch (error) {
-      logger.error('Failed to export profile', error);
-      throw error;
-    }
-  };
+  const exportFile = async () => {};
 
   /**
    * The function that imports a profile configuration from a JSON file.
@@ -193,104 +118,7 @@ export const useBackup = () => {
    *
    * @param file - The JSON file containing profile configuration
    */
-  const importFile = async (file: File) => {
-    try {
-      /**
-       * Create FileReader and set up handler for when file is loaded
-       */
-      const reader = new FileReader();
-      reader.onload = async e => {
-        try {
-          /**
-           * Parse JSON content and extract profile data
-           */
-          const content = e.target?.result as string;
-          const profiles = JSON.parse(content);
-
-          /**
-           * Validate backup data structure
-           */
-          if (!validateBackupData(profiles)) {
-            throw new Error('Invalid backup file format');
-          }
-
-          /**
-           * Check version compatibility
-           */
-          const backupVersion = getBackupVersion();
-          if (profiles.version !== backupVersion) {
-            logger.warn(`Backup file version (${profiles.version}) differs from current version (${backupVersion})`);
-          }
-
-          /**
-           * Get current installed extensions
-           */
-          const { extensions: installedExtensions } = useExtensionStore.getState();
-          const installedExtensionIds = new Set(installedExtensions.map(ext => ext.id));
-
-          /**
-           * Filter out data for non-installed extensions
-           */
-          const filteredExtensions = profiles.extensions
-            .filter((ext: any) => installedExtensionIds.has(ext.id))
-            .map(ext => {
-              const installedExt = installedExtensions.find(e => e.id === ext.id);
-              if (!installedExt) {
-                throw new Error(`Extension ${ext.id} not found in installed extensions`);
-              }
-              return {
-                ...installedExt,
-                enabled: ext.enabled,
-                locked: ext.locked,
-              };
-            });
-
-          const filteredExtensionTags = profiles.extensionTags.filter((extTag: any) => installedExtensionIds.has(extTag.extensionId));
-
-          /**
-           * Convert dates to Date objects before importing
-           */
-          const convertedTags: TagModel[] = profiles.tags.map((tag: any) => ({
-            ...tag,
-            createdAt: new Date(tag.createdAt),
-            updatedAt: new Date(tag.updatedAt),
-          }));
-
-          /**
-           * Import tags and extension states into their respective stores
-           */
-          importTags(convertedTags, filteredExtensionTags);
-          importExtensions(filteredExtensions);
-
-          /**
-           * Refresh the extension list to reflect imported changes
-           */
-          await refreshExtensions();
-
-          /**
-           * Log the number of filtered out extensions
-           */
-          const filteredOutCount = profiles.extensions.length - filteredExtensions.length;
-          if (filteredOutCount > 0) {
-            logger.info(`Filtered out ${filteredOutCount} non-installed extensions`);
-          }
-
-          logger.info('Successfully imported profile');
-        } catch (error) {
-          logger.error('Failed to import profile', error);
-          throw error;
-        }
-      };
-
-      /**
-       * Start reading the file as text
-       */
-      reader.readAsText(file);
-    } catch (error) {
-      logger.error('Failed to import profile', error);
-      throw error;
-    }
-  };
+  const importFile = async (file: File) => {};
 
   return {
     exportFile,
