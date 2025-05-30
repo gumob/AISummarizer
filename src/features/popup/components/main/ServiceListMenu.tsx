@@ -28,7 +28,7 @@ export const ServiceListMenu: React.FC<ServiceListMenuProps> = ({ className, onC
   return (
     <button
       onClick={onClick}
-      className={`flex items-start gap-2 px-1 py-1 w-full ${onClick ? 'rounded-md hover:bg-zinc-300 dark:hover:bg-zinc-700 transition-colors' : ''} ${className}`}
+      className={`flex items-start gap-2 px-1 py-1 w-full ${onClick ? 'rounded-md hover:bg-zinc-300 dark:hover:bg-zinc-700 transition-colors' : 'cursor-default'} ${className}`}
     >
       {children}
     </button>
