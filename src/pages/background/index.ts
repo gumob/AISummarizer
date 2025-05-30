@@ -52,20 +52,6 @@ const initialize = async () => {
         updateExtensionIcon(message.isDarkMode);
         sendResponse({ success: true });
         return true;
-      /**
-       * Debug messages
-       */
-      case 'OFFSCREEN_DEBUG':
-        logger.debug(message.message);
-        sendResponse({ success: true });
-        return true;
-      /**
-       * Error messages
-       */
-      case 'OFFSCREEN_ERROR':
-        logger.error(message.message, message.error);
-        sendResponse({ success: true });
-        return true;
       default:
         return false;
     }
