@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useExtensionContext } from '@/contexts';
+import { useGlobalContext } from '@/contexts';
 import { ExtensionTagListEditButton, ExtensionTagListItem, ExtensionTagMetrics } from '@/features/popup/components/main';
 import { useTagStore } from '@/stores';
 
@@ -13,7 +13,7 @@ export const ExtensionTagList: React.FC = () => {
   /**
    * The extensions and filtered extensions.
    */
-  const { untaggedExtensions } = useExtensionContext();
+  const { untaggedExtensions } = useGlobalContext();
 
   /**
    * The tag store.

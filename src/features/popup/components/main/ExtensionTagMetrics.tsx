@@ -3,7 +3,7 @@ import { TagsIcon, ToggleLeftIcon, ToggleRightIcon } from 'lucide-react';
 import React from 'react';
 
 import { DefaultBackgroundButton } from '@/components';
-import { useExtensionContext } from '@/contexts';
+import { useGlobalContext } from '@/contexts';
 
 /**
  * The ExtensionTagMetrics component.
@@ -14,7 +14,7 @@ export const ExtensionTagMetrics: React.FC = () => {
   /**
    * The extensions context.
    */
-  const { allExtensions, setVisibleTagId } = useExtensionContext();
+  const { allExtensions, setVisibleTagId } = useGlobalContext();
 
   /**
    * The total number of extensions.

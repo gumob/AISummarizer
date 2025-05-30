@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Switch } from '@headlessui/react';
 import { LockClosedIcon } from '@heroicons/react/24/outline';
 
-import { useExtensionContext } from '@/contexts';
+import { useGlobalContext } from '@/contexts';
 import { ExtensionCardMenu } from '@/features/popup/components/main';
 import { ExtensionModel } from '@/models';
 
@@ -39,7 +39,7 @@ export const ExtensionCard: React.FC<ExtensionCardProps> = ({ extension }) => {
   /**
    * The use extensions hook.
    */
-  const { toggleEnabled, openOptionsPage } = useExtensionContext();
+  const { toggleEnabled, openOptionsPage } = useGlobalContext();
   /**
    * The button ref.
    */

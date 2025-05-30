@@ -3,7 +3,7 @@ import React from 'react';
 import { TagIcon } from '@heroicons/react/24/outline';
 
 import { DefaultBackgroundButton } from '@/components';
-import { useExtensionContext } from '@/contexts';
+import { useGlobalContext } from '@/contexts';
 import { TagModel } from '@/models';
 import { useTagStore } from '@/stores';
 
@@ -29,7 +29,7 @@ export const ExtensionTagListItem: React.FC<ExtensionTagListItemProps> = ({ tag 
    * The tag store.
    */
   const { extensionTags } = useTagStore();
-  const { untaggedExtensions, visibleTagId, setVisibleTagId } = useExtensionContext();
+  const { untaggedExtensions, visibleTagId, setVisibleTagId } = useGlobalContext();
 
   /**
    * The count of extensions with the tag.

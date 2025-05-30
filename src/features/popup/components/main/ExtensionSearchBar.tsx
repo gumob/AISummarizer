@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 
 import { SearchBarComponent } from '@/components';
-import { useExtensionContext } from '@/contexts';
+import { useGlobalContext } from '@/contexts';
 
 /**
  * The ExtensionSearchBar component.
@@ -15,7 +15,7 @@ const ExtensionSearchBar: React.FC = () => {
   /**
    * The extensions and filtered extensions.
    */
-  const { searchQuery, setSearchQuery } = useExtensionContext();
+  const { searchQuery, setSearchQuery } = useGlobalContext();
   const searchInputRef = useRef<HTMLInputElement>(null);
   /**
    * The handle search.

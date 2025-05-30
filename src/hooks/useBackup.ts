@@ -1,4 +1,4 @@
-import { useExtensionContext } from '@/contexts';
+import { useGlobalContext } from '@/contexts';
 import { TagModel } from '@/models';
 import { useExtensionStore, useTagStore } from '@/stores';
 import { logger } from '@/utils';
@@ -42,7 +42,7 @@ export const useBackup = () => {
    * - exportTags/importTags: Handles saving/loading tag data
    * - importExtensions: Updates extension states in the store
    */
-  const { refreshExtensions } = useExtensionContext();
+  const { refreshExtensions } = useGlobalContext();
   const { exportTags, importTags } = useTagStore();
   const { importExtensions } = useExtensionStore();
 
