@@ -12,6 +12,10 @@ const config: Configuration = {
   mode: isDev ? 'development' : 'production',
   entry: {
     popup: './src/pages/popup/index.tsx',
+    options: {
+      import: './src/pages/options/index.tsx',
+      filename: 'options.js',
+    },
     background: './src/pages/background/index.ts',
     offscreen: './src/pages/offscreen/index.ts',
   },
