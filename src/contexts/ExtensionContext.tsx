@@ -1,6 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
-import { chromeAPI } from '@/api';
 import { ExtensionModel } from '@/models';
 import { useExtensionStore, useTagStore } from '@/stores';
 import { logger } from '@/utils';
@@ -26,9 +25,6 @@ interface ExtensionContextValue {
   untaggedExtensions: ExtensionModel[];
   toggleEnabled: (id: string, enabled: boolean) => Promise<void>;
   toggleLock: (id: string, locked: boolean) => Promise<void>;
-  openExtensionPage: (id: string) => Promise<void>;
-  openOptionsPage: (id: string) => Promise<void>;
-  uninstallExtension: (id: string) => Promise<void>;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   visibleTagId: string | null;
@@ -185,31 +181,6 @@ export const ExtensionProvider: React.FC<ExtensionProviderProps> = ({ children }
     [toggleLockStore]
   );
 
-  const openExtensionPage = useCallback(async (id: string) => {
-    if (!isSubscribed.current) return;
-    await chromeAPI.createTab(id);
-  }, []);
-
-  const openOptionsPage = useCallback(
-    async (id: string) => {
-      if (!isSubscribed.current) return;
-      const extension = storedExtensions.find(ext => ext.id === id);
-      if (extension?.optionsUrl) {
-        await chromeAPI.createTab(extension.optionsUrl);
-      }
-    },
-    [storedExtensions]
-  );
-
-  const uninstallExtension = useCallback(
-    async (id: string) => {
-      if (!isSubscribed.current) return;
-      await chromeAPI.uninstallExtension(id);
-      refreshExtensions();
-    },
-    [refreshExtensions]
-  );
-
   /*******************************************************
    * Event Handlers
    *******************************************************/
@@ -311,9 +282,6 @@ export const ExtensionProvider: React.FC<ExtensionProviderProps> = ({ children }
       untaggedExtensions,
       toggleEnabled,
       toggleLock,
-      openExtensionPage,
-      openOptionsPage,
-      uninstallExtension,
       searchQuery,
       setSearchQuery,
       visibleTagId,
@@ -328,9 +296,6 @@ export const ExtensionProvider: React.FC<ExtensionProviderProps> = ({ children }
       untaggedExtensions,
       toggleEnabled,
       toggleLock,
-      openExtensionPage,
-      openOptionsPage,
-      uninstallExtension,
       searchQuery,
       visibleTagId,
       refreshExtensions,
