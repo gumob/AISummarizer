@@ -1,8 +1,19 @@
-import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import { ArticleModel } from '@/models';
-import { useSettingsStore } from '@/store/SettingsStore';
-import { AIService, FloatButtonPosition, TabBehavior } from '@/types';
+import { useSettingsStore } from '@/stores/SettingsStore';
+import {
+  AIService,
+  FloatButtonPosition,
+  TabBehavior,
+} from '@/types';
 import { logger } from '@/utils';
 
 /**

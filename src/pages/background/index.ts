@@ -3,7 +3,7 @@ import { BackgroundThemeService } from '@/services/theme';
 import {
   ArticleStore,
   ThemeStore,
-} from '@/store';
+} from '@/stores';
 import { logger } from '@/utils';
 
 async function initialize() {

@@ -1,5 +1,5 @@
 import { chromeAPI } from '@/api';
-import { ThemeStore } from '@/store';
+import { ThemeStore } from '@/stores';
 import {
   Message,
   MessageResponse,

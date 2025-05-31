@@ -1,6 +1,6 @@
 import { chromeAPI } from '@/api';
 import { MENU_ITEMS } from '@/models';
-import { ArticleStore } from '@/store';
+import { ArticleStore } from '@/stores';
 import { logger } from '@/utils';
 
 export class ContextMenuService {
