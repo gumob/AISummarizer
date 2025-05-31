@@ -27,7 +27,7 @@ body {
   color: var(--foreground-color);
   background: var(--background-color);
   min-width: 160px;
-  min-height: 260px;
+  min-height: 292px;
 }
 
 /* Scrollbar */
