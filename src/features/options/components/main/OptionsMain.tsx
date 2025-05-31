@@ -18,7 +18,6 @@ export const OptionsMain: React.FC = () => {
           <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-100">Settings</h1>
           <button
             onClick={async () => {
-              logger.debug('Close side panel');
               try {
                 await chromeAPI.closeSidePanel();
               } catch (error) {
