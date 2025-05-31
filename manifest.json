@@ -3,7 +3,7 @@
   "name": "AI Summarizer",
   "version": "0.0.1",
   "description": "A Chrome extension to manage other extensions",
-  "permissions": ["management", "storage", "tabs", "scripting", "activeTab", "offscreen", "contextMenus"],
+  "permissions": ["management", "storage", "tabs", "scripting", "activeTab", "offscreen", "contextMenus", "sidePanel"],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
@@ -21,5 +21,8 @@
     "service_worker": "background.js",
     "type": "module"
   },
-  "options_page": "options.html"
+  "options_page": "options.html",
+  "side_panel": {
+    "default_path": "options.html"
+  }
 }

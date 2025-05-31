@@ -1,8 +1,14 @@
 import React from 'react';
 
-import { IoClipboardOutline, IoSettingsOutline } from 'react-icons/io5';
+import {
+  IoClipboardOutline,
+  IoSettingsOutline,
+} from 'react-icons/io5';
 
-import { Divider, ServiceIcon } from '@/components';
+import {
+  Divider,
+  ServiceIcon,
+} from '@/components';
 import { ServiceListMenu } from '@/features/popup/components/main';
 import { AIService } from '@/types';
 import { logger } from '@/utils';
@@ -42,8 +48,13 @@ export const PopupMain: React.FC = () => {
         </ServiceListMenu>
         <Divider />
         <ServiceListMenu
-          onClick={() => {
-            logger.debug('Settings');
+          onClick={async () => {
+            logger.debug('Settings clicked');
+            const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+            if (tab?.id) {
+              chrome.sidePanel.setOptions({ path: 'options.html', enabled: true });
+              chrome.sidePanel.open({ windowId: tab.windowId });
+            }
           }}
         >
           <IoSettingsOutline className="w-4 h-4" />

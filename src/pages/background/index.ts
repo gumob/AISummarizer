@@ -1,5 +1,8 @@
 import { chromeAPI } from '@/api';
-import { logger, updateExtensionIcon } from '@/utils';
+import {
+  logger,
+  updateExtensionIcon,
+} from '@/utils';
 
 /**
  * Background script
@@ -201,7 +204,11 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
       logger.debug('Copy clicked');
       break;
     case 'settings':
-      chrome.runtime.openOptionsPage();
+      logger.debug('Settings clicked');
+      if (tab?.id) {
+        chrome.sidePanel.setOptions({ path: 'options.html', enabled: true });
+        chrome.sidePanel.open({ windowId: tab.windowId });
+      }
       break;
   }
 });

@@ -1,4 +1,7 @@
-import { Message, MessageResponse } from '@/types';
+import {
+  Message,
+  MessageResponse,
+} from '@/types';
 import { logger } from '@/utils';
 
 /**
@@ -320,6 +323,37 @@ export class ChromeAPI {
       await chrome.offscreen.closeDocument();
     } catch (error) {
       logger.warn('Failed to close offscreen document', error);
+      throw error;
+    }
+  }
+
+  /************************************************
+   * Side Panel API
+   ************************************************/
+
+  /**
+   * The function that opens the side panel.
+   * @param windowId - The window id.
+   */
+  public async openSidePanel(windowId: number): Promise<void> {
+    chrome.sidePanel.setOptions({ path: 'options.html', enabled: true });
+    chrome.sidePanel.open({ windowId });
+  }
+
+  public async closeSidePanel(): Promise<void> {
+    try {
+      await chrome.sidePanel.setOptions({ enabled: false });
+    } catch (error) {
+      logger.warn('Failed to close side panel', error);
+      throw error;
+    }
+  }
+
+  public async setSidePanelOptions(options: chrome.sidePanel.PanelOptions): Promise<void> {
+    try {
+      await chrome.sidePanel.setOptions(options);
+    } catch (error) {
+      logger.warn('Failed to set side panel options', error);
       throw error;
     }
   }
