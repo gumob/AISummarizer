@@ -29,9 +29,8 @@
     "experimentalSpecifierResolution": "node"
   },
   "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "src/types",
+    "src/**/*.ts",
+    "src/**/*.tsx",
     "webpack.config.ts"
   ],
   "exclude": [

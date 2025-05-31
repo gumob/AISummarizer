@@ -1,7 +1,8 @@
+import globals from 'globals';
+
 import js from '@eslint/js';
 import tseslint from '@typescript-eslint/eslint-plugin';
 import tsparser from '@typescript-eslint/parser';
-import globals from 'globals';
 
 export default [
   js.configs.recommended,
@@ -11,6 +12,7 @@ export default [
       parser: tsparser,
       parserOptions: {
         project: './tsconfig.json',
+        tsconfigRootDir: __dirname,
       },
       globals: {
         ...globals.browser,
@@ -86,16 +88,6 @@ export default [
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
     },
-    ignores: [
-      'node_modules/**',
-      '.pnp/**',
-      '.pnp.js',
-      'dist/**',
-      'out/**',
-      'build/**',
-      'fastlane/**',
-      'log/**',
-      'public/**',
-    ],
+    ignores: ['node_modules/**', '.pnp/**', '.pnp.js', 'dist/**', 'out/**', 'build/**', 'fastlane/**', 'log/**', 'public/**'],
   },
 ];

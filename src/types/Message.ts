@@ -1,7 +1,7 @@
 /**
  * The message type for Chrome extension messaging.
  */
-export type MessageType = 'GET_PROFILE' | 'SET_PROFILE' | 'GET_TAGS' | 'SET_TAGS' | 'COLOR_SCHEME_CHANGED';
+export type MessageType = 'PING' | 'GET_PROFILE' | 'SET_PROFILE' | 'GET_TAGS' | 'SET_TAGS' | 'COLOR_SCHEME_CHANGED';
 
 /**
  * The message interface for Chrome extension messaging.
@@ -26,3 +26,11 @@ export type MessageResponse<T = any> = {
   data?: T;
   error?: string;
 };
+
+export interface ThemeState {
+  isDarkMode: boolean;
+}
+
+export interface ArticleState {
+  isArticleExtracted: boolean;
+}

@@ -1,239 +1,45 @@
-import { chromeAPI } from '@/api';
+import { ContextMenuService } from '@/services/contextMenu';
+import { ThemeService } from '@/services/theme';
 import {
-  logger,
-  updateExtensionIcon,
-} from '@/utils';
+  ArticleStore,
+  ThemeStore,
+} from '@/store';
+import { logger } from '@/utils';
 
-/**
- * Background script
- */
-
-/**
- * Create and manage offscreen document
- */
-const createOffscreenDocument = async () => {
-  try {
-    /** Close existing document */
-    if (await chromeAPI.hasOffscreenDocument()) {
-      await chromeAPI.closeOffscreenDocument();
-    }
-
-    /** Create new document */
-    await chromeAPI.createOffscreenDocument('offscreen.html', ['MATCH_MEDIA' as chrome.offscreen.Reason], 'Detect system color scheme changes');
-    logger.debug('Offscreen document created successfully');
-  } catch (error) {
-    logger.error('Failed to initialize extensions', error);
-  }
-};
-
-/**
- * Initialize background script
- */
-const initialize = async () => {
+async function initialize() {
   logger.debug('Initializing background script');
 
-  /**
-   * Listen for theme changes from offscreen document
-   */
-  const handleColorSchemeChange = (message: any, sender: chrome.runtime.MessageSender, sendResponse: (response: any) => void) => {
-    switch (message.type) {
-      /**
-       * Keep service worker active
-       */
-      case 'PING':
-        logger.debug('Received PING');
-        sendResponse({ success: true });
-        return true;
-      /**
-       * Theme detection from popup
-       */
-      case 'COLOR_SCHEME_CHANGED':
-        logger.debug('Color scheme changed');
-        updateExtensionIcon(message.isDarkMode);
-        sendResponse({ success: true });
-        return true;
-      default:
-        return false;
-    }
+  const themeStore = new ThemeStore();
+  const articleStore = new ArticleStore();
+
+  const themeService = new ThemeService(themeStore);
+  const contextMenuService = new ContextMenuService(articleStore);
+
+  await themeService.initialize();
+  await contextMenuService.createMenu();
+
+  // 記事抽出状態の更新をエクスポート
+  (self as any).updateArticleExtractionState = (extracted: boolean) => {
+    articleStore.setArticleExtracted(extracted);
+    contextMenuService.createMenu();
   };
-
-  /**
-   * Create context menu
-   */
-  createContextMenu();
-
-  /**
-   * Remove existing listener and add new listener
-   */
-  chrome.runtime.onMessage.removeListener(handleColorSchemeChange);
-  chrome.runtime.onMessage.addListener(handleColorSchemeChange);
-
-  /**
-   * Create offscreen document after listener is set
-   */
-  await createOffscreenDocument();
-};
-
-/**
- * Manage article extraction state
- */
-let isArticleExtracted = false;
-
-/**
- * Create context menu
- */
-function createContextMenu() {
-  logger.debug('Creating context menu');
-  /**
-   * Remove existing menu
-   */
-  chrome.contextMenus.removeAll();
-
-  if (isArticleExtracted) {
-    /**
-     * Menu for when article extraction is available
-     */
-    const root = chrome.contextMenus.create(
-      {
-        title: 'Summarize this page with',
-        id: 'root',
-        contexts: ['page'],
-      },
-      function () {
-        chrome.contextMenus.create({
-          title: 'ChatGPT',
-          parentId: root,
-          id: 'chatgpt',
-          contexts: ['page'],
-        });
-        chrome.contextMenus.create({
-          title: 'Gemini',
-          parentId: root,
-          id: 'gemini',
-          contexts: ['page'],
-        });
-        chrome.contextMenus.create({
-          title: 'Claude',
-          parentId: root,
-          id: 'claude',
-          contexts: ['page'],
-        });
-        chrome.contextMenus.create({
-          title: 'Grok',
-          parentId: root,
-          id: 'grok',
-          contexts: ['page'],
-        });
-        chrome.contextMenus.create({
-          title: 'Deepseek',
-          parentId: root,
-          id: 'deepseek',
-          contexts: ['page'],
-        });
-        chrome.contextMenus.create({
-          type: 'separator',
-          parentId: root,
-          id: 'divider1',
-          contexts: ['page'],
-        });
-        chrome.contextMenus.create({
-          title: 'Copy to clipboard',
-          parentId: root,
-          id: 'copy',
-          contexts: ['page'],
-        });
-        chrome.contextMenus.create({
-          type: 'separator',
-          parentId: root,
-          id: 'divider2',
-          contexts: ['page'],
-        });
-        chrome.contextMenus.create({
-          title: 'Settings',
-          parentId: root,
-          id: 'settings',
-          contexts: ['page'],
-        });
-      }
-    );
-  } else {
-    /**
-     * Menu for when article extraction is not available
-     */
-    const root = chrome.contextMenus.create(
-      {
-        title: 'Not Available',
-        id: 'root',
-        contexts: ['page'],
-      },
-      function () {
-        chrome.contextMenus.create({
-          title: 'Settings',
-          parentId: root,
-          id: 'settings',
-          contexts: ['page'],
-        });
-      }
-    );
-  }
 }
 
-/**
- * Context menu click event handler
- */
-chrome.contextMenus.onClicked.addListener((info, tab) => {
-  if (!tab?.id) return;
-
-  switch (info.menuItemId) {
-    case 'chatgpt':
-      logger.debug('ChatGPT clicked');
-      break;
-    case 'gemini':
-      logger.debug('Gemini clicked');
-      break;
-    case 'claude':
-      logger.debug('Claude clicked');
-      break;
-    case 'grok':
-      logger.debug('Grok clicked');
-      break;
-    case 'deepseek':
-      logger.debug('Deepseek clicked');
-      break;
-    case 'copy':
-      logger.debug('Copy clicked');
-      break;
-    case 'settings':
-      logger.debug('Settings clicked');
-      if (tab?.id) {
-        chromeAPI.openSidePanel(tab.windowId);
-      }
-      break;
-  }
-});
-
-/**
- * Update article extraction state
- */
-export function updateArticleExtractionState(extracted: boolean) {
-  isArticleExtracted = extracted;
-  createContextMenu();
-}
-
-updateArticleExtractionState(true);
-
-/**
- * Listen for extension installation
- */
+// 拡張機能のインストール時のイベントリスナー
 chrome.runtime.onInstalled.addListener(async details => {
   logger.debug('Extension installed');
   await initialize();
 });
 
-/**
- * Listen for extension startup
- */
+// 拡張機能の起動時のイベントリスナー
 chrome.runtime.onStartup.addListener(async () => {
   logger.debug('Extension started');
   await initialize();
 });
+
+// グローバル型定義
+declare global {
+  interface ServiceWorkerGlobalScope {
+    updateArticleExtractionState: (extracted: boolean) => void;
+  }
+}
