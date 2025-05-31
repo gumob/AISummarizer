@@ -1,1 +1,1 @@
-export * from './ThemeService';
+export * from './BackgroundThemeService';

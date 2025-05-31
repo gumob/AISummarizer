@@ -1,5 +1,5 @@
 import { ContextMenuService } from '@/services/contextMenu';
-import { ThemeService } from '@/services/theme';
+import { BackgroundThemeService } from '@/services/theme';
 import {
   ArticleStore,
   ThemeStore,
@@ -12,32 +12,32 @@ async function initialize() {
   const themeStore = new ThemeStore();
   const articleStore = new ArticleStore();
 
-  const themeService = new ThemeService(themeStore);
+  const themeService = new BackgroundThemeService(themeStore);
   const contextMenuService = new ContextMenuService(articleStore);
 
   await themeService.initialize();
   await contextMenuService.createMenu();
 
-  // 記事抽出状態の更新をエクスポート
+  /** Export the article extraction state update */
   (self as any).updateArticleExtractionState = (extracted: boolean) => {
     articleStore.setArticleExtracted(extracted);
     contextMenuService.createMenu();
   };
 }
 
-// 拡張機能のインストール時のイベントリスナー
+/** Event listener for the extension installation */
 chrome.runtime.onInstalled.addListener(async details => {
   logger.debug('Extension installed');
   await initialize();
 });
 
-// 拡張機能の起動時のイベントリスナー
+/** Event listener for the extension startup */
 chrome.runtime.onStartup.addListener(async () => {
   logger.debug('Extension started');
   await initialize();
 });
 
-// グローバル型定義
+/** Global type definition */
 declare global {
   interface ServiceWorkerGlobalScope {
     updateArticleExtractionState: (extracted: boolean) => void;
