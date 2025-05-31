@@ -1,5 +1,5 @@
 import { chromeAPI } from '@/api';
-import { MENU_ITEMS } from '@/services/contextMenu';
+import { MENU_ITEMS } from '@/models';
 import { ArticleStore } from '@/store';
 import { logger } from '@/utils';
 
