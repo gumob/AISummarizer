@@ -2,6 +2,7 @@ import React from 'react';
 
 import { IoClose } from 'react-icons/io5';
 
+import { chromeAPI } from '@/api';
 import { Card } from '@/components';
 import { logger } from '@/utils';
 
@@ -19,7 +20,7 @@ export const OptionsMain: React.FC = () => {
             onClick={async () => {
               logger.debug('Close side panel');
               try {
-                await chrome.sidePanel.setOptions({ enabled: false });
+                await chromeAPI.closeSidePanel();
               } catch (error) {
                 logger.error('Failed to close side panel', error);
               }

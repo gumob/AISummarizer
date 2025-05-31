@@ -206,8 +206,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     case 'settings':
       logger.debug('Settings clicked');
       if (tab?.id) {
-        chrome.sidePanel.setOptions({ path: 'options.html', enabled: true });
-        chrome.sidePanel.open({ windowId: tab.windowId });
+        chromeAPI.openSidePanel(tab.windowId);
       }
       break;
   }
