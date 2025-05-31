@@ -1,12 +1,19 @@
-import React, { useEffect, useRef } from 'react';
+import '@/styles/globals.css';
+
+import React, {
+  useEffect,
+  useRef,
+} from 'react';
 
 import { createRoot } from 'react-dom/client';
 import { Toaster } from 'react-hot-toast';
 
 import { GlobalContextProvider } from '@/contexts';
 import { PopupMain } from '@/features/popup/components/main';
-import '@/styles/globals.css';
-import { detectTheme, logger } from '@/utils';
+import {
+  detectTheme,
+  logger,
+} from '@/utils';
 
 /**
  * The main component for the extension manager.
@@ -55,7 +62,7 @@ const Popup: React.FC = () => {
 /**
  * The container element.
  */
-const container = document.getElementById('app');
+const container = document.getElementById('root');
 
 /**
  * The root element.
