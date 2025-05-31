@@ -32,6 +32,7 @@ export const PopupMain: React.FC = () => {
             key={index}
             onClick={() => {
               logger.debug(service);
+              window.close();
             }}
           >
             <ServiceIcon service={service} className="w-4 h-4 translate-y-[2px] " />
@@ -42,6 +43,7 @@ export const PopupMain: React.FC = () => {
         <ServiceListMenu
           onClick={() => {
             logger.debug('Copy to clipboard');
+            window.close();
           }}
         >
           <IoClipboardOutline className="w-4 h-4" />
@@ -54,6 +56,7 @@ export const PopupMain: React.FC = () => {
             const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
             if (tab?.id) {
               chromeAPI.openSidePanel(tab.windowId);
+              window.close();
             }
           }}
         >
