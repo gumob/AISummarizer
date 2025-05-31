@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 import { ArticleModel } from '@/models';
+import { useSettingsStore } from '@/store/SettingsStore';
+import { AIService, FloatButtonPosition, TabBehavior } from '@/types';
 import { logger } from '@/utils';
 
 /**
@@ -11,6 +13,13 @@ import { logger } from '@/utils';
  * @property article - The article data.
  * @property setArticle - The set article data function.
  * @property isLoading - The is loading.
+ * @property prompts - The prompts data.
+ * @property prompt - The get prompt function.
+ * @property tabBehavior - The tab behavior.
+ * @property floatButtonPosition - The float button position.
+ * @property setPrompt - The set prompt function.
+ * @property setTabBehavior - The set tab behavior function.
+ * @property setFloatButtonPosition - The set float button position function.
  */
 interface GlobalContextValue {
   isArticleExtracted: boolean;
@@ -18,6 +27,15 @@ interface GlobalContextValue {
   article: ArticleModel | null;
   setArticle: (article: ArticleModel | null) => void;
   isLoading: boolean;
+  prompts: {
+    [key in AIService]: string;
+  };
+  prompt: (service: AIService) => string;
+  setPrompt: (service: AIService, prompt: string) => void;
+  tabBehavior: TabBehavior;
+  setTabBehavior: (tabBehavior: TabBehavior) => void;
+  floatButtonPosition: FloatButtonPosition;
+  setFloatButtonPosition: (floatButtonPosition: FloatButtonPosition) => void;
 }
 
 /**
@@ -61,16 +79,10 @@ export const GlobalContextProvider: React.FC<GlobalContextProviderProps> = ({ ch
   const isSubscribed = useRef(false);
 
   /*******************************************************
-   * Memoized Values
-   *******************************************************/
-
-  /*******************************************************
    * Core Function
    *******************************************************/
 
-  /*******************************************************
-   * Event Handlers
-   *******************************************************/
+  const { prompts, prompt, tabBehavior, floatButtonPosition, setPrompt, setTabBehavior, setFloatButtonPosition } = useSettingsStore();
 
   /*******************************************************
    * Lifecycle
@@ -117,8 +129,28 @@ export const GlobalContextProvider: React.FC<GlobalContextProviderProps> = ({ ch
       article,
       setArticle,
       isLoading,
+      prompts,
+      prompt,
+      tabBehavior,
+      floatButtonPosition,
+      setPrompt,
+      setTabBehavior,
+      setFloatButtonPosition,
     }),
-    [isArticleExtracted, setIsArticleExtracted, article, setArticle, isLoading]
+    [
+      isArticleExtracted,
+      setIsArticleExtracted,
+      article,
+      setArticle,
+      isLoading,
+      prompts,
+      prompt,
+      setPrompt,
+      tabBehavior,
+      setTabBehavior,
+      floatButtonPosition,
+      setFloatButtonPosition,
+    ]
   );
 
   return <GlobalContext.Provider value={value}>{children}</GlobalContext.Provider>;

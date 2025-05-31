@@ -1,16 +1,31 @@
+import React, {
+  useEffect,
+  useState,
+} from 'react';
+
 import clsx from 'clsx';
-
-import React, { useState } from 'react';
-
 import { IoClose } from 'react-icons/io5';
 
-import { Field, Tab, TabGroup, TabList, TabPanel, TabPanels, Textarea } from '@headlessui/react';
-
 import { chromeAPI } from '@/api';
+import { useGlobalContext } from '@/contexts/GlobalContext';
 import { OptionCard } from '@/features/options/components/main';
-import { AIService, FloatButtonPosition } from '@/types';
+import {
+  AIService,
+  FloatButtonPosition,
+  getFloatButtonPositionLabel,
+  getTabBehaviorLabel,
+} from '@/types';
 import { TabBehavior } from '@/types/TabBahavior';
 import { logger } from '@/utils';
+import {
+  Field,
+  Tab,
+  TabGroup,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Textarea,
+} from '@headlessui/react';
 
 /**
  * The main component for the options page.
@@ -20,6 +35,23 @@ export const OptionsMain: React.FC = () => {
   const [selectedPromptIndex, setSelectedPromptIndex] = useState(0);
   const [selectedTabBehaviorIndex, setSelectedTabBehaviorIndex] = useState(0);
   const [selectedFloatButtonIndex, setSelectedFloatButtonIndex] = useState(0);
+
+  const { prompt, setPrompt, tabBehavior, setTabBehavior, floatButtonPosition, setFloatButtonPosition } = useGlobalContext();
+
+  // Initialize selected indices based on stored values
+  useEffect(() => {
+    // Set TabBehavior index
+    const tabBehaviorIndex = Object.values(TabBehavior).findIndex(value => value === tabBehavior);
+    if (tabBehaviorIndex !== -1) {
+      setSelectedTabBehaviorIndex(tabBehaviorIndex);
+    }
+
+    // Set FloatButtonPosition index
+    const floatButtonIndex = Object.values(FloatButtonPosition).findIndex(value => value === floatButtonPosition);
+    if (floatButtonIndex !== -1) {
+      setSelectedFloatButtonIndex(floatButtonIndex);
+    }
+  }, [tabBehavior, floatButtonPosition]);
 
   return (
     <div className="min-h-screen p-4 bg-zinc-50 dark:bg-zinc-900">
@@ -43,7 +75,7 @@ export const OptionsMain: React.FC = () => {
           <h2 className="mb-4 text-xl font-semibold text-zinc-900 dark:text-zinc-100">Prompt</h2>
           <TabGroup selectedIndex={selectedPromptIndex} onChange={setSelectedPromptIndex}>
             <TabList className="flex flex-wrap gap-2">
-              {Object.entries(AIService).map(([name, service], index) => (
+              {Object.entries(AIService).map(([name, service]: [string, AIService], index) => (
                 <Tab
                   key={name}
                   className={clsx(
@@ -62,7 +94,7 @@ export const OptionsMain: React.FC = () => {
               ))}
             </TabList>
             <TabPanels className="mt-3">
-              {Object.entries(AIService).map(([name, service]) => (
+              {Object.entries(AIService).map(([name, service]: [string, AIService]) => (
                 <TabPanel key={name} className="">
                   <Field>
                     <Textarea
@@ -75,8 +107,9 @@ export const OptionsMain: React.FC = () => {
                         'focus:outline-none focus:ring-1 focus:ring-zinc-300 dark:focus:ring-zinc-700',
                         'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-300 dark:focus-visible:ring-zinc-700'
                       )}
-                      rows={10}
-                      defaultValue={`Prompt for ${service}`}
+                      rows={12}
+                      value={prompt(service)}
+                      onChange={e => setPrompt(service, e.target.value)}
                     />
                   </Field>
                 </TabPanel>
@@ -88,7 +121,7 @@ export const OptionsMain: React.FC = () => {
           <h2 className="mb-4 text-xl font-semibold text-zinc-900 dark:text-zinc-100">Tab Behavior</h2>
           <TabGroup selectedIndex={selectedTabBehaviorIndex} onChange={setSelectedTabBehaviorIndex}>
             <TabList className="flex flex-wrap gap-2">
-              {Object.entries(TabBehavior).map(([name, service], index) => (
+              {Object.entries(TabBehavior).map(([name, behavior]: [string, TabBehavior], index) => (
                 <Tab
                   key={name}
                   className={clsx(
@@ -101,8 +134,9 @@ export const OptionsMain: React.FC = () => {
                     'focus:outline-none',
                     'transition-opacity'
                   )}
+                  onClick={() => setTabBehavior(behavior)}
                 >
-                  {service}
+                  {getTabBehaviorLabel(behavior)}
                 </Tab>
               ))}
             </TabList>
@@ -112,7 +146,7 @@ export const OptionsMain: React.FC = () => {
           <h2 className="mb-4 text-xl font-semibold text-zinc-900 dark:text-zinc-100">Float Button</h2>
           <TabGroup selectedIndex={selectedFloatButtonIndex} onChange={setSelectedFloatButtonIndex}>
             <TabList className="flex flex-wrap gap-2">
-              {Object.entries(FloatButtonPosition).map(([name, service], index) => (
+              {Object.entries(FloatButtonPosition).map(([name, position]: [string, FloatButtonPosition], index) => (
                 <Tab
                   key={name}
                   className={clsx(
@@ -125,8 +159,9 @@ export const OptionsMain: React.FC = () => {
                     'focus:outline-none',
                     'transition-opacity'
                   )}
+                  onClick={() => setFloatButtonPosition(position)}
                 >
-                  {service}
+                  {getFloatButtonPositionLabel(position)}
                 </Tab>
               ))}
             </TabList>
