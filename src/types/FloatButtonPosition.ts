@@ -1,5 +1,5 @@
 export enum FloatButtonPosition {
-  NONE = 'None',
+  NONE = 'Hide',
   TOP_LEFT = 'Top Left',
   TOP_CENTER = 'Top Center',
   TOP_RIGHT = 'Top Right',
