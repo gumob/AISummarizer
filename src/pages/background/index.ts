@@ -1,6 +1,5 @@
 import { ContextMenuService } from '@/services/contextMenu';
 import { BackgroundThemeService } from '@/services/theme';
-import { useArticleStore } from '@/stores/ArticleStore';
 import { logger } from '@/utils';
 
 async function initialize() {
@@ -14,7 +13,7 @@ async function initialize() {
 
   // 記事抽出状態の更新をエクスポート
   (self as any).updateArticleExtractionState = (extracted: boolean) => {
-    useArticleStore.getState().setArticleExtracted(extracted);
+    // useArticleStore.getState().setArticleExtracted(extracted);
     contextMenuService.createMenu();
   };
 }

@@ -26,11 +26,3 @@ export type MessageResponse<T = any> = {
   data?: T;
   error?: string;
 };
-
-export interface ThemeState {
-  isDarkMode: boolean;
-}
-
-export interface ArticleState {
-  isArticleExtracted: boolean;
-}

@@ -1,12 +1,24 @@
 import { create } from 'zustand';
 
-import { ArticleState } from '@/types';
+import { ArticleModel } from '@/models';
 
-interface ArticleStore extends ArticleState {
-  setArticleExtracted: (extracted: boolean) => void;
+interface ArticleStore {
+  articles: { [key: string]: ArticleModel };
+  setArticles: (url: string, article: ArticleModel) => void;
+  isArticleExtractedForUrl: (url: string) => boolean;
+  isArticleExtracted: boolean;
 }
 
-export const useArticleStore = create<ArticleStore>(set => ({
+export const useArticleStore = create<ArticleStore>((set, get) => ({
   isArticleExtracted: true,
-  setArticleExtracted: extracted => set({ isArticleExtracted: extracted }),
+  articles: {},
+  setArticles: (url: string, article: ArticleModel) => {
+    const articles = get().articles;
+    articles[url] = article;
+    set({ articles });
+  },
+  isArticleExtractedForUrl: (url: string) => {
+    const articles = get().articles;
+    return articles[url] != null;
+  },
 }));

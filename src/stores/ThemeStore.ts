@@ -1,9 +1,9 @@
 import { create } from 'zustand';
 
-import { ThemeState } from '@/types';
 import { updateExtensionIcon } from '@/utils';
 
-interface ThemeStore extends ThemeState {
+interface ThemeStore {
+  isDarkMode: boolean;
   setDarkMode: (isDark: boolean) => void;
 }
 
