@@ -16,6 +16,7 @@ import {
   TabList,
   TabPanel,
   TabPanels,
+  Textarea,
 } from '@headlessui/react';
 
 /**
@@ -59,10 +60,8 @@ export const OptionsMain: React.FC = () => {
             </TabList>
             <TabPanels className="mt-3">
               {Object.entries(AIService).map(([name, service]) => (
-                <TabPanel key={name} className="rounded-xl bg-zinc-300 dark:bg-zinc-700 p-3">
-                  <ul>
-                    <p>Prompt for {service}</p>
-                  </ul>
+                <TabPanel key={name} className="">
+                  <Textarea name="prompt" className="w-full rounded-xl p-3 bg-zinc-200 dark:bg-zinc-800" rows={10} defaultValue={`Prompt for ${service}`} />
                 </TabPanel>
               ))}
             </TabPanels>
@@ -96,7 +95,8 @@ export const OptionsMain: React.FC = () => {
                   className="rounded-full px-3 py-1 text-sm/6 font-semibold text-zinc-900 dark:text-zinc-50
                 bg-zinc-300 dark:bg-zinc-700
                 focus:not-data-focus:outline-none data-focus:outline data-focus:outline-white data-hover:bg-white/5
-                data-selected:bg-white/10 data-selected:data-hover:bg-white/10"
+                data-selected:bg-zinc-400 dark:data-selected:bg-zinc-600
+                data-selected:data-hover:bg-zinc-400 dark:data-selected:data-hover:bg-zinc-600"
                 >
                   {service}
                 </Tab>
