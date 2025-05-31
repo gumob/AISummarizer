@@ -2,6 +2,7 @@ import React from 'react';
 
 import {
   IoClipboardOutline,
+  IoReloadOutline,
   IoSettingsOutline,
 } from 'react-icons/io5';
 
@@ -48,6 +49,15 @@ export const PopupMain: React.FC = () => {
         >
           <IoClipboardOutline className="w-4 h-4" />
           Copy to clipboard
+        </ServiceListMenu>
+        <ServiceListMenu
+          onClick={() => {
+            logger.debug('Extract article again');
+            window.close();
+          }}
+        >
+          <IoReloadOutline className="w-4 h-4" />
+          Extract article again
         </ServiceListMenu>
         <Divider />
         <ServiceListMenu

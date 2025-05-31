@@ -52,6 +52,14 @@ export class ContextMenuService {
       parentId: root,
     });
 
+    // Create extract option
+    chrome.contextMenus.create({
+      id: MENU_ITEMS.EXTRACT.id,
+      title: MENU_ITEMS.EXTRACT.title,
+      contexts: ['page' as chrome.contextMenus.ContextType],
+      parentId: root,
+    });
+
     // Create second divider
     chrome.contextMenus.create({
       type: 'separator',
@@ -108,6 +116,9 @@ export class ContextMenuService {
           break;
         case 'copy':
           logger.debug('Copy clicked');
+          break;
+        case 'extract':
+          logger.debug('Extract clicked');
           break;
         case 'settings':
           logger.debug('Settings clicked');
