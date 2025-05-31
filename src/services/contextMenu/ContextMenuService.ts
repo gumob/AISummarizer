@@ -1,10 +1,10 @@
 import { chromeAPI } from '@/api';
 import { MENU_ITEMS } from '@/models';
-import { ArticleStore } from '@/stores';
+import { useArticleStore } from '@/stores/ArticleStore';
 import { logger } from '@/utils';
 
 export class ContextMenuService {
-  constructor(private articleStore: ArticleStore) {
+  constructor() {
     this.setupClickHandler();
   }
 
@@ -12,7 +12,7 @@ export class ContextMenuService {
     logger.debug('Creating context menu');
     await chrome.contextMenus.removeAll();
 
-    if (this.articleStore.getState().isArticleExtracted) {
+    if (useArticleStore.getState().isArticleExtracted) {
       this.createFullMenu();
     } else {
       this.createBasicMenu();

@@ -1,26 +1,20 @@
 import { ContextMenuService } from '@/services/contextMenu';
 import { BackgroundThemeService } from '@/services/theme';
-import {
-  ArticleStore,
-  ThemeStore,
-} from '@/stores';
+import { useArticleStore } from '@/stores/ArticleStore';
 import { logger } from '@/utils';
 
 async function initialize() {
   logger.debug('Initializing background script');
 
-  const themeStore = new ThemeStore();
-  const articleStore = new ArticleStore();
-
-  const themeService = new BackgroundThemeService(themeStore);
-  const contextMenuService = new ContextMenuService(articleStore);
+  const themeService = new BackgroundThemeService();
+  const contextMenuService = new ContextMenuService();
 
   await themeService.initialize();
   await contextMenuService.createMenu();
 
   // 記事抽出状態の更新をエクスポート
   (self as any).updateArticleExtractionState = (extracted: boolean) => {
-    articleStore.setArticleExtracted(extracted);
+    useArticleStore.getState().setArticleExtracted(extracted);
     contextMenuService.createMenu();
   };
 }

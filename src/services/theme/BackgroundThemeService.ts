@@ -1,5 +1,5 @@
 import { chromeAPI } from '@/api';
-import { ThemeStore } from '@/stores';
+import { useThemeStore } from '@/stores/ThemeStore';
 import {
   Message,
   MessageResponse,
@@ -7,14 +7,11 @@ import {
 import { logger } from '@/utils';
 
 export class BackgroundThemeService {
-  constructor(private themeStore: ThemeStore) {}
-
-  async initialize() {
-    await this.setupOffscreenDocument();
+  constructor() {
     this.setupMessageListener();
   }
 
-  private async setupOffscreenDocument() {
+  async initialize() {
     try {
       if (await chromeAPI.hasOffscreenDocument()) {
         await chromeAPI.closeOffscreenDocument();
@@ -38,7 +35,7 @@ export class BackgroundThemeService {
         case 'COLOR_SCHEME_CHANGED':
           logger.debug('Color scheme changed');
           if (message.payload?.isDarkMode !== undefined) {
-            this.themeStore.setDarkMode(message.payload.isDarkMode);
+            useThemeStore.getState().setDarkMode(message.payload.isDarkMode);
           }
           sendResponse({ success: true });
           return true;
