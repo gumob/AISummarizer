@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 import { chromeAPI } from '@/api';
+import { STORAGE_KEYS } from '@/constants';
 import {
   AIService,
   FloatButtonPosition,
@@ -69,7 +70,7 @@ export const useSettingsStore = create<SettingsStore>()(
         })),
     }),
     {
-      name: 'ai-summarizer-settings',
+      name: STORAGE_KEYS.SETTINGS,
       storage: {
         /**
          * Custom storage getter that loads data from Chrome storage

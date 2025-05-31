@@ -6,11 +6,11 @@ export const STORAGE_KEYS = {
   /**
    * Key for storing extension data including enabled/disabled state and lock status
    */
-  EXTENSIONS: 'ai-summarizer-extensions',
+  SETTINGS: 'ai-summarizer-settings',
   /**
    * Key for storing tag data including tag definitions and extension-tag associations
    */
-  TAGS: 'ai-summarizer-tags',
+  ARTICLE: 'ai-summarizer-article',
 } as const;
 
 /**
