@@ -33,6 +33,7 @@ const DEFAULT_SETTINGS: SettingsState = {
     [AIService.GEMINI]: DEFAULT_PROMPT,
     [AIService.CLAUDE]: DEFAULT_PROMPT,
     [AIService.GROK]: DEFAULT_PROMPT,
+    [AIService.PERPLEXITY]: DEFAULT_PROMPT,
     [AIService.DEEPSEEK]: DEFAULT_PROMPT,
   },
   tabBehavior: TabBehavior.CURRENT_TAB,

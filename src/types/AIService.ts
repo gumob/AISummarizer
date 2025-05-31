@@ -3,5 +3,6 @@ export enum AIService {
   GEMINI = 'Gemini',
   CLAUDE = 'Claude',
   GROK = 'Grok',
+  PERPLEXITY = 'Perplexity',
   DEEPSEEK = 'DeepSeek',
 }

@@ -45,6 +45,22 @@ export const ServiceIcon = ({ service, className = 'w-4 h-4 text-zinc-900 dark:t
         />
       </svg>
     ),
+    [AIService.PERPLEXITY]: (
+      <svg
+        width="36"
+        height="36"
+        viewBox="0 0 36 36"
+        className={`translate-y-[0px] translate-x-[2px] ${className}`}
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M24,0 L15,8 L15,0.3515625 L13,0.3515625 L13,8.1250005 L4,0.125 L4,9.2265625 L0,9.2265625 L0,23.2265625 L4,23.2265625 L4,32.4531245 L13,24.4531245 L13,31.2265625 L15,31.2265625 L15,24.5781245 L24,32.5781245 L24,23.2265625 L28,23.2265625 L28,9.2265625 L24,9.2265625 L24,0 Z M22,4.4531245 L22,9.2265625 L16.630859,9.2265625 L22,4.4531245 Z M6,4.5781245 L11.228516,9.2265625 L6,9.2265625 L6,4.5781245 Z M2,11.2265625 L11.369141,11.2265625 L4,17.7773435 L4,21.2265625 L2,21.2265625 L2,11.2265625 Z M16.490234,11.2265625 L26,11.2265625 L26,21.2265625 L24,21.2265625 L24,17.9023435 L16.490234,11.2265625 Z M13,12.4550785 L13,21.7792965 L6,28.0000005 L6,18.6757815 L13,12.4550785 Z M15,12.5781245 L22,18.8007815 L22,28.1250005 L15,21.9023435 L15,12.5781245 Z"
+          fill="currentColor"
+          fillRule="nonzero"
+        />
+      </svg>
+    ),
     [AIService.DEEPSEEK]: (
       <svg width="36" height="36" viewBox="0 0 36 36" className={`translate-y-[3px] ${className}`} fill="none" xmlns="http://www.w3.org/2000/svg">
         <path

@@ -100,6 +100,9 @@ export class ContextMenuService {
         case 'grok':
           logger.debug('Grok clicked');
           break;
+        case 'perplexity':
+          logger.debug('Perplexity clicked');
+          break;
         case 'deepseek':
           logger.debug('Deepseek clicked');
           break;

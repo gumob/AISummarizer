@@ -26,6 +26,11 @@ export const MENU_ITEMS = {
       contexts: ['page' as const],
     },
     {
+      id: 'perplexity',
+      title: 'Perplexity',
+      contexts: ['page' as const],
+    },
+    {
       id: 'deepseek',
       title: 'Deepseek',
       contexts: ['page' as const],
