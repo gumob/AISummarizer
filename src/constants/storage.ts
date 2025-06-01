@@ -1,16 +1,12 @@
 /**
- * Storage key constants for the extension manager.
+ * Storage key constants for the extension.
  * These constants are used to store and retrieve data from Chrome's storage.
  */
 export const STORAGE_KEYS = {
   /**
-   * Key for storing extension data including enabled/disabled state and lock status
+   * Key for storing settings
    */
   SETTINGS: 'ai-summarizer-settings',
-  /**
-   * Key for storing tag data including tag definitions and extension-tag associations
-   */
-  ARTICLE: 'ai-summarizer-article',
 } as const;
 
 /**

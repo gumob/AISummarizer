@@ -1,10 +1,14 @@
 import { chromeAPI } from '@/api';
 import { MENU_ITEMS } from '@/models';
+import { ArticleExtractionService } from '@/services/article/ArticleExtractionService';
 import { useArticleStore } from '@/stores/ArticleStore';
 import { logger } from '@/utils';
 
 export class ContextMenuService {
+  private articleExtractionService: ArticleExtractionService;
+
   constructor() {
+    this.articleExtractionService = new ArticleExtractionService();
     this.setupClickHandler();
   }
 
@@ -92,7 +96,7 @@ export class ContextMenuService {
   }
 
   private setupClickHandler() {
-    chrome.contextMenus.onClicked.addListener((info, tab) => {
+    chrome.contextMenus.onClicked.addListener(async (info, tab) => {
       if (!tab?.id) return;
 
       switch (info.menuItemId) {
@@ -119,6 +123,12 @@ export class ContextMenuService {
           break;
         case 'extract':
           logger.debug('Extract clicked');
+          if (tab) {
+            const isExtracted = await this.articleExtractionService.extractArticle(tab);
+            if (isExtracted) {
+              (self as any).updateArticleExtractionState(tab.id, tab.url!);
+            }
+          }
           break;
         case 'settings':
           logger.debug('Settings clicked');
