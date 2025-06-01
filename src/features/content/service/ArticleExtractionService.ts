@@ -33,12 +33,15 @@ export class ArticleExtractionService {
     if (/^https?:\/\/(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=|embed\/|v\/|shorts\/)?([a-zA-Z0-9_-]{11})/.test(url)) {
       logger.debug('Extracting youtube video');
       try {
+        /** Extract youtube video id from url */
         const match = url.match(/(?:watch\?v=|embed\/|v\/|shorts\/)?([a-zA-Z0-9_-]{11})/);
         const videoId = match ? match[1] : null;
         if (!videoId) {
           throw new Error('Could not extract video ID from URL');
         }
+        /** Extract transcript from youtube video */
         const result: ExtractionResult = await new YoutubeTranscriptExtractor().extract(videoId, 'en');
+        /** Add article to database */
         // await db.addArticle({
         //   url: url,
         //   title: result.title,
@@ -46,6 +49,7 @@ export class ArticleExtractionService {
         //   date: new Date(),
         //   is_extracted: true,
         // });
+        /** Return extraction result */
         return {
           isSuccess: true,
           result,
