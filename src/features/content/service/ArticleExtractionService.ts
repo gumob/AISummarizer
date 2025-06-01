@@ -1,9 +1,9 @@
 import { db } from '@/db';
-import { YoutubeTranscriptExtractor } from '@/features/content/extractors/YoutubeTranscriptExtractor';
+import { ReadabilityExtractor } from '@/features/content/extractors';
 import { ExtractionResult } from '@/types';
 import { logger } from '@/utils';
 
-import { ReadabilityExtractor } from '../extractors/ReadabilityExtractor';
+import { extractYoutube } from '../extractors/Youtube';
 
 interface ExtractionServiceResult {
   isSuccess: boolean;
@@ -39,8 +39,23 @@ export class ArticleExtractionService {
         if (!videoId) {
           throw new Error('Could not extract video ID from URL');
         }
+        /**
+         * Testing new extractor
+         * TODO: Pass the result
+         */
+        await extractYoutube(videoId);
+        const result: ExtractionResult = {
+          title: null,
+          lang: null,
+          textContent: null,
+          isExtracted: false,
+        };
         /** Extract transcript from youtube video */
-        const result: ExtractionResult = await new YoutubeTranscriptExtractor().extract(videoId, 'en');
+        /**
+         * Disabled old extractor
+         * TODO: Replace this with the new extractor
+         */
+        // const result: ExtractionResult = await new YoutubeTranscriptExtractor().extract(videoId, 'en');
         /** Add article to database */
         // await db.addArticle({
         //   url: url,

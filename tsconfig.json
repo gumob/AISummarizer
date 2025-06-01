@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "ES2015",
     "lib": [
       "dom",
       "dom.iterable",
@@ -22,6 +22,7 @@
       ]
     },
     "inlineSourceMap": true,
+    "downlevelIteration": true,
     // "sourceMap": true,
   },
   "ts-node": {
