@@ -1,15 +1,9 @@
+import { ExtractionResult } from '@/types';
+import { logger } from '@/utils';
 import { Readability } from '@mozilla/readability';
 
-import { logger } from '@/utils';
-
-export interface ExtractedArticle {
-  title: string | null;
-  content: string | null;
-  isExtracted: boolean;
-}
-
-export class PageArticleExtractionService {
-  extractArticle(): ExtractedArticle {
+export class ReadabilityExtractor {
+  extract(): ExtractionResult {
     try {
       const documentClone = document.cloneNode(true) as Document;
       const reader = new Readability(documentClone);

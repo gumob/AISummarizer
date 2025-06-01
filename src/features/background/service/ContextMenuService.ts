@@ -1,6 +1,6 @@
 import { chromeAPI } from '@/api';
+import { ArticleExtractionService } from '@/features/content/service/ArticleExtractionService';
 import { MENU_ITEMS } from '@/models';
-import { ArticleExtractionService } from '@/services/article/ArticleExtractionService';
 import { useArticleStore } from '@/stores/ArticleStore';
 import { logger } from '@/utils';
 

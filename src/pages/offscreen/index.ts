@@ -1,4 +1,4 @@
-import { OffscreenThemeService } from '@/services/theme';
+import { OffscreenThemeService } from '@/features/offscreen/service';
 import { logger } from '@/utils';
 
 logger.debug('Initializing offscreen document');

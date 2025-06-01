@@ -1,11 +1,11 @@
-import { PageArticleExtractionService } from '@/services/article/PageArticleExtractionService';
-import { YoutubeTranscriptService } from '@/services/article/YoutubeTranscriptService';
+import { ReadabilityExtractor } from '@/features/content/extractors/ReadabilityExtractor';
+import { YoutubeTranscriptExtractor } from '@/features/content/extractors/YoutubeTranscriptExtractor';
 import { logger } from '@/utils';
 
 logger.debug('Content script loaded');
 
-const pageArticleExtractionService = new PageArticleExtractionService();
-const youtubeTranscriptService = new YoutubeTranscriptService();
+const pageArticleExtractionService = new ReadabilityExtractor();
+const youtubeTranscriptService = new YoutubeTranscriptExtractor();
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   logger.debug('Received message:', request);
@@ -26,7 +26,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       (async () => {
         try {
           const { videoId, lang } = request;
-          const result = await youtubeTranscriptService.getTranscript(videoId, lang);
+          const result = await youtubeTranscriptService.extract(videoId, lang);
           sendResponse({
             action: 'TRANSCRIPT_RESULT',
             transcript: result,
@@ -46,7 +46,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     /**
      * Normal web page
      */
-    const result = pageArticleExtractionService.extractArticle();
+    const result = pageArticleExtractionService.extract();
     sendResponse(result);
   }
   return true;

@@ -1,7 +1,9 @@
-import { ArticleExtractionService } from '@/services/article/ArticleExtractionService';
-import { ContextMenuService } from '@/services/contextMenu';
-import { CleanupDBService } from '@/services/database/CleanupDBService';
-import { BackgroundThemeService } from '@/services/theme';
+import {
+  BackgroundThemeService,
+  ContextMenuService,
+} from '@/features/background/service';
+import { CleanupDBService } from '@/features/background/service/CleanupDBService';
+import { ArticleExtractionService } from '@/features/content/service/ArticleExtractionService';
 import { logger } from '@/utils';
 
 /**

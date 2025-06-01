@@ -1,13 +1,13 @@
 import { db } from '@/db';
 import { logger } from '@/utils';
 
-import { PageArticleExtractionService } from './PageArticleExtractionService';
+import { ReadabilityExtractor } from '../extractors/ReadabilityExtractor';
 
 export class ArticleExtractionService {
-  private pageArticleExtractionService: PageArticleExtractionService;
+  private pageArticleExtractionService: ReadabilityExtractor;
 
   constructor() {
-    this.pageArticleExtractionService = new PageArticleExtractionService();
+    this.pageArticleExtractionService = new ReadabilityExtractor();
   }
 
   async extractArticle(tab: chrome.tabs.Tab) {
@@ -18,8 +18,8 @@ export class ArticleExtractionService {
       const [{ result }] = await chrome.scripting.executeScript({
         target: { tabId: tab.id! },
         func: () => {
-          const service = new PageArticleExtractionService();
-          return service.extractArticle();
+          const service = new ReadabilityExtractor();
+          return service.extract();
         },
       });
 
