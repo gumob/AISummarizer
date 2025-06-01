@@ -1,7 +1,4 @@
-import {
-  ClientType,
-  Innertube,
-} from 'youtubei.js/web';
+import { ClientType, Innertube } from 'youtubei.js/web';
 
 import { ExtractionResult } from '@/types';
 import { logger } from '@/utils';
@@ -43,7 +40,6 @@ export class YoutubeTranscriptExtractor {
     try {
       const yt = await Innertube.create({
         client_type: ClientType.WEB,
-        lang: lang,
         fetch: async (input, url) => {
           return fetch(input, url);
         },
