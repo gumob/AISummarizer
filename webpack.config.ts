@@ -11,14 +11,14 @@ const isDev = process.env.NODE_ENV === 'development';
 const config: Configuration = {
   mode: isDev ? 'development' : 'production',
   entry: {
-    popup: './src/pages/popup/index.tsx',
+    popup: './src/pages/Popup.tsx',
     options: {
-      import: './src/pages/options/index.tsx',
+      import: './src/pages/Options.tsx',
       filename: 'options.js',
     },
-    background: './src/pages/background/index.ts',
-    offscreen: './src/pages/offscreen/index.ts',
-    content: './src/pages/content/index.ts',
+    background: './src/pages/Background.ts',
+    offscreen: './src/pages/Offscreen.ts',
+    content: './src/pages/Content.ts',
   },
   output: {
     path: path.resolve(__dirname, isDev ? 'dist/dev' : 'dist/prod'),
