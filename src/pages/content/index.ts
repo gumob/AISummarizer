@@ -1,41 +1,30 @@
-import {
-  ClientType,
-  Innertube,
-} from 'youtubei.js/web';
+import { PageArticleExtractionService } from '@/services/article/PageArticleExtractionService';
+import { YoutubeTranscriptService } from '@/services/article/YoutubeTranscriptService';
+import { logger } from '@/utils';
 
-import { Readability } from '@mozilla/readability';
+const pageArticleExtractionService = new PageArticleExtractionService();
+const youtubeTranscriptService = new YoutubeTranscriptService();
 
-export async function getTranscript(videoId: string, lang: string = 'en') {
-  const yt = await Innertube.create({
-    client_type: ClientType.WEB,
-    lang: lang,
-    fetch: async (input, url) => {
-      return fetch(input, url);
-    },
-  });
-  let info = await yt.getInfo(videoId, 'WEB');
-  let scriptInfo = await info.getTranscript();
-  return (
-    scriptInfo.transcript?.content?.body?.initial_segments.map(segment => ({
-      text: segment.snippet.text,
-      startMs: segment.start_ms,
-      endMs: segment.end_ms,
-    })) || []
-  );
-}
-
-// Original message listener
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  console.log('Received message:', request);
+  logger.debug('Received message:', request);
   if (request.action === 'EXTRACT_CONTENT') {
     const url = window.location.href;
 
-    // YouTubeの場合
-    if (url.includes('youtube.com/watch')) {
+    /**
+     * Skip processing for browser-specific URLs
+     */
+    if (/^(chrome|brave|edge|opera|vivaldi):\/\//.test(url)) {
+      return true;
+    }
+
+    /**
+     * YouTube
+     */
+    if (/^https?:\/\/(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=|embed\/|v\/|shorts\/)?([a-zA-Z0-9_-]{11})/.test(url)) {
       (async () => {
         try {
           const { videoId, lang } = request;
-          const result = await getTranscript(videoId, lang);
+          const result = await youtubeTranscriptService.getTranscript(videoId, lang);
           sendResponse({
             action: 'TRANSCRIPT_RESULT',
             transcript: result,
@@ -52,27 +41,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       return true;
     }
 
-    // 通常のWebページの場合
-    try {
-      const documentClone = document.cloneNode(true) as Document;
-      const reader = new Readability(documentClone);
-      const article = reader.parse();
-
-      sendResponse({
-        title: article?.title || null,
-        content: article?.content || null,
-        isExtracted: !!article,
-      });
-    } catch (error) {
-      console.error('Failed to extract content:', error);
-      sendResponse({
-        title: null,
-        content: null,
-        isExtracted: false,
-      });
-    }
+    /**
+     * Normal web page
+     */
+    const result = pageArticleExtractionService.extractArticle();
+    sendResponse(result);
   }
-
-  // Use an async IIFE to handle the async operation
-  return true; // Keep message port open
+  return true;
 });

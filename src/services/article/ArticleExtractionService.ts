@@ -1,28 +1,33 @@
 import { db } from '@/db';
 import { logger } from '@/utils';
-import { Readability } from '@mozilla/readability';
+
+import { PageArticleExtractionService } from './PageArticleExtractionService';
 
 export class ArticleExtractionService {
+  private pageArticleExtractionService: PageArticleExtractionService;
+
+  constructor() {
+    this.pageArticleExtractionService = new PageArticleExtractionService();
+  }
+
   async extractArticle(tab: chrome.tabs.Tab) {
-    if (!tab.id || !tab.url) return;
+    if (!tab.id || !tab.url) return false;
 
     try {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
       const [{ result }] = await chrome.scripting.executeScript({
         target: { tabId: tab.id! },
         func: () => {
-          const documentClone = document.cloneNode(true) as Document;
-          const reader = new Readability(documentClone);
-          const article = reader.parse();
-          return article;
+          const service = new PageArticleExtractionService();
+          return service.extractArticle();
         },
       });
 
-      if (result) {
+      if (result?.isExtracted) {
         await db.addArticle({
           url: tab.url as string,
-          title: result.title ?? null,
-          content: result.content ?? null,
+          title: result.title,
+          content: result.content,
           date: new Date(),
           is_extracted: true,
         });
@@ -31,7 +36,7 @@ export class ArticleExtractionService {
     } catch (error) {
       logger.error('Failed to extract article:', error);
       await db.addArticle({
-        url: tab.url,
+        url: tab.url as string,
         title: null,
         content: null,
         date: new Date(),
