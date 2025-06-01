@@ -61,7 +61,7 @@ chrome.runtime.onStartup.addListener(async () => {
 chrome.tabs.onActivated.addListener(async (activeInfo: chrome.tabs.TabActiveInfo) => {
   const tab = await chrome.tabs.get(activeInfo.tabId);
   if (tab.url) {
-    logger.debug('Tab activated', tab);
+    logger.debug('Tab activated', tab.url, tab.status);
     (self as any).updateArticleExtractionState(tab.id, tab.url);
   }
 });
@@ -74,7 +74,7 @@ chrome.tabs.onActivated.addListener(async (activeInfo: chrome.tabs.TabActiveInfo
  */
 chrome.tabs.onUpdated.addListener(async (tabId: number, changeInfo: chrome.tabs.TabChangeInfo, tab: chrome.tabs.Tab) => {
   if (changeInfo.status === 'complete' && tab.url) {
-    logger.debug('Tab updated', tab);
+    logger.debug('Tab updated', tab.url, tab.status);
     (self as any).updateArticleExtractionState(tabId, tab.url);
   }
 });
@@ -82,8 +82,8 @@ chrome.tabs.onUpdated.addListener(async (tabId: number, changeInfo: chrome.tabs.
 /**
  * Global type definition
  */
-declare global {
-  interface ServiceWorkerGlobalScope {
-    updateArticleExtractionState: (tabId: number, url: string) => Promise<void>;
-  }
-}
+// declare global {
+//   interface ServiceWorkerGlobalScope {
+//     updateArticleExtractionState: (tabId: number, url: string) => Promise<void>;
+//   }
+// }

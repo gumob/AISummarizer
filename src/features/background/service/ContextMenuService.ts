@@ -123,18 +123,31 @@ export class ContextMenuService {
           break;
         case 'extract':
           logger.debug('Extract clicked');
-          if (tab) {
-            const isExtracted = await this.articleExtractionService.extractArticle(tab);
-            if (isExtracted) {
-              (self as any).updateArticleExtractionState(tab.id, tab.url!);
+          try {
+            // コンテンツスクリプトが注入されているか確認
+            const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+            if (!tab.id) {
+              throw new Error('No active tab found');
             }
+
+            // コンテンツスクリプトを注入
+            await chrome.scripting.executeScript({
+              target: { tabId: tab.id },
+              files: ['content.js'],
+            });
+
+            // メッセージを送信
+            await chrome.tabs.sendMessage(tab.id, {
+              action: 'EXTRACT_CONTENT',
+              url: tab.url!,
+            });
+          } catch (error: any) {
+            logger.error('Failed to send message to content script:', error);
           }
           break;
         case 'settings':
           logger.debug('Settings clicked');
-          if (tab?.id) {
-            chromeAPI.openSidePanel(tab.windowId);
-          }
+          chromeAPI.openSidePanel(tab.windowId);
           break;
       }
     });

@@ -5,13 +5,14 @@ import { Readability } from '@mozilla/readability';
 export class ReadabilityExtractor {
   extract(): ExtractionResult {
     try {
-      const documentClone = document.cloneNode(true) as Document;
-      const reader = new Readability(documentClone);
-      const article = reader.parse();
+      const clonedDoc = document.cloneNode(true) as Document;
+      const article = new Readability(clonedDoc).parse();
+      logger.debug('ReadabilityExtractor extract:', article?.title);
+      logger.debug('ReadabilityExtractor extract:', article?.textContent);
 
       return {
         title: article?.title || null,
-        content: article?.content || null,
+        content: article?.textContent || null,
         isExtracted: !!article,
       };
     } catch (error) {
