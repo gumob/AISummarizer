@@ -41,3 +41,5 @@ yarn-error.log*
 
 # fastlane
 fastlane/report.xml
+
+logs
