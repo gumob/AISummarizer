@@ -2,6 +2,8 @@ import { PageArticleExtractionService } from '@/services/article/PageArticleExtr
 import { YoutubeTranscriptService } from '@/services/article/YoutubeTranscriptService';
 import { logger } from '@/utils';
 
+logger.debug('Content script loaded');
+
 const pageArticleExtractionService = new PageArticleExtractionService();
 const youtubeTranscriptService = new YoutubeTranscriptService();
 
