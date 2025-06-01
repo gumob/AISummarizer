@@ -33,8 +33,19 @@ export class ArticleExtractionService {
     if (/^https?:\/\/(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=|embed\/|v\/|shorts\/)?([a-zA-Z0-9_-]{11})/.test(url)) {
       logger.debug('Extracting youtube video');
       try {
-        const { videoId, lang } = message;
-        const result: ExtractionResult = await new YoutubeTranscriptExtractor().extract(videoId, lang);
+        const match = url.match(/(?:watch\?v=|embed\/|v\/|shorts\/)?([a-zA-Z0-9_-]{11})/);
+        const videoId = match ? match[1] : null;
+        if (!videoId) {
+          throw new Error('Could not extract video ID from URL');
+        }
+        const result: ExtractionResult = await new YoutubeTranscriptExtractor().extract(videoId, 'en');
+        // await db.addArticle({
+        //   url: url,
+        //   title: result.title,
+        //   content: result.textContent,
+        //   date: new Date(),
+        //   is_extracted: true,
+        // });
         return {
           isSuccess: true,
           result,
@@ -54,6 +65,14 @@ export class ArticleExtractionService {
       logger.debug('Extracting normal web page');
       const result = new ReadabilityExtractor().extract();
       logger.debug('extract result:', result);
+
+      await db.addArticle({
+        url: url,
+        title: result.title,
+        content: result.textContent,
+        date: new Date(),
+        is_extracted: true,
+      });
       return {
         isSuccess: true,
         result,
@@ -70,26 +89,8 @@ export class ArticleExtractionService {
     if (!tab.id || !tab.url) return false;
 
     try {
-      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      // const [{ result }] = await chrome.scripting.executeScript({
-      //   target: { tabId: tab.id! },
-      //   func: () => {
-      //     const service = new ReadabilityExtractor();
-      //     return service.extract();
-      //   },
       const result = new ReadabilityExtractor().extract();
       logger.debug('extractArticle result:', result);
-
-      // if (result?.isSuccess) {
-      //   await db.addArticle({
-      //     url: tab.url as string,
-      //     title: result.result?.title ?? null,
-      //     content: result.result?.content ?? null,
-      //     date: new Date(),
-      //     is_extracted: true,
-      //   });
-      //   return true;
-      // }
     } catch (error) {
       logger.error('Failed to extract article:', error);
       // await db.addArticle({

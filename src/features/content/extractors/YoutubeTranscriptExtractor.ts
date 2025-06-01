@@ -52,7 +52,8 @@ export class YoutubeTranscriptExtractor {
       const scriptInfo = await info.getTranscript();
       return {
         title: info.basic_info.title || null,
-        content:
+        lang: lang,
+        textContent:
           scriptInfo.transcript?.content?.body?.initial_segments
             .filter(segment => segment.snippet.text)
             .map(segment => `[${this.formatTime(Number(segment.start_ms))}] ${segment.snippet.text}`)
