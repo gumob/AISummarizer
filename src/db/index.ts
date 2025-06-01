@@ -1,8 +1,4 @@
-import {
-  DBSchema,
-  IDBPDatabase,
-  openDB,
-} from 'idb';
+import { DBSchema, IDBPDatabase, openDB } from 'idb';
 
 interface ArticleRecord {
   id: string;
@@ -25,6 +21,7 @@ interface AISummarizerDB extends DBSchema {
   metadata: {
     key: string;
     value: {
+      key: string;
       lastCleanup: Date;
     };
   };
@@ -94,7 +91,7 @@ export class Database {
 
     // 最終クリーンアップ日時を更新
     const metadataTx = this.db!.transaction('metadata', 'readwrite');
-    await metadataTx.store.put({ lastCleanup: new Date() }, 'lastCleanup');
+    await metadataTx.store.put({ key: 'lastCleanup', lastCleanup: new Date() });
   }
 
   async getLastCleanupDate(): Promise<Date | null> {

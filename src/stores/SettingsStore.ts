@@ -3,11 +3,8 @@ import { persist } from 'zustand/middleware';
 
 import { chromeAPI } from '@/api';
 import { STORAGE_KEYS } from '@/constants';
-import {
-  AIService,
-  FloatButtonPosition,
-  TabBehavior,
-} from '@/types';
+import { AIService, FloatButtonPosition, TabBehavior } from '@/types';
+import { ContentExtractionMethod } from '@/types/ContentExtractionMethod';
 
 interface SettingsState {
   prompts: {
@@ -15,6 +12,7 @@ interface SettingsState {
   };
   tabBehavior: TabBehavior;
   floatButtonPosition: FloatButtonPosition;
+  contentExtractionMethod: ContentExtractionMethod;
 }
 
 const DEFAULT_PROMPT = `Extract each theme from the following text without omission and summarize the main points in Japanese.
@@ -39,6 +37,7 @@ const DEFAULT_SETTINGS: SettingsState = {
   },
   tabBehavior: TabBehavior.CURRENT_TAB,
   floatButtonPosition: FloatButtonPosition.HIDE,
+  contentExtractionMethod: ContentExtractionMethod.AUTOMATIC,
 };
 
 interface SettingsStore extends SettingsState {
@@ -46,6 +45,8 @@ interface SettingsStore extends SettingsState {
   setPrompt: (service: AIService, prompt: string) => void;
   setTabBehavior: (tabBehavior: TabBehavior) => void;
   setFloatButtonPosition: (floatButtonPosition: FloatButtonPosition) => void;
+  contentExtractionMethod: ContentExtractionMethod;
+  setContentExtractionMethod: (contentExtractionMethod: ContentExtractionMethod) => void;
 }
 
 export const useSettingsStore = create<SettingsStore>()(
@@ -67,6 +68,10 @@ export const useSettingsStore = create<SettingsStore>()(
       setFloatButtonPosition: (floatButtonPosition: FloatButtonPosition) =>
         set(() => ({
           floatButtonPosition,
+        })),
+      setContentExtractionMethod: (contentExtractionMethod: ContentExtractionMethod) =>
+        set(() => ({
+          contentExtractionMethod,
         })),
     }),
     {
