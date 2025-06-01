@@ -23,6 +23,7 @@ async function initialize() {
    * Export the function to update the article extraction state
    */
   (self as any).updateArticleExtractionState = async (tabId: number, url: string) => {
+    logger.debug('Updating article extraction state', tabId, url);
     const isExtracted = await articleExtractionService.checkArticleExtraction(url);
     if (isExtracted) {
       chrome.action.setBadgeText({ text: '✓', tabId });
