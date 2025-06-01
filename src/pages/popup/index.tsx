@@ -8,8 +8,8 @@ import React, {
 import { createRoot } from 'react-dom/client';
 import { Toaster } from 'react-hot-toast';
 
-import { GlobalContextProvider } from '@/contexts';
 import { PopupMain } from '@/features/popup/components/main';
+import { GlobalContextProvider } from '@/stores';
 import {
   detectTheme,
   logger,

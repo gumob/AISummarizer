@@ -1,18 +1,35 @@
+import React, {
+  useEffect,
+  useState,
+} from 'react';
+
 import clsx from 'clsx';
-
-import React, { useEffect, useState } from 'react';
-
 import { IoClose } from 'react-icons/io5';
 
-import { Field, Tab, TabGroup, TabList, TabPanel, TabPanels, Textarea } from '@headlessui/react';
-
 import { chromeAPI } from '@/api';
-import { useGlobalContext } from '@/contexts/GlobalContext';
 import { OptionCard } from '@/features/options/components/main';
-import { AIService, FloatButtonPosition, getFloatButtonPositionLabel, getTabBehaviorLabel } from '@/types';
-import { ContentExtractionMethod, getContentExtractionMethodLabel } from '@/types/ContentExtractionMethod';
+import { useGlobalContext } from '@/stores';
+import {
+  AIService,
+  FloatButtonPosition,
+  getFloatButtonPositionLabel,
+  getTabBehaviorLabel,
+} from '@/types';
+import {
+  ContentExtractionMethod,
+  getContentExtractionMethodLabel,
+} from '@/types/ContentExtractionMethod';
 import { TabBehavior } from '@/types/TabBahavior';
 import { logger } from '@/utils';
+import {
+  Field,
+  Tab,
+  TabGroup,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Textarea,
+} from '@headlessui/react';
 
 /**
  * The main component for the options page.
