@@ -7,19 +7,21 @@ export class ReadabilityExtractor {
     try {
       const clonedDoc = document.cloneNode(true) as Document;
       const article = new Readability(clonedDoc).parse();
-      logger.debug('ReadabilityExtractor extract:', article?.title);
-      logger.debug('ReadabilityExtractor extract:', article?.textContent);
+      logger.debug('extract:', article);
+      const textContent = article?.excerpt ? article?.excerpt + '\n' + article?.textContent : article?.textContent;
 
       return {
         title: article?.title || null,
-        content: article?.textContent || null,
+        lang: article?.lang || null,
+        textContent: textContent || null,
         isExtracted: !!article,
       };
     } catch (error) {
       logger.error('Failed to extract article:', error);
       return {
         title: null,
-        content: null,
+        lang: null,
+        textContent: null,
         isExtracted: false,
       };
     }

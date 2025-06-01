@@ -12,11 +12,6 @@ interface ExtractionServiceResult {
 }
 
 export class ArticleExtractionService {
-  private readabilityExtractor = new ReadabilityExtractor();
-  private youtubeExtractor = new YoutubeTranscriptExtractor();
-
-  constructor() {}
-
   async execute(url: string, message: any = {}): Promise<ExtractionServiceResult> {
     logger.debug('extracting', '\nurl:', url, '\nmessage:', message);
 
@@ -39,7 +34,7 @@ export class ArticleExtractionService {
       logger.debug('Extracting youtube video');
       try {
         const { videoId, lang } = message;
-        const result: ExtractionResult = await this.youtubeExtractor.extract(videoId, lang);
+        const result: ExtractionResult = await new YoutubeTranscriptExtractor().extract(videoId, lang);
         return {
           isSuccess: true,
           result,
@@ -57,15 +52,7 @@ export class ArticleExtractionService {
      */
     try {
       logger.debug('Extracting normal web page');
-      // const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
       const result = new ReadabilityExtractor().extract();
-      // const [{ result }] = await chrome.scripting.executeScript({
-      //   target: { tabId: tab.id! },
-      //   func: () => {
-      //     const service = new ReadabilityExtractor();
-      //     return service.extract();
-      //   },
-      // });
       logger.debug('extract result:', result);
       return {
         isSuccess: true,
@@ -79,7 +66,7 @@ export class ArticleExtractionService {
     }
   }
 
-  async extractArticle(tab: chrome.tabs.Tab) {
+  async _extractArticle(tab: chrome.tabs.Tab) {
     if (!tab.id || !tab.url) return false;
 
     try {

@@ -1,6 +1,7 @@
 export interface ExtractionResult {
   title: string | null;
-  content: string | null;
+  lang: string | null;
+  textContent: string | null;
   isExtracted: boolean;
 }
 export interface Extractor {
