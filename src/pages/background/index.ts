@@ -38,7 +38,7 @@ async function initialize() {
  * Event listener for when the extension is installed
  * @param details - The details of the installation
  */
-chrome.runtime.onInstalled.addListener(async (details: chrome.runtime.InstalledDetails) => {
+chrome.runtime.onInstalled.addListener(async (_details: chrome.runtime.InstalledDetails) => {
   logger.debug('Extension installed');
   await initialize();
 });
@@ -57,8 +57,8 @@ chrome.runtime.onStartup.addListener(async () => {
  */
 chrome.tabs.onActivated.addListener(async (activeInfo: chrome.tabs.TabActiveInfo) => {
   const tab = await chrome.tabs.get(activeInfo.tabId);
-  logger.debug('Tab activated', tab);
   if (tab.url) {
+    logger.debug('Tab activated', tab);
     (self as any).updateArticleExtractionState(tab.id, tab.url);
   }
 });
@@ -70,8 +70,8 @@ chrome.tabs.onActivated.addListener(async (activeInfo: chrome.tabs.TabActiveInfo
  * @param tab - The updated tab
  */
 chrome.tabs.onUpdated.addListener(async (tabId: number, changeInfo: chrome.tabs.TabChangeInfo, tab: chrome.tabs.Tab) => {
-  logger.debug('Tab updated', tab);
   if (changeInfo.status === 'complete' && tab.url) {
+    logger.debug('Tab updated', tab);
     (self as any).updateArticleExtractionState(tabId, tab.url);
   }
 });
