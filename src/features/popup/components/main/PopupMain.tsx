@@ -51,8 +51,26 @@ export const PopupMain: React.FC = () => {
           Copy to clipboard
         </ServiceListMenu>
         <ServiceListMenu
-          onClick={() => {
+          onClick={async () => {
             logger.debug('Extract article again');
+            const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+            if (!tab.id) {
+              throw new Error('No active tab found');
+            }
+
+            /** Inject the content script */
+            await chrome.scripting.executeScript({
+              target: { tabId: tab.id },
+              files: ['content.js'],
+            });
+
+            /** Send the message to the content script */
+            await chrome.tabs.sendMessage(tab.id, {
+              action: 'EXTRACT_CONTENT',
+              url: tab.url!,
+            });
+
+            /** Close the popup */
             window.close();
           }}
         >

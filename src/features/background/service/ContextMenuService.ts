@@ -30,7 +30,7 @@ export class ContextMenuService {
       contexts: ['page' as chrome.contextMenus.ContextType],
     });
 
-    // Create AI service menu items
+    /** Create AI service menu items */
     for (const service of MENU_ITEMS.AI_SERVICES) {
       chrome.contextMenus.create({
         id: service.id,
@@ -40,7 +40,7 @@ export class ContextMenuService {
       });
     }
 
-    // Create first divider
+    /** Create first divider */
     chrome.contextMenus.create({
       type: 'separator',
       contexts: ['page' as chrome.contextMenus.ContextType],
@@ -48,7 +48,7 @@ export class ContextMenuService {
       id: 'divider1',
     });
 
-    // Create copy option
+    /** Create copy option */
     chrome.contextMenus.create({
       id: MENU_ITEMS.COPY.id,
       title: MENU_ITEMS.COPY.title,
@@ -56,7 +56,7 @@ export class ContextMenuService {
       parentId: root,
     });
 
-    // Create extract option
+    /** Create extract option */
     chrome.contextMenus.create({
       id: MENU_ITEMS.EXTRACT.id,
       title: MENU_ITEMS.EXTRACT.title,
@@ -64,7 +64,7 @@ export class ContextMenuService {
       parentId: root,
     });
 
-    // Create second divider
+    /** Create second divider */
     chrome.contextMenus.create({
       type: 'separator',
       contexts: ['page' as chrome.contextMenus.ContextType],
@@ -72,7 +72,7 @@ export class ContextMenuService {
       id: 'divider2',
     });
 
-    // Create settings option
+    /** Create settings option */
     chrome.contextMenus.create({
       id: MENU_ITEMS.SETTINGS.id,
       title: MENU_ITEMS.SETTINGS.title,
@@ -124,19 +124,19 @@ export class ContextMenuService {
         case 'extract':
           logger.debug('Extract clicked');
           try {
-            // コンテンツスクリプトが注入されているか確認
+            /** Check if the content script is injected */
             const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
             if (!tab.id) {
               throw new Error('No active tab found');
             }
 
-            // コンテンツスクリプトを注入
+            /** Inject the content script */
             await chrome.scripting.executeScript({
               target: { tabId: tab.id },
               files: ['content.js'],
             });
 
-            // メッセージを送信
+            /** Send the message to the content script */
             await chrome.tabs.sendMessage(tab.id, {
               action: 'EXTRACT_CONTENT',
               url: tab.url!,
