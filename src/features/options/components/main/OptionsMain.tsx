@@ -247,12 +247,12 @@ export const OptionsMain: React.FC = () => {
               <button
                 className={clsx(
                   'group inline-flex h-6 w-11 items-center rounded-full',
-                  checked ? 'bg-blue-600' : 'bg-gray-200',
+                  checked ? 'bg-violet-700' : 'bg-zinc-200 dark:bg-zinc-700',
                   disabled && 'cursor-not-allowed opacity-50'
                 )}
               >
                 <span className="sr-only">Show Message when Article is Extracted</span>
-                <span className={clsx('size-4 rounded-full bg-white transition', checked ? 'translate-x-6' : 'translate-x-1')} />
+                <span className={clsx('size-4 rounded-full transition', 'bg-zinc-50', checked ? 'translate-x-6' : 'translate-x-1')} />
               </button>
             )}
           </Switch>
@@ -264,12 +264,12 @@ export const OptionsMain: React.FC = () => {
               <button
                 className={clsx(
                   'group inline-flex h-6 w-11 items-center rounded-full',
-                  checked ? 'bg-blue-600' : 'bg-gray-200',
+                  checked ? 'bg-violet-700' : 'bg-zinc-200 dark:bg-zinc-700',
                   disabled && 'cursor-not-allowed opacity-50'
                 )}
               >
-                <span className="sr-only">Show Badge when Article is Extracted</span>
-                <span className={clsx('size-4 rounded-full bg-white transition', checked ? 'translate-x-6' : 'translate-x-1')} />
+                <span className="sr-only">Show Message when Article is Extracted</span>
+                <span className={clsx('size-4 rounded-full transition', 'bg-zinc-50', checked ? 'translate-x-6' : 'translate-x-1')} />
               </button>
             )}
           </Switch>
