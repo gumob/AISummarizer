@@ -3,8 +3,7 @@ import { persist } from 'zustand/middleware';
 
 import { chromeAPI } from '@/api';
 import { STORAGE_KEYS } from '@/constants';
-import { AIService, FloatButtonPosition, TabBehavior } from '@/types';
-import { ContentExtractionMethod } from '@/types/ContentExtractionMethod';
+import { AIService, ContentExtractionMethod, FloatButtonPosition, TabBehavior } from '@/types';
 
 interface SettingsState {
   prompts: {
