@@ -1,9 +1,8 @@
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 import { ArticleModel } from '@/models';
-import { useSettingsStore } from '@/stores/SettingsStore';
-import { AIService, FloatButtonPosition, TabBehavior } from '@/types';
-import { ContentExtractionMethod } from '@/types/ContentExtractionMethod';
+import { useSettingsStore } from '@/stores';
+import { AIService, ContentExtractionMethod, FloatButtonPosition, TabBehavior } from '@/types';
 import { logger } from '@/utils';
 
 /**
