@@ -36,6 +36,10 @@ import {
  * @returns
  */
 export const OptionsMain: React.FC = () => {
+  /*******************************************************
+   * State
+   *******************************************************/
+
   const {
     prompt,
     setPrompt,
@@ -61,29 +65,35 @@ export const OptionsMain: React.FC = () => {
   const [enableShowBadge, setEnableShowBadge] = useState<boolean | null>(null);
   const [enableSaveArticleOnClipboard, setEnableSaveArticleOnClipboard] = useState<boolean | null>(null);
 
-  // Initialize selected indices based on stored values
+  /*******************************************************
+   * Initialize selected indices based on stored values
+   *******************************************************/
+
+  /** Set TabBehavior index */
   useEffect(() => {
-    // Set TabBehavior index
     const tabBehaviorIndex = Object.values(TabBehavior).findIndex(value => value === tabBehavior);
     if (tabBehaviorIndex !== -1) {
       setSelectedTabBehaviorIndex(tabBehaviorIndex);
     }
+  }, [tabBehavior]);
 
-    // Set FloatButtonPosition index
+  /** Set FloatButtonPosition index */
+  useEffect(() => {
     const floatButtonIndex = Object.values(FloatButtonPosition).findIndex(value => value === floatButtonPosition);
     if (floatButtonIndex !== -1) {
       setSelectedFloatButtonIndex(floatButtonIndex);
     }
+  }, [floatButtonPosition]);
 
-    // Set PageExtractionMethod index
+  /** Set PageExtractionMethod index */
+  useEffect(() => {
     const contentExtractionMethodIndex = Object.values(ContentExtractionMethod).findIndex(value => value === contentExtractionMethod);
     if (contentExtractionMethodIndex !== -1) {
       setSelectedContentExtractionMethodIndex(contentExtractionMethodIndex);
     }
+  }, [contentExtractionMethod]);
 
-    // Set ShowMessage index
-  }, [tabBehavior, floatButtonPosition, contentExtractionMethod, isShowMessage, isShowBadge]);
-
+  /** Set ShowMessage index */
   useEffect(() => {
     if (enableShowMessage !== null) setIsShowMessage(enableShowMessage);
     logger.debug('enableShowMessage', enableShowMessage);
@@ -94,6 +104,7 @@ export const OptionsMain: React.FC = () => {
     logger.debug('isShowMessage', isShowMessage);
   }, [isShowMessage]);
 
+  /** Set ShowBadge index */
   useEffect(() => {
     if (enableShowBadge !== null) setIsShowBadge(enableShowBadge);
     logger.debug('enableShowBadge', enableShowBadge);
@@ -104,6 +115,7 @@ export const OptionsMain: React.FC = () => {
     logger.debug('isShowBadge', isShowBadge);
   }, [isShowBadge]);
 
+  /** Set SaveArticleOnClipboard index */
   useEffect(() => {
     if (enableSaveArticleOnClipboard !== null) setSaveArticleOnClipboard(enableSaveArticleOnClipboard);
     logger.debug('enableSaveArticleOnClipboard', enableSaveArticleOnClipboard);
@@ -113,6 +125,10 @@ export const OptionsMain: React.FC = () => {
     if (enableSaveArticleOnClipboard === null) setEnableSaveArticleOnClipboard(saveArticleOnClipboard);
     logger.debug('saveArticleOnClipboard', saveArticleOnClipboard);
   }, [saveArticleOnClipboard]);
+
+  /*******************************************************
+   * Render
+   *******************************************************/
 
   return (
     <div className="min-h-screen p-4 bg-zinc-50 dark:bg-zinc-900">
@@ -260,7 +276,7 @@ export const OptionsMain: React.FC = () => {
               <button
                 className={clsx(
                   'group inline-flex h-6 w-11 items-center rounded-full',
-                  checked ? 'bg-violet-700' : 'bg-zinc-200 dark:bg-zinc-700',
+                  checked ? 'bg-blue-600' : 'bg-zinc-200 dark:bg-zinc-700',
                   disabled && 'cursor-not-allowed opacity-50'
                 )}
               >
@@ -277,7 +293,7 @@ export const OptionsMain: React.FC = () => {
               <button
                 className={clsx(
                   'group inline-flex h-6 w-11 items-center rounded-full',
-                  checked ? 'bg-violet-700' : 'bg-zinc-200 dark:bg-zinc-700',
+                  checked ? 'bg-blue-600' : 'bg-zinc-200 dark:bg-zinc-700',
                   disabled && 'cursor-not-allowed opacity-50'
                 )}
               >
@@ -288,17 +304,17 @@ export const OptionsMain: React.FC = () => {
           </Switch>
         </OptionCard>
         <OptionCard>
-          <h2 className="mb-4 text-xl font-semibold text-zinc-900 dark:text-zinc-100">Save Article on Clipboard</h2>
+          <h2 className="mb-4 text-xl font-semibold text-zinc-900 dark:text-zinc-100">Copy Article on Clipboard</h2>
           <Switch checked={enableSaveArticleOnClipboard ?? false} onChange={setEnableSaveArticleOnClipboard} as={Fragment}>
             {({ checked, disabled }) => (
               <button
                 className={clsx(
                   'group inline-flex h-6 w-11 items-center rounded-full',
-                  checked ? 'bg-violet-700' : 'bg-zinc-200 dark:bg-zinc-700',
+                  checked ? 'bg-blue-600' : 'bg-zinc-200 dark:bg-zinc-700',
                   disabled && 'cursor-not-allowed opacity-50'
                 )}
               >
-                <span className="sr-only">Save Article on Clipboard</span>
+                <span className="sr-only">Copy Article on Clipboard</span>
                 <span className={clsx('size-4 rounded-full transition', 'bg-zinc-50', checked ? 'translate-x-6' : 'translate-x-1')} />
               </button>
             )}
