@@ -43,19 +43,8 @@ export class ArticleExtractionService {
          * Testing new extractor
          * TODO: Pass the result
          */
-        await extractYoutube(videoId);
-        const result: ExtractionResult = {
-          title: null,
-          lang: null,
-          textContent: null,
-          isExtracted: false,
-        };
-        /** Extract transcript from youtube video */
-        /**
-         * Disabled old extractor
-         * TODO: Replace this with the new extractor
-         */
-        // const result: ExtractionResult = await new YoutubeTranscriptExtractor().extract(videoId, 'en');
+        const result = await extractYoutube(videoId);
+        logger.debug('extractYoutube result:', result.textContent);
         /** Add article to database */
         // await db.addArticle({
         //   url: url,

@@ -112,6 +112,44 @@ function formatTime(seconds: number): string {
 }
 
 /**
+ * Group transcript segments by time intervals
+ * @param elements - The text elements from XML
+ * @param videoID - The YouTube video ID
+ * @returns Array of grouped transcript segments
+ */
+function groupTranscriptSegments(elements: HTMLCollectionOf<Element>, videoID: string): string[] {
+  const groups: { start: number; texts: string[] }[] = [];
+  let currentGroup: { start: number; texts: string[] } | null = null;
+
+  for (let i = 0; i < elements.length; i++) {
+    const element = elements[i];
+    const text = element.textContent?.trim();
+    const start = parseFloat(element.getAttribute('start') || '0');
+
+    if (!text) continue;
+
+    /**
+     * Start a new group if:
+     * 1. No current group exists
+     * 2. Current segment is more than 60 seconds after the group start
+     */
+    if (!currentGroup || start - currentGroup.start >= 60) {
+      currentGroup = { start, texts: [] };
+      groups.push(currentGroup);
+    }
+
+    currentGroup.texts.push(text);
+  }
+
+  /** Format each group into a single line */
+  return groups.map(group => {
+    const timestamp = formatTime(group.start);
+    const url = `https://www.youtu.be/${videoID}?t=${Math.floor(group.start)}s`;
+    return `- [${timestamp}](${url}) ${group.texts.join(' ')}`;
+  });
+}
+
+/**
  * This function is used to extract the YouTube transcript.
  * @param videoID - The ID of the YouTube video.
  * @returns The transcript of the YouTube video.
@@ -206,19 +244,8 @@ export async function extractYoutube(videoID: string): Promise<ExtractionResult>
       const xmlDoc = parser.parseFromString(responseText, 'text/xml');
       const textElements = xmlDoc.getElementsByTagName('text');
 
-      /** Extract the caption data. */
-      const transcript: string[] = [];
-      for (let i = 0; i < textElements.length; i++) {
-        const element = textElements[i];
-        const text = element.textContent?.trim();
-        const start = parseFloat(element.getAttribute('start') || '0');
-
-        if (text) {
-          const timestamp = formatTime(start);
-          const url = `https://www.youtube.com/watch?v=${videoID}&t=${Math.floor(start)}s`;
-          transcript.push(`- [${timestamp}](${url}) ${text}`);
-        }
-      }
+      /** Extract and group the caption data. */
+      const transcript = groupTranscriptSegments(textElements, videoID);
 
       return {
         title: videoTitle,
