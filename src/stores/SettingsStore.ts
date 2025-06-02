@@ -3,7 +3,12 @@ import { persist } from 'zustand/middleware';
 
 import { chromeAPI } from '@/api';
 import { STORAGE_KEYS } from '@/constants';
-import { AIService, ContentExtractionMethod, FloatButtonPosition, TabBehavior } from '@/types';
+import {
+  AIService,
+  ContentExtractionMethod,
+  FloatButtonPosition,
+  TabBehavior,
+} from '@/types';
 
 interface SettingsState {
   prompts: {
@@ -14,6 +19,7 @@ interface SettingsState {
   contentExtractionMethod: ContentExtractionMethod;
   isShowMessage: boolean;
   isShowBadge: boolean;
+  saveArticleOnClipboard: boolean;
 }
 
 const DEFAULT_PROMPT = `Extract each theme from the following text without omission and summarize the main points in Japanese.
@@ -41,6 +47,7 @@ const DEFAULT_SETTINGS: SettingsState = {
   contentExtractionMethod: ContentExtractionMethod.AUTOMATIC,
   isShowMessage: true,
   isShowBadge: true,
+  saveArticleOnClipboard: false,
 };
 
 interface SettingsStore extends SettingsState {
@@ -52,6 +59,8 @@ interface SettingsStore extends SettingsState {
   setContentExtractionMethod: (contentExtractionMethod: ContentExtractionMethod) => void;
   setIsShowMessage: (isShowMessage: boolean) => void;
   setIsShowBadge: (isShowBadge: boolean) => void;
+  saveArticleOnClipboard: boolean;
+  setSaveArticleOnClipboard: (saveArticleOnClipboard: boolean) => void;
 }
 
 export const useSettingsStore = create<SettingsStore>()(
@@ -85,6 +94,10 @@ export const useSettingsStore = create<SettingsStore>()(
       setIsShowBadge: (isShowBadge: boolean) =>
         set(() => ({
           isShowBadge,
+        })),
+      setSaveArticleOnClipboard: (saveArticleOnClipboard: boolean) =>
+        set(() => ({
+          saveArticleOnClipboard,
         })),
     }),
     {

@@ -36,13 +36,6 @@ import {
  * @returns
  */
 export const OptionsMain: React.FC = () => {
-  const [selectedPromptIndex, setSelectedPromptIndex] = useState(0);
-  const [selectedTabBehaviorIndex, setSelectedTabBehaviorIndex] = useState(-1);
-  const [selectedFloatButtonIndex, setSelectedFloatButtonIndex] = useState(-1);
-  const [selectedContentExtractionMethodIndex, setSelectedContentExtractionMethodIndex] = useState(-1);
-  const [enableShowMessage, setEnableShowMessage] = useState<boolean | null>(null);
-  const [enableShowBadge, setEnableShowBadge] = useState<boolean | null>(null);
-
   const {
     prompt,
     setPrompt,
@@ -56,7 +49,17 @@ export const OptionsMain: React.FC = () => {
     setIsShowMessage,
     isShowBadge,
     setIsShowBadge,
+    saveArticleOnClipboard,
+    setSaveArticleOnClipboard,
   } = useGlobalContext();
+
+  const [selectedPromptIndex, setSelectedPromptIndex] = useState(0);
+  const [selectedTabBehaviorIndex, setSelectedTabBehaviorIndex] = useState(-1);
+  const [selectedFloatButtonIndex, setSelectedFloatButtonIndex] = useState(-1);
+  const [selectedContentExtractionMethodIndex, setSelectedContentExtractionMethodIndex] = useState(-1);
+  const [enableShowMessage, setEnableShowMessage] = useState<boolean | null>(null);
+  const [enableShowBadge, setEnableShowBadge] = useState<boolean | null>(null);
+  const [enableSaveArticleOnClipboard, setEnableSaveArticleOnClipboard] = useState<boolean | null>(null);
 
   // Initialize selected indices based on stored values
   useEffect(() => {
@@ -100,6 +103,16 @@ export const OptionsMain: React.FC = () => {
     if (enableShowBadge === null) setEnableShowBadge(isShowBadge);
     logger.debug('isShowBadge', isShowBadge);
   }, [isShowBadge]);
+
+  useEffect(() => {
+    if (enableSaveArticleOnClipboard !== null) setSaveArticleOnClipboard(enableSaveArticleOnClipboard);
+    logger.debug('enableSaveArticleOnClipboard', enableSaveArticleOnClipboard);
+  }, [enableSaveArticleOnClipboard]);
+
+  useEffect(() => {
+    if (enableSaveArticleOnClipboard === null) setEnableSaveArticleOnClipboard(saveArticleOnClipboard);
+    logger.debug('saveArticleOnClipboard', saveArticleOnClipboard);
+  }, [saveArticleOnClipboard]);
 
   return (
     <div className="min-h-screen p-4 bg-zinc-50 dark:bg-zinc-900">
@@ -269,6 +282,23 @@ export const OptionsMain: React.FC = () => {
                 )}
               >
                 <span className="sr-only">Show Message when Article is Extracted</span>
+                <span className={clsx('size-4 rounded-full transition', 'bg-zinc-50', checked ? 'translate-x-6' : 'translate-x-1')} />
+              </button>
+            )}
+          </Switch>
+        </OptionCard>
+        <OptionCard>
+          <h2 className="mb-4 text-xl font-semibold text-zinc-900 dark:text-zinc-100">Save Article on Clipboard</h2>
+          <Switch checked={enableSaveArticleOnClipboard ?? false} onChange={setEnableSaveArticleOnClipboard} as={Fragment}>
+            {({ checked, disabled }) => (
+              <button
+                className={clsx(
+                  'group inline-flex h-6 w-11 items-center rounded-full',
+                  checked ? 'bg-violet-700' : 'bg-zinc-200 dark:bg-zinc-700',
+                  disabled && 'cursor-not-allowed opacity-50'
+                )}
+              >
+                <span className="sr-only">Save Article on Clipboard</span>
                 <span className={clsx('size-4 rounded-full transition', 'bg-zinc-50', checked ? 'translate-x-6' : 'translate-x-1')} />
               </button>
             )}

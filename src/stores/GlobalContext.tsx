@@ -38,6 +38,8 @@ import { logger } from '@/utils';
  * @property setIsShowMessage - The set is show message function.
  * @property isShowBadge - The is show badge.
  * @property setIsShowBadge - The set is show badge function.
+ * @property saveArticleOnClipboard - The save article on clipboard.
+ * @property setSaveArticleOnClipboard - The set save article on clipboard function.
  */
 interface GlobalContextValue {
   isArticleExtracted: boolean;
@@ -60,6 +62,8 @@ interface GlobalContextValue {
   setIsShowMessage: (isShowMessage: boolean) => void;
   isShowBadge: boolean;
   setIsShowBadge: (isShowBadge: boolean) => void;
+  saveArticleOnClipboard: boolean;
+  setSaveArticleOnClipboard: (saveArticleOnClipboard: boolean) => void;
 }
 
 /**
@@ -120,6 +124,8 @@ export const GlobalContextProvider: React.FC<GlobalContextProviderProps> = ({ ch
     setIsShowMessage,
     isShowBadge,
     setIsShowBadge,
+    saveArticleOnClipboard,
+    setSaveArticleOnClipboard,
   } = useSettingsStore();
 
   /*******************************************************
@@ -180,6 +186,8 @@ export const GlobalContextProvider: React.FC<GlobalContextProviderProps> = ({ ch
       setIsShowMessage,
       isShowBadge,
       setIsShowBadge,
+      saveArticleOnClipboard,
+      setSaveArticleOnClipboard,
     }),
     [
       isArticleExtracted,
@@ -200,6 +208,8 @@ export const GlobalContextProvider: React.FC<GlobalContextProviderProps> = ({ ch
       setIsShowMessage,
       isShowBadge,
       setIsShowBadge,
+      saveArticleOnClipboard,
+      setSaveArticleOnClipboard,
     ]
   );
 
