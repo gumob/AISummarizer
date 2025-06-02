@@ -79,8 +79,6 @@ export const OptionsMain: React.FC = () => {
     }
 
     // Set ShowMessage index
-    if (enableShowMessage === null) setEnableShowMessage(isShowMessage);
-    if (enableShowBadge === null) setEnableShowBadge(isShowBadge);
   }, [tabBehavior, floatButtonPosition, contentExtractionMethod, isShowMessage, isShowBadge]);
 
   useEffect(() => {
@@ -89,9 +87,19 @@ export const OptionsMain: React.FC = () => {
   }, [enableShowMessage]);
 
   useEffect(() => {
+    if (enableShowMessage === null) setEnableShowMessage(isShowMessage);
+    logger.debug('isShowMessage', isShowMessage);
+  }, [isShowMessage]);
+
+  useEffect(() => {
     if (enableShowBadge !== null) setIsShowBadge(enableShowBadge);
     logger.debug('enableShowBadge', enableShowBadge);
   }, [enableShowBadge]);
+
+  useEffect(() => {
+    if (enableShowBadge === null) setEnableShowBadge(isShowBadge);
+    logger.debug('isShowBadge', isShowBadge);
+  }, [isShowBadge]);
 
   return (
     <div className="min-h-screen p-4 bg-zinc-50 dark:bg-zinc-900">
@@ -234,7 +242,7 @@ export const OptionsMain: React.FC = () => {
         </OptionCard>
         <OptionCard>
           <h2 className="mb-4 text-xl font-semibold text-zinc-900 dark:text-zinc-100">Show Message when Article is Extracted</h2>
-          <Switch defaultChecked={isShowMessage} checked={enableShowMessage ?? false} onChange={setEnableShowMessage} as={Fragment}>
+          <Switch checked={enableShowMessage ?? false} onChange={setEnableShowMessage} as={Fragment}>
             {({ checked, disabled }) => (
               <button
                 className={clsx(
@@ -251,7 +259,7 @@ export const OptionsMain: React.FC = () => {
         </OptionCard>
         <OptionCard>
           <h2 className="mb-4 text-xl font-semibold text-zinc-900 dark:text-zinc-100">Show Badge when Article is Extracted</h2>
-          <Switch defaultChecked={isShowBadge} checked={enableShowBadge ?? false} onChange={setEnableShowBadge} as={Fragment}>
+          <Switch checked={enableShowBadge ?? false} onChange={setEnableShowBadge} as={Fragment}>
             {({ checked, disabled }) => (
               <button
                 className={clsx(
