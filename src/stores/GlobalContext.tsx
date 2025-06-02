@@ -1,8 +1,20 @@
-import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import { ArticleModel } from '@/models';
 import { useSettingsStore } from '@/stores';
-import { AIService, ContentExtractionMethod, FloatButtonPosition, TabBehavior } from '@/types';
+import {
+  AIService,
+  ContentExtractionMethod,
+  FloatButtonPosition,
+  TabBehavior,
+} from '@/types';
 import { logger } from '@/utils';
 
 /**
@@ -22,6 +34,10 @@ import { logger } from '@/utils';
  * @property setPrompt - The set prompt function.
  * @property setTabBehavior - The set tab behavior function.
  * @property setFloatButtonPosition - The set float button position function.
+ * @property isShowMessage - The is show message.
+ * @property setIsShowMessage - The set is show message function.
+ * @property isShowBadge - The is show badge.
+ * @property setIsShowBadge - The set is show badge function.
  */
 interface GlobalContextValue {
   isArticleExtracted: boolean;
@@ -40,6 +56,10 @@ interface GlobalContextValue {
   setFloatButtonPosition: (floatButtonPosition: FloatButtonPosition) => void;
   contentExtractionMethod: ContentExtractionMethod;
   setContentExtractionMethod: (contentExtractionMethod: ContentExtractionMethod) => void;
+  isShowMessage: boolean;
+  setIsShowMessage: (isShowMessage: boolean) => void;
+  isShowBadge: boolean;
+  setIsShowBadge: (isShowBadge: boolean) => void;
 }
 
 /**
@@ -96,6 +116,10 @@ export const GlobalContextProvider: React.FC<GlobalContextProviderProps> = ({ ch
     setFloatButtonPosition,
     contentExtractionMethod,
     setContentExtractionMethod,
+    isShowMessage,
+    setIsShowMessage,
+    isShowBadge,
+    setIsShowBadge,
   } = useSettingsStore();
 
   /*******************************************************
@@ -152,6 +176,10 @@ export const GlobalContextProvider: React.FC<GlobalContextProviderProps> = ({ ch
       setFloatButtonPosition,
       contentExtractionMethod,
       setContentExtractionMethod,
+      isShowMessage,
+      setIsShowMessage,
+      isShowBadge,
+      setIsShowBadge,
     }),
     [
       isArticleExtracted,
@@ -168,6 +196,10 @@ export const GlobalContextProvider: React.FC<GlobalContextProviderProps> = ({ ch
       setFloatButtonPosition,
       contentExtractionMethod,
       setContentExtractionMethod,
+      isShowMessage,
+      setIsShowMessage,
+      isShowBadge,
+      setIsShowBadge,
     ]
   );
 

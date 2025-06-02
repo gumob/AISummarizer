@@ -12,6 +12,8 @@ interface SettingsState {
   tabBehavior: TabBehavior;
   floatButtonPosition: FloatButtonPosition;
   contentExtractionMethod: ContentExtractionMethod;
+  isShowMessage: boolean;
+  isShowBadge: boolean;
 }
 
 const DEFAULT_PROMPT = `Extract each theme from the following text without omission and summarize the main points in Japanese.
@@ -37,6 +39,8 @@ const DEFAULT_SETTINGS: SettingsState = {
   tabBehavior: TabBehavior.CURRENT_TAB,
   floatButtonPosition: FloatButtonPosition.HIDE,
   contentExtractionMethod: ContentExtractionMethod.AUTOMATIC,
+  isShowMessage: true,
+  isShowBadge: true,
 };
 
 interface SettingsStore extends SettingsState {
@@ -46,6 +50,8 @@ interface SettingsStore extends SettingsState {
   setFloatButtonPosition: (floatButtonPosition: FloatButtonPosition) => void;
   contentExtractionMethod: ContentExtractionMethod;
   setContentExtractionMethod: (contentExtractionMethod: ContentExtractionMethod) => void;
+  setIsShowMessage: (isShowMessage: boolean) => void;
+  setIsShowBadge: (isShowBadge: boolean) => void;
 }
 
 export const useSettingsStore = create<SettingsStore>()(
@@ -71,6 +77,14 @@ export const useSettingsStore = create<SettingsStore>()(
       setContentExtractionMethod: (contentExtractionMethod: ContentExtractionMethod) =>
         set(() => ({
           contentExtractionMethod,
+        })),
+      setIsShowMessage: (isShowMessage: boolean) =>
+        set(() => ({
+          isShowMessage,
+        })),
+      setIsShowBadge: (isShowBadge: boolean) =>
+        set(() => ({
+          isShowBadge,
         })),
     }),
     {

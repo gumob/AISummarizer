@@ -1,18 +1,35 @@
+import React, {
+  Fragment,
+  useEffect,
+  useState,
+} from 'react';
+
 import clsx from 'clsx';
-
-import React, { useEffect, useState } from 'react';
-
 import { IoClose } from 'react-icons/io5';
-
-import { Field, Tab, TabGroup, TabList, TabPanel, TabPanels, Textarea } from '@headlessui/react';
 
 import { chromeAPI } from '@/api';
 import { OptionCard } from '@/features/options/components/main';
 import { useGlobalContext } from '@/stores';
-import { AIService, FloatButtonPosition, getFloatButtonPositionLabel, getTabBehaviorLabel } from '@/types';
-import { ContentExtractionMethod, getContentExtractionMethodLabel } from '@/types/ContentExtractionMethod';
+import {
+  AIService,
+  ContentExtractionMethod,
+  FloatButtonPosition,
+  getContentExtractionMethodLabel,
+  getFloatButtonPositionLabel,
+  getTabBehaviorLabel,
+} from '@/types';
 import { TabBehavior } from '@/types/TabBahavior';
 import { logger } from '@/utils';
+import {
+  Field,
+  Switch,
+  Tab,
+  TabGroup,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Textarea,
+} from '@headlessui/react';
 
 /**
  * The main component for the options page.
@@ -23,9 +40,23 @@ export const OptionsMain: React.FC = () => {
   const [selectedTabBehaviorIndex, setSelectedTabBehaviorIndex] = useState(-1);
   const [selectedFloatButtonIndex, setSelectedFloatButtonIndex] = useState(-1);
   const [selectedContentExtractionMethodIndex, setSelectedContentExtractionMethodIndex] = useState(-1);
+  const [enableShowMessage, setEnableShowMessage] = useState<boolean | null>(null);
+  const [enableShowBadge, setEnableShowBadge] = useState<boolean | null>(null);
 
-  const { prompt, setPrompt, tabBehavior, setTabBehavior, floatButtonPosition, setFloatButtonPosition, contentExtractionMethod, setContentExtractionMethod } =
-    useGlobalContext();
+  const {
+    prompt,
+    setPrompt,
+    tabBehavior,
+    setTabBehavior,
+    floatButtonPosition,
+    setFloatButtonPosition,
+    contentExtractionMethod,
+    setContentExtractionMethod,
+    isShowMessage,
+    setIsShowMessage,
+    isShowBadge,
+    setIsShowBadge,
+  } = useGlobalContext();
 
   // Initialize selected indices based on stored values
   useEffect(() => {
@@ -46,7 +77,21 @@ export const OptionsMain: React.FC = () => {
     if (contentExtractionMethodIndex !== -1) {
       setSelectedContentExtractionMethodIndex(contentExtractionMethodIndex);
     }
-  }, [tabBehavior, floatButtonPosition, contentExtractionMethod]);
+
+    // Set ShowMessage index
+    if (enableShowMessage === null) setEnableShowMessage(isShowMessage);
+    if (enableShowBadge === null) setEnableShowBadge(isShowBadge);
+  }, [tabBehavior, floatButtonPosition, contentExtractionMethod, isShowMessage, isShowBadge]);
+
+  useEffect(() => {
+    if (enableShowMessage !== null) setIsShowMessage(enableShowMessage);
+    logger.debug('enableShowMessage', enableShowMessage);
+  }, [enableShowMessage]);
+
+  useEffect(() => {
+    if (enableShowBadge !== null) setIsShowBadge(enableShowBadge);
+    logger.debug('enableShowBadge', enableShowBadge);
+  }, [enableShowBadge]);
 
   return (
     <div className="min-h-screen p-4 bg-zinc-50 dark:bg-zinc-900">
@@ -186,6 +231,40 @@ export const OptionsMain: React.FC = () => {
               ))}
             </TabList>
           </TabGroup>
+        </OptionCard>
+        <OptionCard>
+          <h2 className="mb-4 text-xl font-semibold text-zinc-900 dark:text-zinc-100">Show Message when Article is Extracted</h2>
+          <Switch defaultChecked={isShowMessage} checked={enableShowMessage ?? false} onChange={setEnableShowMessage} as={Fragment}>
+            {({ checked, disabled }) => (
+              <button
+                className={clsx(
+                  'group inline-flex h-6 w-11 items-center rounded-full',
+                  checked ? 'bg-blue-600' : 'bg-gray-200',
+                  disabled && 'cursor-not-allowed opacity-50'
+                )}
+              >
+                <span className="sr-only">Show Message when Article is Extracted</span>
+                <span className={clsx('size-4 rounded-full bg-white transition', checked ? 'translate-x-6' : 'translate-x-1')} />
+              </button>
+            )}
+          </Switch>
+        </OptionCard>
+        <OptionCard>
+          <h2 className="mb-4 text-xl font-semibold text-zinc-900 dark:text-zinc-100">Show Badge when Article is Extracted</h2>
+          <Switch defaultChecked={isShowBadge} checked={enableShowBadge ?? false} onChange={setEnableShowBadge} as={Fragment}>
+            {({ checked, disabled }) => (
+              <button
+                className={clsx(
+                  'group inline-flex h-6 w-11 items-center rounded-full',
+                  checked ? 'bg-blue-600' : 'bg-gray-200',
+                  disabled && 'cursor-not-allowed opacity-50'
+                )}
+              >
+                <span className="sr-only">Show Badge when Article is Extracted</span>
+                <span className={clsx('size-4 rounded-full bg-white transition', checked ? 'translate-x-6' : 'translate-x-1')} />
+              </button>
+            )}
+          </Switch>
         </OptionCard>
         <OptionCard>
           <h2 className="mb-4 text-xl font-semibold text-zinc-900 dark:text-zinc-100">Cache</h2>
