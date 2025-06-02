@@ -39,20 +39,19 @@ export class ArticleExtractionService {
         if (!videoId) {
           throw new Error('Could not extract video ID from URL');
         }
-        /**
-         * Testing new extractor
-         * TODO: Pass the result
-         */
+
+        /** Extract youtube video */
         const result = await extractYoutube(videoId);
         logger.debug('extractYoutube result:', result.textContent);
+
         /** Add article to database */
-        // await db.addArticle({
-        //   url: url,
-        //   title: result.title,
-        //   content: result.textContent,
-        //   date: new Date(),
-        //   is_extracted: true,
-        // });
+        await db.addArticle({
+          url: url,
+          title: result.title,
+          content: result.textContent,
+          date: new Date(),
+          is_extracted: true,
+        });
         /** Return extraction result */
         return {
           isSuccess: true,
@@ -70,10 +69,12 @@ export class ArticleExtractionService {
      * Normal web page
      */
     try {
+      /** Extract article */
       logger.debug('Extracting normal web page');
       const result = new ReadabilityExtractor().extract();
-      logger.debug('extract result:', result);
+      logger.debug('extract result:', result.textContent);
 
+      /** Add article to database */
       await db.addArticle({
         url: url,
         title: result.title,
