@@ -1,2 +1,2 @@
-export * from './ReadabilityExtractor';
-export * from './YoutubeTranscriptExtractor';
+export * from './Readability';
+export * from './Youtube';

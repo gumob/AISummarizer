@@ -1,4 +1,4 @@
-import { ArticleExtractionService } from '@/features/content/service/ArticleExtractionService';
+import { ArticleExtractionService } from '@/features/content/service';
 import { logger } from '@/utils';
 
 logger.debug('Content script loaded');

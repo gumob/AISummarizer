@@ -1,9 +1,7 @@
 import { db } from '@/db';
-import { ReadabilityExtractor } from '@/features/content/extractors';
+import { extractReadability, extractYoutube } from '@/features/content/extractors';
 import { ExtractionResult } from '@/types';
 import { logger } from '@/utils';
-
-import { extractYoutube } from '../extractors/Youtube';
 
 interface ExtractionServiceResult {
   isSuccess: boolean;
@@ -71,7 +69,7 @@ export class ArticleExtractionService {
     try {
       /** Extract article */
       logger.debug('Extracting normal web page');
-      const result = new ReadabilityExtractor().extract();
+      const result = await extractReadability(document);
       logger.debug('extract result:', result.textContent);
 
       /** Add article to database */
@@ -98,7 +96,7 @@ export class ArticleExtractionService {
     if (!tab.id || !tab.url) return false;
 
     try {
-      const result = new ReadabilityExtractor().extract();
+      const result = await extractReadability(document);
       logger.debug('extractArticle result:', result);
     } catch (error) {
       logger.error('Failed to extract article:', error);
