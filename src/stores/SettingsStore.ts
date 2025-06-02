@@ -47,7 +47,7 @@ const DEFAULT_SETTINGS: SettingsState = {
   contentExtractionMethod: ContentExtractionMethod.AUTOMATIC,
   isShowMessage: true,
   isShowBadge: true,
-  saveArticleOnClipboard: false,
+  saveArticleOnClipboard: true,
 };
 
 interface SettingsStore extends SettingsState {
