@@ -1,12 +1,52 @@
+import { ExtractionResult } from '@/types';
 import { logger } from '@/utils';
 
-// 動画IDからYouTubeのHTMLを取得
+/** List of punctuation marks. */
+const puncs = [',', '.', '?', '!', ';', ':'];
+
+/**
+ * Interface for a caption track.
+ * @property baseUrl - The base URL of the caption track.
+ * @property languageCode - The code of the language of the caption track.
+ * @property name - The name of the caption track.
+ */
+interface CaptionTrack {
+  baseUrl: string;
+  languageCode: string;
+  name: {
+    simpleText: string;
+  };
+}
+
+/**
+ * Interface for the player response.
+ * @property captions - The captions of the player.
+ * @property playerCaptionsTracklistRenderer - The player captions tracklist renderer.
+ * @property videoDetails - The video details of the player.
+ */
+interface PlayerResponse {
+  captions?: {
+    playerCaptionsTracklistRenderer?: {
+      captionTracks?: CaptionTrack[];
+      defaultAudioTrackIndex?: number;
+    };
+  };
+  videoDetails?: {
+    title?: string;
+  };
+}
+
+/**
+ * This function is used to get the HTML of a YouTube video by its ID.
+ * @param videoID - The ID of the YouTube video.
+ * @returns The HTML of the YouTube video.
+ */
 async function getHtmlByVideoID(videoID: string): Promise<string> {
-  // YouTubeのURLを生成
+  /** Generate the URL of the YouTube video. */
   const url = new URL('https://www.youtube.com/watch');
   url.searchParams.set('v', videoID);
 
-  // fetchでHTML取得
+  /** Fetch the HTML of the YouTube video. */
   const response = await fetch(url.toString(), {
     headers: {
       accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
@@ -33,68 +73,94 @@ async function getHtmlByVideoID(videoID: string): Promise<string> {
   return await response.text();
 }
 
-// 先頭文字を大文字にする
-function capitalizeFirstLetter<T extends string>([first = '', ...rest]: T): string {
-  return [first.toUpperCase(), ...rest].join('');
+/**
+ * This function is used to select the caption track based on the language priority.
+ * @param captionTracks - The caption tracks.
+ * @param defaultAudioTrackIndex - The index of the default audio track.
+ * @returns The selected caption track.
+ */
+function selectCaptionTrack(captionTracks: CaptionTrack[], defaultAudioTrackIndex?: number): CaptionTrack | undefined {
+  if (!captionTracks || captionTracks.length === 0) {
+    return undefined;
+  }
+
+  /** 1. The original language of the video (specified by defaultAudioTrackIndex). */
+  if (defaultAudioTrackIndex !== undefined && captionTracks[defaultAudioTrackIndex]) {
+    return captionTracks[defaultAudioTrackIndex];
+  }
+
+  /** 2. The browser's setting language. */
+  const browserLanguage = navigator.language.split('-')[0]; // 'ja-JP' -> 'ja'
+  const browserLanguageTrack = captionTracks.find(track => track.languageCode === browserLanguage);
+  if (browserLanguageTrack) {
+    return browserLanguageTrack;
+  }
+
+  /** 3. The first available caption track. */
+  return captionTracks[0];
 }
 
-// 句読点リスト
-const puncs = [',', '.', '?', '!', ';', ':'];
-
-interface CaptionTrack {
-  baseUrl: string;
-  languageCode: string;
-  name: {
-    simpleText: string;
-  };
+/**
+ * Format seconds into MM:SS format
+ * @param seconds - The number of seconds
+ * @returns The formatted time string
+ */
+function formatTime(seconds: number): string {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = Math.floor(seconds % 60);
+  return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
 }
 
-interface PlayerResponse {
-  captions?: {
-    playerCaptionsTracklistRenderer?: {
-      captionTracks?: CaptionTrack[];
-    };
-  };
-}
-
-interface TranscriptSegment {
-  text: string;
-  start: number;
-  dur: number;
-}
-
-// YouTubeトランスクリプト抽出メイン関数
-export async function extractYoutube(videoID: string) {
+/**
+ * This function is used to extract the YouTube transcript.
+ * @param videoID - The ID of the YouTube video.
+ * @returns The transcript of the YouTube video.
+ */
+export async function extractYoutube(videoID: string): Promise<ExtractionResult> {
   logger.debug('Extracting YouTube transcript', videoID);
-  let sentences = false; // 文単位フラグ
-  let dedupe = false; // 重複除去フラグ
 
+  /** Get the HTML of the YouTube video. */
   const html = await getHtmlByVideoID(videoID);
 
-  // ytInitialPlayerResponseのJSON部分を抽出
+  /** Extract the JSON part of ytInitialPlayerResponse. */
   const ytInitialPlayerResponsePattern = /var\s+ytInitialPlayerResponse\s*=\s*({[\s\S]+?});/;
   const match = html.match(ytInitialPlayerResponsePattern);
 
   if (match && match[1]) {
     try {
       const json = JSON.parse(match[1]) as PlayerResponse;
-      logger.debug('json', json);
+      const videoTitle = json.videoDetails?.title || null;
 
+      /** Get the caption tracks. */
       const captionTracks = json.captions?.playerCaptionsTracklistRenderer?.captionTracks;
+      const defaultAudioTrackIndex = json.captions?.playerCaptionsTracklistRenderer?.defaultAudioTrackIndex;
+
       if (!captionTracks || captionTracks.length === 0) {
         logger.error('no captions', videoID);
-        return;
+        return {
+          title: videoTitle,
+          lang: null,
+          textContent: null,
+          isExtracted: false,
+        };
       }
-      logger.debug('captionTracks', captionTracks);
 
-      // 日本語字幕を優先的に取得
-      const japaneseTrack = captionTracks.find(track => track.languageCode === 'ja') || captionTracks[0];
+      /** Select the caption track based on the language priority. */
+      const selectedTrack = selectCaptionTrack(captionTracks, defaultAudioTrackIndex);
+      if (!selectedTrack) {
+        logger.error('no suitable caption track found', videoID);
+        return {
+          title: videoTitle,
+          lang: null,
+          textContent: null,
+          isExtracted: false,
+        };
+      }
 
-      // 字幕URLを生成（XML形式）- baseUrlをそのまま使用
-      const captionUrl = japaneseTrack.baseUrl;
-      logger.debug('captionUrl', captionUrl);
+      /** Generate the caption URL (XML format). */
+      const captionUrl = selectedTrack.baseUrl;
 
-      // 字幕XML取得
+      /** Fetch the caption XML. */
       const response = await fetch(captionUrl, {
         headers: {
           accept: '*/*',
@@ -115,65 +181,71 @@ export async function extractYoutube(videoID: string) {
 
       if (!response.ok) {
         logger.error('Failed to fetch captions XML', videoID);
-        return;
+        return {
+          title: videoTitle,
+          lang: selectedTrack.languageCode,
+          textContent: null,
+          isExtracted: false,
+        };
       }
 
-      logger.debug('response:', response);
       const responseText = await response.text();
-      logger.debug('Raw response:', responseText);
 
       if (!responseText.trim()) {
         logger.error('Empty response received', videoID);
-        return;
+        return {
+          title: videoTitle,
+          lang: selectedTrack.languageCode,
+          textContent: null,
+          isExtracted: false,
+        };
       }
 
-      // XMLをパース
+      /** Parse the XML. */
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(responseText, 'text/xml');
       const textElements = xmlDoc.getElementsByTagName('text');
 
-      // 字幕データの抽出
+      /** Extract the caption data. */
       const transcript: string[] = [];
       for (let i = 0; i < textElements.length; i++) {
-        const text = textElements[i].textContent?.trim();
-        if (text) {
-          // 文単位処理
-          if (sentences) {
-            const chars = [...text];
-            if (chars.length > 0) {
-              const firstUpper = chars[0].toUpperCase();
-              let theRest = chars.slice(1);
+        const element = textElements[i];
+        const text = element.textContent?.trim();
+        const start = parseFloat(element.getAttribute('start') || '0');
 
-              if (theRest.length > 0) {
-                let lastChar = theRest.pop()!;
-                if (!puncs.includes(lastChar)) {
-                  lastChar += '.';
-                }
-                theRest.push(lastChar);
-              }
-              transcript.push([firstUpper, ...theRest].join(''));
-            }
-          } else {
-            transcript.push(text);
-          }
+        if (text) {
+          const timestamp = formatTime(start);
+          const url = `https://www.youtube.com/watch?v=${videoID}&t=${Math.floor(start)}s`;
+          transcript.push(`- [${timestamp}](${url}) ${text}`);
         }
       }
 
-      // 重複除去
-      if (dedupe) {
-        const uniqueTranscript = transcript.filter((line, index, self) => self.indexOf(line) === index);
-        logger.debug('unique transcript', uniqueTranscript);
-      } else {
-        logger.debug('transcript', transcript);
-      }
+      return {
+        title: videoTitle,
+        lang: selectedTrack.languageCode,
+        textContent: transcript.join('\n'),
+        isExtracted: true,
+      };
     } catch (error: unknown) {
       if (error instanceof Error) {
         logger.error(`Error parsing XML: ${error.message}`, videoID);
       } else {
         logger.error('Unknown error occurred while parsing XML', videoID);
       }
+      return {
+        title: null,
+        lang: null,
+        textContent: null,
+        isExtracted: false,
+      };
     }
   } else {
     logger.debug('no captions', videoID);
+    return {
+      title: null,
+      lang: null,
+      textContent: null,
+      isExtracted: false,
+    };
   }
 }
