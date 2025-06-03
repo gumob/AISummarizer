@@ -1,7 +1,12 @@
 /**
  * The message type for Chrome extension messaging.
  */
-export type MessageType = 'PING' | 'GET_PROFILE' | 'SET_PROFILE' | 'GET_TAGS' | 'SET_TAGS' | 'COLOR_SCHEME_CHANGED';
+export enum MessageAction {
+  PING = 'PING',
+  COLOR_SCHEME_CHANGED = 'COLOR_SCHEME_CHANGED',
+  EXTRACT_CONTENT_START = 'EXTRACT_CONTENT_START',
+  EXTRACT_CONTENT_COMPLETE = 'EXTRACT_CONTENT_COMPLETE',
+}
 
 /**
  * The message interface for Chrome extension messaging.
@@ -10,7 +15,7 @@ export type MessageType = 'PING' | 'GET_PROFILE' | 'SET_PROFILE' | 'GET_TAGS' | 
  * @property payload - The payload of the message.
  */
 export type Message<T = any> = {
-  type: MessageType;
+  action: MessageAction;
   payload?: T;
 };
 

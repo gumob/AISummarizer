@@ -12,7 +12,10 @@ import {
   ServiceIcon,
 } from '@/components';
 import { ServiceListMenu } from '@/features/popup/components/main';
-import { AIService } from '@/types';
+import {
+  AIService,
+  MessageAction,
+} from '@/types';
 import { logger } from '@/utils';
 
 /**
@@ -53,10 +56,9 @@ export const PopupMain: React.FC = () => {
         <ServiceListMenu
           onClick={async () => {
             logger.debug('Extract article again');
+            /** Check if the content script is injected */
             const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-            if (!tab.id) {
-              throw new Error('No active tab found');
-            }
+            if (!tab.id) throw new Error('No active tab found');
 
             /** Inject the content script */
             await chrome.scripting.executeScript({
@@ -66,7 +68,7 @@ export const PopupMain: React.FC = () => {
 
             /** Send the message to the content script */
             await chrome.tabs.sendMessage(tab.id, {
-              action: 'EXTRACT_CONTENT',
+              action: MessageAction.EXTRACT_CONTENT_START,
               url: tab.url!,
             });
 

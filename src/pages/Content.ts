@@ -1,4 +1,5 @@
 import { ArticleService } from '@/features/content/services';
+import { MessageAction } from '@/types';
 import { logger } from '@/utils';
 
 logger.debug('Content script loaded');
@@ -9,7 +10,7 @@ const handleMessage = async (message: any, sender: chrome.runtime.MessageSender,
   logger.debug('Received message:', message);
 
   switch (message.action) {
-    case 'EXTRACT_CONTENT':
+    case MessageAction.EXTRACT_CONTENT_START:
       try {
         const result = await extractionService.execute(message.url, message);
         sendResponse(result);
@@ -19,6 +20,9 @@ const handleMessage = async (message: any, sender: chrome.runtime.MessageSender,
         sendResponse({ error: error.message });
         return false;
       }
+    case MessageAction.EXTRACT_CONTENT_COMPLETE:
+      logger.debug('Received message:', message);
+      break;
     default:
       return false;
   }

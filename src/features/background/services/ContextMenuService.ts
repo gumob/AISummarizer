@@ -1,5 +1,6 @@
 import { chromeAPI } from '@/api';
 import { MENU_ITEMS } from '@/models';
+import { MessageAction } from '@/types';
 import { logger } from '@/utils';
 
 export class ContextMenuService {
@@ -124,9 +125,7 @@ export class ContextMenuService {
           try {
             /** Check if the content script is injected */
             const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-            if (!tab.id) {
-              throw new Error('No active tab found');
-            }
+            if (!tab.id) throw new Error('No active tab found');
 
             /** Inject the content script */
             await chrome.scripting.executeScript({
@@ -136,7 +135,7 @@ export class ContextMenuService {
 
             /** Send the message to the content script */
             await chrome.tabs.sendMessage(tab.id, {
-              action: 'EXTRACT_CONTENT',
+              action: MessageAction.EXTRACT_CONTENT_START,
               url: tab.url!,
             });
           } catch (error: any) {

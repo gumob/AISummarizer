@@ -1,4 +1,5 @@
 import { chromeAPI } from '@/api';
+import { MessageAction } from '@/types';
 import { logger } from '@/utils';
 
 /**
@@ -11,7 +12,7 @@ import { logger } from '@/utils';
  */
 const isBackgroundScriptReady = async (): Promise<boolean> => {
   try {
-    await chromeAPI.sendRuntimeMessage({ type: 'PING' });
+    await chromeAPI.sendRuntimeMessage({ action: MessageAction.PING });
     return true;
   } catch (error) {
     return false;
@@ -35,7 +36,7 @@ export const detectTheme = async () => {
   // オフスクリーンドキュメントにメッセージを送信
   try {
     await chrome.runtime.sendMessage({
-      type: 'COLOR_SCHEME_CHANGED',
+      type: MessageAction.COLOR_SCHEME_CHANGED,
       isDarkMode: isDarkMode,
     });
   } catch (error) {
