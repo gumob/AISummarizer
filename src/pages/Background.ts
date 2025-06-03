@@ -1,9 +1,9 @@
 import {
-  ArticleService,
   BackgroundThemeService,
   CleanupDBService,
   ContextMenuService,
-} from '@/service';
+} from '@/features/background/services';
+import { ArticleService } from '@/features/content/services';
 import { logger } from '@/utils';
 
 /**
