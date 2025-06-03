@@ -110,23 +110,7 @@ export const GlobalContextProvider: React.FC<GlobalContextProviderProps> = ({ ch
    * Core Function
    *******************************************************/
 
-  const {
-    prompts,
-    prompt,
-    tabBehavior,
-    floatButtonPosition,
-    setPrompt,
-    setTabBehavior,
-    setFloatButtonPosition,
-    contentExtractionMethod,
-    setContentExtractionMethod,
-    isShowMessage,
-    setIsShowMessage,
-    isShowBadge,
-    setIsShowBadge,
-    saveArticleOnClipboard,
-    setSaveArticleOnClipboard,
-  } = useSettingsStore();
+  const settings = useSettingsStore();
 
   /*******************************************************
    * Lifecycle
@@ -173,44 +157,9 @@ export const GlobalContextProvider: React.FC<GlobalContextProviderProps> = ({ ch
       article,
       setArticle,
       isLoading,
-      prompts,
-      prompt,
-      tabBehavior,
-      floatButtonPosition,
-      setPrompt,
-      setTabBehavior,
-      setFloatButtonPosition,
-      contentExtractionMethod,
-      setContentExtractionMethod,
-      isShowMessage,
-      setIsShowMessage,
-      isShowBadge,
-      setIsShowBadge,
-      saveArticleOnClipboard,
-      setSaveArticleOnClipboard,
+      ...settings,
     }),
-    [
-      isArticleExtracted,
-      setIsArticleExtracted,
-      article,
-      setArticle,
-      isLoading,
-      prompts,
-      prompt,
-      setPrompt,
-      tabBehavior,
-      setTabBehavior,
-      floatButtonPosition,
-      setFloatButtonPosition,
-      contentExtractionMethod,
-      setContentExtractionMethod,
-      isShowMessage,
-      setIsShowMessage,
-      isShowBadge,
-      setIsShowBadge,
-      saveArticleOnClipboard,
-      setSaveArticleOnClipboard,
-    ]
+    [isArticleExtracted, setIsArticleExtracted, article, setArticle, isLoading, settings]
   );
 
   return <GlobalContext.Provider value={value}>{children}</GlobalContext.Provider>;
