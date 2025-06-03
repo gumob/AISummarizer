@@ -22,8 +22,7 @@ interface OptionSwitchCardProps {
  */
 export const OptionSwitchCard: React.FC<OptionSwitchCardProps> = ({ title, checked, onChange }) => {
   return (
-    <OptionCard>
-      <h2 className="mb-4 text-xl font-semibold text-zinc-900 dark:text-zinc-100">{title}</h2>
+    <OptionCard title={title}>
       <Switch checked={checked} onChange={onChange} as={Fragment}>
         {({ checked, disabled }) => (
           <button

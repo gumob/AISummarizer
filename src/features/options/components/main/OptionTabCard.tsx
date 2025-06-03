@@ -31,8 +31,7 @@ interface OptionTabCardProps {
  */
 export const OptionTabCard: React.FC<OptionTabCardProps> = ({ title, selectedIndex, onChange, onSelect, options, getLabel }) => {
   return (
-    <OptionCard>
-      <h2 className="mb-4 text-xl font-semibold text-zinc-900 dark:text-zinc-100">{title}</h2>
+    <OptionCard title={title}>
       <TabGroup selectedIndex={selectedIndex} onChange={onChange}>
         <TabList className="flex flex-wrap gap-2">
           {Object.entries(options).map(([name, value]: [string, any], index) => (

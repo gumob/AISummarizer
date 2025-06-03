@@ -178,8 +178,7 @@ export const OptionsMain: React.FC = () => {
         <OptionSwitchCard title="Show Message when Article is Extracted" checked={enableShowMessage ?? false} onChange={setEnableShowMessage} />
         <OptionSwitchCard title="Show Badge when Article is Extracted" checked={enableShowBadge ?? false} onChange={setEnableShowBadge} />
         <OptionSwitchCard title="Copy Article on Clipboard" checked={enableSaveArticleOnClipboard ?? false} onChange={setEnableSaveArticleOnClipboard} />
-        <OptionCard>
-          <h2 className="mb-4 text-xl font-semibold text-zinc-900 dark:text-zinc-100">Cache</h2>
+        <OptionCard title="Cache">
           <button
             className={clsx(
               'rounded-full px-6 py-4 text-lg font-semibold',
