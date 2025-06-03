@@ -12,7 +12,9 @@ export class ContextMenuService {
     logger.debug('Creating context menu');
     await chrome.contextMenus.removeAll();
 
-    if (useArticleStore.getState().isArticleExtracted) {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (!tab.url) return;
+    if (useArticleStore.getState().isArticleExtractedForUrl(tab.url)) {
       this.createFullMenu();
     } else {
       this.createBasicMenu();

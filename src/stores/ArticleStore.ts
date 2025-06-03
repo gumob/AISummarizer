@@ -3,22 +3,18 @@ import { create } from 'zustand';
 import { ArticleModel } from '@/models';
 
 interface ArticleStore {
-  articles: { [key: string]: ArticleModel };
-  setArticles: (url: string, article: ArticleModel) => void;
+  activeArticle: ArticleModel | null;
+  setActiveArticle: (article: ArticleModel) => void;
   isArticleExtractedForUrl: (url: string) => boolean;
-  isArticleExtracted: boolean;
 }
 
 export const useArticleStore = create<ArticleStore>((set, get) => ({
-  isArticleExtracted: true,
-  articles: {},
-  setArticles: (url: string, article: ArticleModel) => {
-    const articles = get().articles;
-    articles[url] = article;
-    set({ articles });
+  activeArticle: null,
+  setActiveArticle: (article: ArticleModel) => {
+    set({ activeArticle: article });
   },
   isArticleExtractedForUrl: (url: string) => {
-    const articles = get().articles;
-    return articles[url] != null;
+    const activeArticle = get().activeArticle;
+    return activeArticle?.url === url;
   },
 }));
