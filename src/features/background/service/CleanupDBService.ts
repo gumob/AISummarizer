@@ -1,4 +1,4 @@
-import { db } from '@/db';
+import { useArticleStore } from '@/stores/ArticleStore';
 import { logger } from '@/utils';
 
 const CLEANUP_INTERVAL = 60 * 60; // 1時間（分単位）
@@ -31,10 +31,10 @@ export class CleanupDBService {
   }
 
   private async checkAndCleanup() {
-    const lastCleanup = await db.getLastCleanupDate();
+    const lastCleanup = await useArticleStore.getState().getLastCleanupDate();
     if (!lastCleanup || Date.now() - lastCleanup.getTime() > CLEANUP_INTERVAL * 60 * 1000) {
       logger.debug('Starting cleanup');
-      await db.cleanup();
+      await useArticleStore.getState().cleanup();
       logger.debug('Cleanup completed');
     }
   }

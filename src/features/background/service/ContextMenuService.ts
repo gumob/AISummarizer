@@ -1,6 +1,5 @@
 import { chromeAPI } from '@/api';
 import { MENU_ITEMS } from '@/models';
-import { useArticleStore } from '@/stores/ArticleStore';
 import { logger } from '@/utils';
 
 export class ContextMenuService {
@@ -14,11 +13,12 @@ export class ContextMenuService {
 
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (!tab.url) return;
-    if (useArticleStore.getState().isArticleExtractedForUrl(tab.url)) {
-      this.createFullMenu();
-    } else {
-      this.createBasicMenu();
-    }
+    this.createFullMenu();
+    // if (await useArticleStore.getState().isArticleExtractedForUrl(tab.url)) {
+    // this.createBasicMenu();
+    // } else {
+    //   this.createFullMenu();
+    // }
   }
 
   private createFullMenu() {

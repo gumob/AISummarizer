@@ -1,14 +1,18 @@
+import React, {
+  Fragment,
+  useEffect,
+  useState,
+} from 'react';
+
 import clsx from 'clsx';
-
-import React, { Fragment, useEffect, useState } from 'react';
-
 import { IoClose } from 'react-icons/io5';
-
-import { Field, Switch, Tab, TabGroup, TabList, TabPanel, TabPanels, Textarea } from '@headlessui/react';
 
 import { chromeAPI } from '@/api';
 import { OptionCard } from '@/features/options/components/main';
-import { useGlobalContext } from '@/stores';
+import {
+  useArticleStore,
+  useGlobalContext,
+} from '@/stores';
 import {
   AIService,
   ContentExtractionTiming,
@@ -19,6 +23,16 @@ import {
 } from '@/types';
 import { TabBehavior } from '@/types/TabBahavior';
 import { logger } from '@/utils';
+import {
+  Field,
+  Switch,
+  Tab,
+  TabGroup,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Textarea,
+} from '@headlessui/react';
 
 /**
  * The main component for the options page.
@@ -45,6 +59,8 @@ export const OptionsMain: React.FC = () => {
     saveArticleOnClipboard,
     setSaveArticleOnClipboard,
   } = useGlobalContext();
+
+  const { cleanup: cleanupDatabase } = useArticleStore();
 
   const [selectedPromptIndex, setSelectedPromptIndex] = useState(0);
   const [selectedTabBehaviorIndex, setSelectedTabBehaviorIndex] = useState(-1);
@@ -311,7 +327,14 @@ export const OptionsMain: React.FC = () => {
               'focus:outline-none',
               'transition-opacity'
             )}
-            onClick={() => {}}
+            onClick={async () => {
+              try {
+                await cleanupDatabase();
+                logger.debug('Database cleanup completed');
+              } catch (error) {
+                logger.error('Failed to cleanup database:', error);
+              }
+            }}
           >
             Delete Cache on Database
           </button>

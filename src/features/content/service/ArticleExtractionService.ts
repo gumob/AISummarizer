@@ -1,5 +1,8 @@
-import { db } from '@/db';
-import { extractReadability, extractYoutube } from '@/features/content/extractors';
+import {
+  extractReadability,
+  extractYoutube,
+} from '@/features/content/extractors';
+import { useArticleStore } from '@/stores/ArticleStore';
 import { ExtractionResult } from '@/types';
 import { logger } from '@/utils';
 
@@ -42,9 +45,9 @@ export class ArticleExtractionService {
         const result = await extractYoutube(videoId);
         logger.debug('extractYoutube result:', result.textContent);
 
-        if (result.isExtracted) {
+        if (result.isExtracted && result.title && result.textContent) {
           /** Add article to database */
-          await db.addArticle({
+          await useArticleStore.getState().addArticle({
             url: url,
             title: result.title,
             content: result.textContent,
@@ -83,7 +86,7 @@ export class ArticleExtractionService {
 
       if (result.isExtracted) {
         /** Add article to database */
-        await db.addArticle({
+        await useArticleStore.getState().addArticle({
           url: url,
           title: result.title,
           content: result.textContent ?? '',
@@ -111,7 +114,7 @@ export class ArticleExtractionService {
   }
 
   async checkArticleExtraction(url: string): Promise<boolean> {
-    const article = await db.getArticleByUrl(url);
+    const article = await useArticleStore.getState().getArticleByUrl(url);
     return article?.is_extracted ?? false;
   }
 }
