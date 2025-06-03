@@ -1,30 +1,24 @@
-import React, {
-  useEffect,
-  useState,
-} from 'react';
-
 import clsx from 'clsx';
+
+import React, { Fragment, useEffect, useState } from 'react';
+
 import { IoClose } from 'react-icons/io5';
 
+import { Field, Switch, Tab, TabGroup, TabList, TabPanel, TabPanels, Textarea } from '@headlessui/react';
+
 import { chromeAPI } from '@/api';
-import {
-  OptionCard,
-  OptionSwitchCard,
-} from '@/features/options/components/main';
+import { OptionCard } from '@/features/options/components/main';
 import { useGlobalContext } from '@/stores';
 import {
   AIService,
   ContentExtractionMethod,
   FloatButtonPosition,
-  getAIServiceLabel,
   getContentExtractionMethodLabel,
   getFloatButtonPositionLabel,
   getTabBehaviorLabel,
 } from '@/types';
 import { TabBehavior } from '@/types/TabBahavior';
 import { logger } from '@/utils';
-
-import { OptionTabCard } from './OptionTabCard';
 
 /**
  * The main component for the options page.
@@ -143,41 +137,171 @@ export const OptionsMain: React.FC = () => {
             <IoClose className="h-6 w-6" />
           </button>
         </div>
-        <OptionTabCard
-          title="Prompt"
-          selectedIndex={selectedPromptIndex}
-          onChange={setSelectedPromptIndex}
-          onSelect={setSelectedPromptIndex}
-          options={AIService}
-          getLabel={getAIServiceLabel}
-        />
-        <OptionTabCard
-          title="Open AI Service in"
-          selectedIndex={selectedTabBehaviorIndex}
-          onChange={setSelectedTabBehaviorIndex}
-          onSelect={setSelectedTabBehaviorIndex}
-          options={TabBehavior}
-          getLabel={getTabBehaviorLabel}
-        />
-        <OptionTabCard
-          title="Float Button"
-          selectedIndex={selectedFloatButtonIndex}
-          onChange={setSelectedFloatButtonIndex}
-          onSelect={setSelectedFloatButtonIndex}
-          options={FloatButtonPosition}
-          getLabel={getFloatButtonPositionLabel}
-        />
-        <OptionTabCard
-          title="Content Extraction"
-          selectedIndex={selectedContentExtractionMethodIndex}
-          onChange={setSelectedContentExtractionMethodIndex}
-          onSelect={setSelectedContentExtractionMethodIndex}
-          options={ContentExtractionMethod}
-          getLabel={getContentExtractionMethodLabel}
-        />
-        <OptionSwitchCard title="Show Message when Article is Extracted" checked={enableShowMessage ?? false} onChange={setEnableShowMessage} />
-        <OptionSwitchCard title="Show Badge when Article is Extracted" checked={enableShowBadge ?? false} onChange={setEnableShowBadge} />
-        <OptionSwitchCard title="Copy Article on Clipboard" checked={enableSaveArticleOnClipboard ?? false} onChange={setEnableSaveArticleOnClipboard} />
+        <OptionCard title="Prompt">
+          <TabGroup selectedIndex={selectedPromptIndex} onChange={setSelectedPromptIndex}>
+            <TabList className="flex flex-wrap gap-2">
+              {Object.entries(AIService).map(([name, service]: [string, AIService], index) => (
+                <Tab
+                  key={name}
+                  className={clsx(
+                    'rounded-full px-3 py-1 font-semibold',
+                    'text-zinc-900 dark:text-zinc-50',
+                    'bg-zinc-300 dark:bg-zinc-700',
+                    'opacity-30 dark:opacity-30',
+                    'hover:opacity-100',
+                    selectedPromptIndex === index && '!opacity-100',
+                    'focus:outline-none',
+                    'transition-opacity'
+                  )}
+                >
+                  {service}
+                </Tab>
+              ))}
+            </TabList>
+            <TabPanels className="mt-3">
+              {Object.entries(AIService).map(([name, service]: [string, AIService]) => (
+                <TabPanel key={name} className="">
+                  <Field>
+                    <Textarea
+                      name="prompt"
+                      className={clsx(
+                        'block w-full rounded-lg border-none',
+                        'px-3 py-1.5 text-base/6',
+                        'text-zinc-700 dark:text-zinc-300',
+                        'bg-zinc-200 dark:bg-zinc-800',
+                        'focus:outline-none focus:ring-1 focus:ring-zinc-300 dark:focus:ring-zinc-700',
+                        'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-300 dark:focus-visible:ring-zinc-700'
+                      )}
+                      rows={12}
+                      value={prompt(service)}
+                      onChange={e => setPrompt(service, e.target.value)}
+                    />
+                  </Field>
+                </TabPanel>
+              ))}
+            </TabPanels>
+          </TabGroup>
+        </OptionCard>
+        <OptionCard title="Open AI Service in">
+          <TabGroup selectedIndex={selectedTabBehaviorIndex} onChange={setSelectedTabBehaviorIndex}>
+            <TabList className="flex flex-wrap gap-2">
+              {Object.entries(TabBehavior).map(([name, behavior]: [string, TabBehavior], index) => (
+                <Tab
+                  key={name}
+                  className={clsx(
+                    'rounded-full px-3 py-1 font-semibold',
+                    'text-zinc-900 dark:text-zinc-50',
+                    'bg-zinc-300 dark:bg-zinc-700',
+                    'opacity-30 dark:opacity-30',
+                    'hover:opacity-100',
+                    selectedTabBehaviorIndex === index && '!opacity-100',
+                    'focus:outline-none',
+                    'transition-opacity'
+                  )}
+                  onClick={() => setTabBehavior(behavior)}
+                >
+                  {getTabBehaviorLabel(behavior)}
+                </Tab>
+              ))}
+            </TabList>
+          </TabGroup>
+        </OptionCard>
+        <OptionCard title="Float Button">
+          <TabGroup selectedIndex={selectedFloatButtonIndex} onChange={setSelectedFloatButtonIndex}>
+            <TabList className="flex flex-wrap gap-2">
+              {Object.entries(FloatButtonPosition).map(([name, position]: [string, FloatButtonPosition], index) => (
+                <Tab
+                  key={name}
+                  className={clsx(
+                    'rounded-full px-3 py-1 font-semibold',
+                    'text-zinc-900 dark:text-zinc-50',
+                    'bg-zinc-300 dark:bg-zinc-700',
+                    'opacity-30 dark:opacity-30',
+                    'hover:opacity-100',
+                    selectedFloatButtonIndex === index && '!opacity-100',
+                    'focus:outline-none',
+                    'transition-opacity'
+                  )}
+                  onClick={() => setFloatButtonPosition(position)}
+                >
+                  {getFloatButtonPositionLabel(position)}
+                </Tab>
+              ))}
+            </TabList>
+          </TabGroup>
+        </OptionCard>
+        <OptionCard title="Content Extraction">
+          <TabGroup selectedIndex={selectedContentExtractionMethodIndex} onChange={setSelectedContentExtractionMethodIndex}>
+            <TabList className="flex flex-wrap gap-2">
+              {Object.entries(ContentExtractionMethod).map(([name, method]: [string, ContentExtractionMethod], index) => (
+                <Tab
+                  key={name}
+                  className={clsx(
+                    'rounded-full px-3 py-1 font-semibold',
+                    'text-zinc-900 dark:text-zinc-50',
+                    'bg-zinc-300 dark:bg-zinc-700',
+                    'opacity-30 dark:opacity-30',
+                    'hover:opacity-100',
+                    selectedContentExtractionMethodIndex === index && '!opacity-100',
+                    'focus:outline-none',
+                    'transition-opacity'
+                  )}
+                  onClick={() => setContentExtractionMethod(method)}
+                >
+                  {getContentExtractionMethodLabel(method)}
+                </Tab>
+              ))}
+            </TabList>
+          </TabGroup>
+        </OptionCard>
+        <OptionCard title="Copy Article on Clipboard">
+          <Switch checked={enableSaveArticleOnClipboard ?? false} onChange={setEnableSaveArticleOnClipboard} as={Fragment}>
+            {({ checked, disabled }) => (
+              <button
+                className={clsx(
+                  'group inline-flex h-6 w-11 items-center rounded-full',
+                  checked ? 'bg-blue-600' : 'bg-zinc-200 dark:bg-zinc-700',
+                  disabled && 'cursor-not-allowed opacity-50'
+                )}
+              >
+                <span className="sr-only">Copy Article on Clipboard</span>
+                <span className={clsx('size-4 rounded-full transition', 'bg-zinc-50', checked ? 'translate-x-6' : 'translate-x-1')} />
+              </button>
+            )}
+          </Switch>
+        </OptionCard>
+        <OptionCard title="Show Message when Article is Extracted">
+          <Switch checked={enableShowMessage ?? false} onChange={setEnableShowMessage} as={Fragment}>
+            {({ checked, disabled }) => (
+              <button
+                className={clsx(
+                  'group inline-flex h-6 w-11 items-center rounded-full',
+                  checked ? 'bg-blue-600' : 'bg-zinc-200 dark:bg-zinc-700',
+                  disabled && 'cursor-not-allowed opacity-50'
+                )}
+              >
+                <span className="sr-only">Show Message when Article is Extracted</span>
+                <span className={clsx('size-4 rounded-full transition', 'bg-zinc-50', checked ? 'translate-x-6' : 'translate-x-1')} />
+              </button>
+            )}
+          </Switch>
+        </OptionCard>
+        <OptionCard title="Show Badge when Article is Extracted">
+          <Switch checked={enableShowBadge ?? false} onChange={setEnableShowBadge} as={Fragment}>
+            {({ checked, disabled }) => (
+              <button
+                className={clsx(
+                  'group inline-flex h-6 w-11 items-center rounded-full',
+                  checked ? 'bg-blue-600' : 'bg-zinc-200 dark:bg-zinc-700',
+                  disabled && 'cursor-not-allowed opacity-50'
+                )}
+              >
+                <span className="sr-only">Show Message when Article is Extracted</span>
+                <span className={clsx('size-4 rounded-full transition', 'bg-zinc-50', checked ? 'translate-x-6' : 'translate-x-1')} />
+              </button>
+            )}
+          </Switch>
+        </OptionCard>
         <OptionCard title="Cache">
           <button
             className={clsx(
