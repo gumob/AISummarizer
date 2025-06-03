@@ -11,9 +11,9 @@ import { OptionCard } from '@/features/options/components/main';
 import { useGlobalContext } from '@/stores';
 import {
   AIService,
-  ContentExtractionMethod,
+  ContentExtractionTiming,
   FloatButtonPosition,
-  getContentExtractionMethodLabel,
+  getContentExtractionTimingLabel,
   getFloatButtonPositionLabel,
   getTabBehaviorLabel,
 } from '@/types';
@@ -36,8 +36,8 @@ export const OptionsMain: React.FC = () => {
     setTabBehavior,
     floatButtonPosition,
     setFloatButtonPosition,
-    contentExtractionMethod,
-    setContentExtractionMethod,
+    contentExtractionTiming,
+    setContentExtractionTiming,
     isShowMessage,
     setIsShowMessage,
     isShowBadge,
@@ -49,7 +49,7 @@ export const OptionsMain: React.FC = () => {
   const [selectedPromptIndex, setSelectedPromptIndex] = useState(0);
   const [selectedTabBehaviorIndex, setSelectedTabBehaviorIndex] = useState(-1);
   const [selectedFloatButtonIndex, setSelectedFloatButtonIndex] = useState(-1);
-  const [selectedContentExtractionMethodIndex, setSelectedContentExtractionMethodIndex] = useState(-1);
+  const [selectedContentExtractionTimingIndex, setSelectedContentExtractionTimingIndex] = useState(-1);
   const [enableShowMessage, setEnableShowMessage] = useState<boolean | null>(null);
   const [enableShowBadge, setEnableShowBadge] = useState<boolean | null>(null);
   const [enableSaveArticleOnClipboard, setEnableSaveArticleOnClipboard] = useState<boolean | null>(null);
@@ -76,11 +76,11 @@ export const OptionsMain: React.FC = () => {
 
   /** Set PageExtractionMethod index */
   useEffect(() => {
-    const contentExtractionMethodIndex = Object.values(ContentExtractionMethod).findIndex(value => value === contentExtractionMethod);
-    if (contentExtractionMethodIndex !== -1) {
-      setSelectedContentExtractionMethodIndex(contentExtractionMethodIndex);
+    const contentExtractionTimingIndex = Object.values(ContentExtractionTiming).findIndex(value => value === contentExtractionTiming);
+    if (contentExtractionTimingIndex !== -1) {
+      setSelectedContentExtractionTimingIndex(contentExtractionTimingIndex);
     }
-  }, [contentExtractionMethod]);
+  }, [contentExtractionTiming]);
 
   /** Set ShowMessage index */
   useEffect(() => {
@@ -231,9 +231,9 @@ export const OptionsMain: React.FC = () => {
           </TabGroup>
         </OptionCard>
         <OptionCard title="Content Extraction">
-          <TabGroup selectedIndex={selectedContentExtractionMethodIndex} onChange={setSelectedContentExtractionMethodIndex}>
+          <TabGroup selectedIndex={selectedContentExtractionTimingIndex} onChange={setSelectedContentExtractionTimingIndex}>
             <TabList className="flex flex-wrap gap-2">
-              {Object.entries(ContentExtractionMethod).map(([name, method]: [string, ContentExtractionMethod], index) => (
+              {Object.entries(ContentExtractionTiming).map(([name, method]: [string, ContentExtractionTiming], index) => (
                 <Tab
                   key={name}
                   className={clsx(
@@ -242,13 +242,13 @@ export const OptionsMain: React.FC = () => {
                     'bg-zinc-300 dark:bg-zinc-700',
                     'opacity-30 dark:opacity-30',
                     'hover:opacity-100',
-                    selectedContentExtractionMethodIndex === index && '!opacity-100',
+                    selectedContentExtractionTimingIndex === index && '!opacity-100',
                     'focus:outline-none',
                     'transition-opacity'
                   )}
-                  onClick={() => setContentExtractionMethod(method)}
+                  onClick={() => setContentExtractionTiming(method)}
                 >
-                  {getContentExtractionMethodLabel(method)}
+                  {getContentExtractionTimingLabel(method)}
                 </Tab>
               ))}
             </TabList>

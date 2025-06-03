@@ -3,12 +3,7 @@ import { persist } from 'zustand/middleware';
 
 import { chromeAPI } from '@/api';
 import { STORAGE_KEYS } from '@/constants';
-import {
-  AIService,
-  ContentExtractionMethod,
-  FloatButtonPosition,
-  TabBehavior,
-} from '@/types';
+import { AIService, ContentExtractionTiming, FloatButtonPosition, TabBehavior } from '@/types';
 
 interface SettingsState {
   prompts: {
@@ -16,7 +11,7 @@ interface SettingsState {
   };
   tabBehavior: TabBehavior;
   floatButtonPosition: FloatButtonPosition;
-  contentExtractionMethod: ContentExtractionMethod;
+  contentExtractionTiming: ContentExtractionTiming;
   isShowMessage: boolean;
   isShowBadge: boolean;
   saveArticleOnClipboard: boolean;
@@ -44,7 +39,7 @@ const DEFAULT_SETTINGS: SettingsState = {
   },
   tabBehavior: TabBehavior.CURRENT_TAB,
   floatButtonPosition: FloatButtonPosition.HIDE,
-  contentExtractionMethod: ContentExtractionMethod.AUTOMATIC,
+  contentExtractionTiming: ContentExtractionTiming.AUTOMATIC,
   isShowMessage: true,
   isShowBadge: true,
   saveArticleOnClipboard: true,
@@ -55,8 +50,8 @@ interface SettingsStore extends SettingsState {
   setPrompt: (service: AIService, prompt: string) => void;
   setTabBehavior: (tabBehavior: TabBehavior) => void;
   setFloatButtonPosition: (floatButtonPosition: FloatButtonPosition) => void;
-  contentExtractionMethod: ContentExtractionMethod;
-  setContentExtractionMethod: (contentExtractionMethod: ContentExtractionMethod) => void;
+  contentExtractionTiming: ContentExtractionTiming;
+  setContentExtractionTiming: (contentExtractionTiming: ContentExtractionTiming) => void;
   setIsShowMessage: (isShowMessage: boolean) => void;
   setIsShowBadge: (isShowBadge: boolean) => void;
   saveArticleOnClipboard: boolean;
@@ -83,9 +78,9 @@ export const useSettingsStore = create<SettingsStore>()(
         set(() => ({
           floatButtonPosition,
         })),
-      setContentExtractionMethod: (contentExtractionMethod: ContentExtractionMethod) =>
+      setContentExtractionTiming: (contentExtractionTiming: ContentExtractionTiming) =>
         set(() => ({
-          contentExtractionMethod,
+          contentExtractionTiming,
         })),
       setIsShowMessage: (isShowMessage: boolean) =>
         set(() => ({

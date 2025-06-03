@@ -1,20 +1,8 @@
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 import { ArticleModel } from '@/models';
 import { useSettingsStore } from '@/stores';
-import {
-  AIService,
-  ContentExtractionMethod,
-  FloatButtonPosition,
-  TabBehavior,
-} from '@/types';
+import { AIService, ContentExtractionTiming, FloatButtonPosition, TabBehavior } from '@/types';
 import { logger } from '@/utils';
 
 /**
@@ -29,8 +17,8 @@ import { logger } from '@/utils';
  * @property prompt - The get prompt function.
  * @property tabBehavior - The tab behavior.
  * @property floatButtonPosition - The float button position.
- * @property contentExtractionMethod - The page extraction method.
- * @property setContentExtractionMethod - The set page extraction method function.
+ * @property contentExtractionTiming - The page extraction method.
+ * @property setContentExtractionTiming - The set page extraction method function.
  * @property setPrompt - The set prompt function.
  * @property setTabBehavior - The set tab behavior function.
  * @property setFloatButtonPosition - The set float button position function.
@@ -56,8 +44,8 @@ interface GlobalContextValue {
   setTabBehavior: (tabBehavior: TabBehavior) => void;
   floatButtonPosition: FloatButtonPosition;
   setFloatButtonPosition: (floatButtonPosition: FloatButtonPosition) => void;
-  contentExtractionMethod: ContentExtractionMethod;
-  setContentExtractionMethod: (contentExtractionMethod: ContentExtractionMethod) => void;
+  contentExtractionTiming: ContentExtractionTiming;
+  setContentExtractionTiming: (contentExtractionTiming: ContentExtractionTiming) => void;
   isShowMessage: boolean;
   setIsShowMessage: (isShowMessage: boolean) => void;
   isShowBadge: boolean;
