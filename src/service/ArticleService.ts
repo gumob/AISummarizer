@@ -6,14 +6,14 @@ import { useArticleStore } from '@/stores/ArticleStore';
 import { ExtractionResult } from '@/types';
 import { logger } from '@/utils';
 
-interface ExtractionServiceResult {
+interface ArticleServiceResult {
   isSuccess: boolean;
   result?: ExtractionResult | null;
   error?: Error | null;
 }
 
-export class ArticleExtractionService {
-  async execute(url: string, message: any = {}): Promise<ExtractionServiceResult> {
+export class ArticleService {
+  async execute(url: string, message: any = {}): Promise<ArticleServiceResult> {
     logger.debug('extracting', '\nurl:', url, '\nmessage:', message);
 
     /**

@@ -1,9 +1,9 @@
 import {
+  ArticleService,
   BackgroundThemeService,
+  CleanupDBService,
   ContextMenuService,
-} from '@/features/background/service';
-import { CleanupDBService } from '@/features/background/service/CleanupDBService';
-import { ArticleExtractionService } from '@/features/content/service/ArticleExtractionService';
+} from '@/service';
 import { logger } from '@/utils';
 
 /**
@@ -14,7 +14,7 @@ async function initialize() {
 
   const themeService = new BackgroundThemeService();
   const contextMenuService = new ContextMenuService();
-  const articleService = new ArticleExtractionService();
+  const articleService = new ArticleService();
   const cleanupService = new CleanupDBService();
 
   await themeService.initialize();
