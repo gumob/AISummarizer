@@ -64,6 +64,16 @@ const MAX_RECORDS = 200;
  */
 export class Database {
   private db: IDBPDatabase<AISummarizerDB> | null = null;
+  private static instance: Database | null = null;
+
+  private constructor() {}
+
+  public static getInstance(): Database {
+    if (!Database.instance) {
+      Database.instance = new Database();
+    }
+    return Database.instance;
+  }
 
   /**
    * Initialize the database
@@ -71,17 +81,42 @@ export class Database {
   async init() {
     try {
       logger.debug('Initializing IndexedDB');
+      if (this.db) {
+        logger.debug('Database already initialized');
+        return;
+      }
+
       this.db = await openDB<AISummarizerDB>(DB_NAME, DB_VERSION, {
-        upgrade(db) {
-          logger.debug('Upgrading database');
+        upgrade(db, oldVersion, newVersion) {
+          logger.debug('Upgrading database:', { oldVersion, newVersion });
           const articleStore = db.createObjectStore('articles', { keyPath: 'id' });
           articleStore.createIndex('by-url', 'url');
           articleStore.createIndex('by-date', 'date');
 
           db.createObjectStore('metadata', { keyPath: 'key' });
+          logger.debug('Database upgrade completed');
+        },
+        blocked() {
+          logger.warn('Database blocked');
+        },
+        blocking() {
+          logger.warn('Database blocking');
+        },
+        terminated() {
+          logger.warn('Database terminated');
         },
       });
-      logger.debug('Database initialized successfully');
+
+      // Verify database connection
+      const tx = this.db.transaction('articles', 'readonly');
+      const count = await tx.store.count();
+      logger.debug('Database initialized successfully, article count:', count);
+
+      // List all articles for debugging
+      const allArticles = await tx.store.getAll();
+      logger.debug('All articles in database:', allArticles);
+
+      await tx.done;
     } catch (error) {
       logger.error('Failed to initialize database:', error);
       throw error;
@@ -124,10 +159,24 @@ export class Database {
    * @returns The article
    */
   async getArticleByUrl(url: string): Promise<ArticleRecord | undefined> {
-    if (!this.db) await this.init();
-    const tx = this.db!.transaction('articles', 'readonly');
-    const index = tx.store.index('by-url');
-    return await index.get(url);
+    try {
+      if (!this.db) await this.init();
+      logger.debug('Getting article by url:', url);
+      const tx = this.db!.transaction('articles', 'readonly');
+      const index = tx.store.index('by-url');
+      const article = await index.get(url);
+      logger.debug('Found article:', article);
+
+      // Debug: List all articles
+      const allArticles = await tx.store.getAll();
+      logger.debug('All articles in database:', allArticles);
+
+      await tx.done;
+      return article;
+    } catch (error) {
+      logger.error('Failed to get article by url:', error);
+      throw error;
+    }
   }
 
   /**
@@ -180,4 +229,4 @@ export class Database {
   }
 }
 
-export const db = new Database();
+export const db = Database.getInstance();

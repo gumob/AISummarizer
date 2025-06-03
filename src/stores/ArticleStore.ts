@@ -24,7 +24,8 @@ export const useArticleStore = create<ArticleStore>((set, get) => ({
   isArticleExtractedForUrl: async (url: string): Promise<boolean> => {
     logger.debug('Checking if article is extracted for url:', url);
     const article = await get().getArticleByUrl(url);
-    const result = article?.url === url && article?.is_extracted;
+    logger.debug('Found article:', article);
+    const result = article?.is_extracted ?? false;
     logger.debug('Article is extracted for url:', result);
     return result;
   },
