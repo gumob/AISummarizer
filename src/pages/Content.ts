@@ -1,9 +1,9 @@
-import { ArticleExtractionResult } from '@/features/content/service';
+import { ArticleService } from '@/service';
 import { logger } from '@/utils';
 
 logger.debug('Content script loaded');
 
-const extractionService = new ArticleExtractionResult();
+const extractionService = new ArticleService();
 
 const handleMessage = async (message: any, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void) => {
   logger.debug('Received message:', message);
