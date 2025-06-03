@@ -1,14 +1,10 @@
 import { chromeAPI } from '@/api';
-import { ArticleExtractionService } from '@/features/content/service/ArticleExtractionService';
 import { MENU_ITEMS } from '@/models';
 import { useArticleStore } from '@/stores/ArticleStore';
 import { logger } from '@/utils';
 
 export class ContextMenuService {
-  private articleExtractionService: ArticleExtractionService;
-
   constructor() {
-    this.articleExtractionService = new ArticleExtractionService();
     this.setupClickHandler();
   }
 
