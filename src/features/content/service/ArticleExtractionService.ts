@@ -113,8 +113,7 @@ export class ArticleExtractionService {
     }
   }
 
-  async checkArticleExtraction(url: string): Promise<boolean> {
-    const article = await useArticleStore.getState().getArticleByUrl(url);
-    return article?.is_extracted ?? false;
+  async isArticleExtractedForUrl(url: string): Promise<boolean> {
+    return await useArticleStore.getState().isArticleExtractedForUrl(url);
   }
 }

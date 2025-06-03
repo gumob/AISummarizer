@@ -14,7 +14,7 @@ async function initialize() {
 
   const themeService = new BackgroundThemeService();
   const contextMenuService = new ContextMenuService();
-  const articleExtractionService = new ArticleExtractionService();
+  const articleService = new ArticleExtractionService();
   const cleanupService = new CleanupDBService();
 
   await themeService.initialize();
@@ -26,7 +26,7 @@ async function initialize() {
    */
   (self as any).updateArticleExtractionState = async (tabId: number, url: string) => {
     logger.debug('Updating article extraction state', tabId, url);
-    const isExtracted = await articleExtractionService.checkArticleExtraction(url);
+    const isExtracted = await articleService.isArticleExtractedForUrl(url);
     if (isExtracted) {
       chrome.action.setBadgeText({ text: '✓', tabId });
       chrome.action.setBadgeBackgroundColor({ color: '#4CAF50', tabId });
@@ -78,12 +78,3 @@ chrome.tabs.onUpdated.addListener(async (tabId: number, changeInfo: chrome.tabs.
     (self as any).updateArticleExtractionState(tabId, tab.url);
   }
 });
-
-/**
- * Global type definition
- */
-// declare global {
-//   interface ServiceWorkerGlobalScope {
-//     updateArticleExtractionState: (tabId: number, url: string) => Promise<void>;
-//   }
-// }
