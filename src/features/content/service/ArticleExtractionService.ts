@@ -42,18 +42,27 @@ export class ArticleExtractionService {
         const result = await extractYoutube(videoId);
         logger.debug('extractYoutube result:', result.textContent);
 
-        /** Add article to database */
-        await db.addArticle({
-          url: url,
-          title: result.title,
-          content: result.textContent,
-          date: new Date(),
-          is_extracted: true,
-        });
-        /** Return extraction result */
+        if (result.isExtracted) {
+          /** Add article to database */
+          await db.addArticle({
+            url: url,
+            title: result.title,
+            content: result.textContent,
+            date: new Date(),
+            is_extracted: true,
+          });
+          /** Return extraction result */
+          return {
+            isSuccess: true,
+            result,
+          };
+        }
+
+        logger.warn('Article is not extracted');
         return {
-          isSuccess: true,
-          result,
+          isSuccess: false,
+          result: null,
+          error: new Error('Article is not extracted'),
         };
       } catch (error: any) {
         return {
@@ -72,43 +81,33 @@ export class ArticleExtractionService {
       const result = await extractReadability(document);
       logger.debug('extract result:', result.textContent);
 
-      /** Add article to database */
-      await db.addArticle({
-        url: url,
-        title: result.title,
-        content: result.textContent,
-        date: new Date(),
-        is_extracted: true,
-      });
+      if (result.isExtracted) {
+        /** Add article to database */
+        await db.addArticle({
+          url: url,
+          title: result.title,
+          content: result.textContent ?? '',
+          date: new Date(),
+          is_extracted: true,
+        });
+        return {
+          isSuccess: true,
+          result,
+        };
+      }
+      logger.warn('Article is not extracted');
       return {
-        isSuccess: true,
-        result,
+        isSuccess: false,
+        result: null,
+        error: new Error('Article is not extracted'),
       };
     } catch (error: any) {
+      logger.error('Failed to extract article:', error);
       return {
         isSuccess: false,
         error: error,
       };
     }
-  }
-
-  async _extractArticle(tab: chrome.tabs.Tab) {
-    if (!tab.id || !tab.url) return false;
-
-    try {
-      const result = await extractReadability(document);
-      logger.debug('extractArticle result:', result);
-    } catch (error) {
-      logger.error('Failed to extract article:', error);
-      // await db.addArticle({
-      //   url: tab.url as string,
-      //   title: null,
-      //   content: null,
-      //   date: new Date(),
-      //   is_extracted: false,
-      // });
-    }
-    return false;
   }
 
   async checkArticleExtraction(url: string): Promise<boolean> {

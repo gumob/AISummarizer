@@ -197,6 +197,7 @@ export async function extractYoutube(videoID: string): Promise<ExtractionResult>
 
       /** Generate the caption URL (XML format). */
       const captionUrl = selectedTrack.baseUrl;
+      logger.debug('captionUrl', captionUrl);
 
       /** Fetch the caption XML. */
       const response = await fetch(captionUrl, {

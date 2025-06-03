@@ -1,5 +1,16 @@
 import { DBSchema, IDBPDatabase, openDB } from 'idb';
 
+import { logger } from '@/utils';
+
+/**
+ * ArticleRecord
+ * - id: string
+ * - url: string
+ * - title: string | null
+ * - content: string | null
+ * - date: Date
+ * - is_extracted: boolean
+ */
 interface ArticleRecord {
   id: string;
   url: string;
@@ -9,6 +20,14 @@ interface ArticleRecord {
   is_extracted: boolean;
 }
 
+/**
+ * AISummarizerDB
+ * - articles: ArticleRecord
+ * - metadata: {
+ *   key: string;
+ *   lastCleanup: Date;
+ * }
+ */
 interface AISummarizerDB extends DBSchema {
   articles: {
     key: string;
@@ -31,28 +50,75 @@ const DB_NAME = 'ai-summarizer-db';
 const DB_VERSION = 1;
 const MAX_RECORDS = 200;
 
+/**
+ * Database
+ * - init: Initialize the database
+ * - addArticle: Add an article to the database
+ * - getArticleByUrl: Get an article by its URL
+ * - cleanup: Clean up the database
+ * - getLastCleanupDate: Get the last cleanup date
+ */
 export class Database {
   private db: IDBPDatabase<AISummarizerDB> | null = null;
 
+  /**
+   * Initialize the database
+   */
   async init() {
-    this.db = await openDB<AISummarizerDB>(DB_NAME, DB_VERSION, {
-      upgrade(db) {
-        const articleStore = db.createObjectStore('articles', { keyPath: 'id' });
-        articleStore.createIndex('by-url', 'url');
-        articleStore.createIndex('by-date', 'date');
+    try {
+      logger.debug('Initializing IndexedDB');
+      this.db = await openDB<AISummarizerDB>(DB_NAME, DB_VERSION, {
+        upgrade(db) {
+          logger.debug('Upgrading database');
+          const articleStore = db.createObjectStore('articles', { keyPath: 'id' });
+          articleStore.createIndex('by-url', 'url');
+          articleStore.createIndex('by-date', 'date');
 
-        db.createObjectStore('metadata', { keyPath: 'key' });
-      },
-    });
+          db.createObjectStore('metadata', { keyPath: 'key' });
+        },
+      });
+      logger.debug('Database initialized successfully');
+    } catch (error) {
+      logger.error('Failed to initialize database:', error);
+      throw error;
+    }
   }
 
+  /**
+   * Add an article to the database
+   * @param article - The article to add
+   * @returns The ID of the added article
+   */
   async addArticle(article: Omit<ArticleRecord, 'id'>) {
-    if (!this.db) await this.init();
-    const id = crypto.randomUUID();
-    await this.db!.add('articles', { ...article, id });
-    return id;
+    try {
+      if (!this.db) await this.init();
+      const id = crypto.randomUUID();
+      logger.debug('Adding article to database:', { id, url: article.url });
+
+      /** Search for an entry with the same URL. */
+      const existingArticle = await this.getArticleByUrl(article.url);
+      if (existingArticle) {
+        logger.debug('Updating existing article:', { id: existingArticle.id, url: article.url });
+        await this.db!.put('articles', { ...article, id: existingArticle.id });
+        logger.debug('Article updated successfully');
+        return existingArticle.id;
+      }
+
+      /** Add a new entry. */
+      await this.db!.add('articles', { ...article, id });
+      logger.debug('Article added successfully');
+      return id;
+    } catch (error) {
+      logger.error('Failed to add article:', error);
+      throw error;
+    }
   }
 
+  /**
+   * Get an article by its URL
+   * @param url - The URL of the article
+   * @returns The article
+   */
   async getArticleByUrl(url: string): Promise<ArticleRecord | undefined> {
     if (!this.db) await this.init();
     const tx = this.db!.transaction('articles', 'readonly');
@@ -60,13 +126,16 @@ export class Database {
     return await index.get(url);
   }
 
+  /**
+   * Clean up the database
+   */
   async cleanup() {
     if (!this.db) await this.init();
     const tx = this.db!.transaction('articles', 'readwrite');
     const store = tx.store;
     const index = store.index('by-date');
 
-    // 24時間以上前のレコードを削除
+    /** Delete records older than 24 hours. */
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
     let cursor = await index.openCursor();
     while (cursor) {
@@ -76,7 +145,7 @@ export class Database {
       cursor = await cursor.continue();
     }
 
-    // レコード数が200を超える場合、古いものから削除
+    /** Delete records if the number of records exceeds 200. */
     const count = await store.count();
     if (count > MAX_RECORDS) {
       const deleteCount = count - MAX_RECORDS;
@@ -89,11 +158,15 @@ export class Database {
       }
     }
 
-    // 最終クリーンアップ日時を更新
+    /** Update the last cleanup date. */
     const metadataTx = this.db!.transaction('metadata', 'readwrite');
     await metadataTx.store.put({ key: 'lastCleanup', lastCleanup: new Date() });
   }
 
+  /**
+   * Get the last cleanup date
+   * @returns The last cleanup date
+   */
   async getLastCleanupDate(): Promise<Date | null> {
     if (!this.db) await this.init();
     const tx = this.db!.transaction('metadata', 'readonly');
