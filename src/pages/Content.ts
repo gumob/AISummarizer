@@ -14,15 +14,16 @@ const handleMessage = async (message: any, sender: chrome.runtime.MessageSender,
       try {
         const result = await extractionService.execute(message.url, message);
         sendResponse(result);
+        chrome.runtime.sendMessage({
+          action: MessageAction.EXTRACT_CONTENT_COMPLETE,
+          result: result,
+        });
         return true;
       } catch (error: any) {
         logger.error('Error in content script:', error);
         sendResponse({ error: error.message });
         return false;
       }
-    case MessageAction.EXTRACT_CONTENT_COMPLETE:
-      logger.debug('Received message:', message);
-      break;
     default:
       return false;
   }

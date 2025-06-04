@@ -180,7 +180,7 @@ export async function extractYoutube(videoID: string): Promise<ArticleExtraction
           title: videoTitle,
           lang: null,
           url: videoURL,
-          textContent: null,
+          content: null,
           isSuccess: false,
         };
       }
@@ -193,7 +193,7 @@ export async function extractYoutube(videoID: string): Promise<ArticleExtraction
           title: videoTitle,
           lang: null,
           url: videoURL,
-          textContent: null,
+          content: null,
           isSuccess: false,
         };
       }
@@ -227,7 +227,7 @@ export async function extractYoutube(videoID: string): Promise<ArticleExtraction
           title: videoTitle,
           lang: selectedTrack.languageCode,
           url: videoURL,
-          textContent: null,
+          content: null,
           isSuccess: false,
         };
       }
@@ -240,7 +240,7 @@ export async function extractYoutube(videoID: string): Promise<ArticleExtraction
           title: videoTitle,
           lang: selectedTrack.languageCode,
           url: videoURL,
-          textContent: null,
+          content: null,
           isSuccess: false,
         };
       }
@@ -259,7 +259,7 @@ export async function extractYoutube(videoID: string): Promise<ArticleExtraction
           title: videoTitle,
           lang: selectedTrack.languageCode,
           url: videoURL,
-          textContent: null,
+          content: null,
           isSuccess: false,
           error: new Error('Empty transcript'),
         };
@@ -269,7 +269,7 @@ export async function extractYoutube(videoID: string): Promise<ArticleExtraction
         title: videoTitle,
         lang: selectedTrack.languageCode,
         url: videoURL,
-        textContent: transcript,
+        content: transcript,
         isSuccess: true,
       };
     } catch (error: unknown) {
@@ -277,7 +277,7 @@ export async function extractYoutube(videoID: string): Promise<ArticleExtraction
         title: null,
         lang: null,
         url: videoURL,
-        textContent: null,
+        content: null,
         isSuccess: false,
         error: error instanceof Error ? error : new Error('Failed to extract YouTube transcript'),
       };
@@ -288,7 +288,7 @@ export async function extractYoutube(videoID: string): Promise<ArticleExtraction
       title: null,
       lang: null,
       url: videoURL,
-      textContent: null,
+      content: null,
       isSuccess: false,
     };
   }

@@ -2,7 +2,7 @@ import {
   extractReadability,
   extractYoutube,
 } from '@/features/content/extractors';
-import { useArticleStore } from '@/stores/ArticleStore';
+import { useArticleStore } from '@/stores';
 import { ArticleExtractionResult } from '@/types';
 import { logger } from '@/utils';
 
@@ -20,7 +20,7 @@ export class ArticleService {
         title: null,
         lang: null,
         url: url,
-        textContent: null,
+        content: null,
         error: new Error('Skipping extraction for browser-specific URLs'),
       };
     }
@@ -44,7 +44,7 @@ export class ArticleService {
           title: null,
           lang: null,
           url: url,
-          textContent: null,
+          content: null,
           error: error instanceof Error ? error : new Error('Failed to extract article'),
         };
       }
@@ -64,7 +64,7 @@ export class ArticleService {
         title: null,
         lang: null,
         url: url,
-        textContent: null,
+        content: null,
         error: error instanceof Error ? error : new Error('Failed to extract article'),
       };
     }
