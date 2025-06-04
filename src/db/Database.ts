@@ -1,8 +1,4 @@
-import {
-  DBSchema,
-  IDBPDatabase,
-  openDB,
-} from 'idb';
+import { DBSchema, IDBPDatabase, openDB } from 'idb';
 
 import { logger } from '@/utils';
 
@@ -153,6 +149,12 @@ export class Database {
    */
   async getArticleByUrl(url: string): Promise<ArticleRecord | undefined> {
     try {
+      /** Skip processing for browser-specific URLs */
+      if (/^(chrome|brave|edge|opera|vivaldi)/.test(url)) {
+        logger.debug('Skipping extraction for browser-specific URLs');
+        return undefined;
+      }
+
       if (!this.db) await this.init();
       logger.debug('Getting article by url:', url);
       const tx = this.db!.transaction('articles', 'readonly');

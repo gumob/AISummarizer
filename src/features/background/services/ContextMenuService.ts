@@ -133,18 +133,15 @@ export class ContextMenuService {
           try {
             /** Check if the content script is injected */
             const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-            logger.debug('Tab found', tab);
             if (tab.id === undefined || tab.id === null) throw new Error('No active tab found');
 
             /** Inject the content script */
-            logger.debug('Injecting content script');
             await chrome.scripting.executeScript({
               target: { tabId: tab.id },
               files: ['content.js'],
             });
 
             /** Send the message to the content script */
-            logger.debug('Sending message to content script');
             await chrome.tabs.sendMessage(tab.id, {
               action: MessageAction.EXTRACT_CONTENT_START,
               url: tab.url!,

@@ -1,7 +1,8 @@
 import { db } from '@/db';
 import { BackgroundThemeService, CleanupDBService, ContextMenuService } from '@/features/background/services';
 import { ArticleService } from '@/features/content/services';
-import { MessageAction } from '@/types';
+import { useSettingsStore } from '@/stores';
+import { ContentExtractionTiming, MessageAction } from '@/types';
 import { logger } from '@/utils';
 
 /**
@@ -23,27 +24,52 @@ const initialize = async () => {
   cleanupService.startCleanup();
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (tab.id && tab.url) {
-    updateArticleExtractionState(tab.id, tab.url);
+    reload(tab.id, tab.url);
   } else {
-    logger.error('Tab id or url is undefined');
+    logger.warn('Tab id or url is undefined');
   }
 };
 
 /**
- * Export the function to update the article extraction state
+ * Update the article extraction state
  */
-const updateArticleExtractionState = async (tabId: number, url: string) => {
-  logger.debug('Updating article extraction state', tabId, url);
-  const isExist = await articleService.isArticleExtractedForUrl(url);
-  logger.debug('url', url);
-  logger.debug('Article exists', isExist);
-  if (isExist) {
-    chrome.action.setBadgeText({ text: '✓', tabId });
-    chrome.action.setBadgeBackgroundColor({ color: '#999999', tabId });
-  } else {
-    chrome.action.setBadgeText({ text: '', tabId });
+const reload = async (tabId: number, url: string) => {
+  try {
+    logger.debug('Updating article extraction state', tabId, url);
+    const isExist = await articleService.isArticleExtractedForUrl(url);
+    logger.debug('url', url);
+    logger.debug('Article exists', isExist);
+    if (isExist) {
+      chrome.action.setBadgeText({ text: '✓', tabId });
+      chrome.action.setBadgeBackgroundColor({ color: '#999999', tabId });
+    } else {
+      chrome.action.setBadgeText({ text: '', tabId });
+      const contentExtractionTiming = useSettingsStore.getState().contentExtractionTiming;
+      logger.debug('Content extraction timing', contentExtractionTiming);
+      switch (contentExtractionTiming) {
+        case ContentExtractionTiming.AUTOMATIC:
+          logger.debug('Injecting content script', tabId, url);
+          /** Inject the content script */
+          await chrome.scripting.executeScript({
+            target: { tabId: tabId },
+            files: ['content.js'],
+          });
+          /** Send the message to the content script */
+          await chrome.tabs.sendMessage(tabId, {
+            action: MessageAction.EXTRACT_CONTENT_START,
+            url: url,
+          });
+          break;
+        case ContentExtractionTiming.MANUAL:
+          break;
+        default:
+          break;
+      }
+    }
+    contextMenuService.createMenu();
+  } catch (error: any) {
+    logger.error('Failed to update article extraction state', error);
   }
-  contextMenuService.createMenu();
 };
 
 /**
@@ -72,15 +98,16 @@ const handleTabActivated = async (activeInfo: chrome.tabs.TabActiveInfo) => {
   if (tab.url) {
     logger.debug('Tab activated', tab.url, tab.status);
     if (tab.id) {
-      updateArticleExtractionState(tab.id, tab.url);
+      reload(tab.id, tab.url);
     } else {
-      logger.error('Tab id is undefined', tab.url);
+      logger.warn('Tab id is undefined', tab.url);
     }
   }
 };
 
 /**
  * Event listener for when the tab is updated
+ * @description This event is triggered when the tab is newly created, url updated or reloaded
  * @param tabId - The ID of the updated tab
  * @param changeInfo - The information about the updated tab
  * @param tab - The updated tab
@@ -88,7 +115,7 @@ const handleTabActivated = async (activeInfo: chrome.tabs.TabActiveInfo) => {
 const handleTabUpdated = async (tabId: number, changeInfo: chrome.tabs.TabChangeInfo, tab: chrome.tabs.Tab) => {
   if (changeInfo.status === 'complete' && tab.url) {
     logger.debug('Tab updated', tab.url, tab.status);
-    updateArticleExtractionState(tabId, tab.url);
+    reload(tabId, tab.url);
   }
 };
 

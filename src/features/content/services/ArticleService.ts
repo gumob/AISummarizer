@@ -1,7 +1,4 @@
-import {
-  extractReadability,
-  extractYoutube,
-} from '@/features/content/extractors';
+import { extractReadability, extractYoutube } from '@/features/content/extractors';
 import { useArticleStore } from '@/stores';
 import { ArticleExtractionResult } from '@/types';
 import { logger } from '@/utils';
@@ -13,7 +10,7 @@ export class ArticleService {
     /**
      * Skip processing for browser-specific URLs
      */
-    if (/^(chrome|brave|edge|opera|vivaldi):\/\//.test(url)) {
+    if (/^(chrome|brave|edge|opera|vivaldi)/.test(url)) {
       logger.debug('Skipping extraction for browser-specific URLs');
       return {
         isSuccess: false,
