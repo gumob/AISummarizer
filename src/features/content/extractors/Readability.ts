@@ -1,6 +1,7 @@
+import { Readability } from '@mozilla/readability';
+
 import { ArticleExtractionResult } from '@/types';
 import { logger } from '@/utils';
-import { Readability } from '@mozilla/readability';
 
 export async function extractReadability(document: Document): Promise<ArticleExtractionResult> {
   try {
@@ -8,18 +9,20 @@ export async function extractReadability(document: Document): Promise<ArticleExt
     const article = new Readability(clonedDoc).parse();
     logger.debug('extractReadability url:', document.URL);
     logger.debug('extractReadability article:', article);
-    const textContent = article?.excerpt ? article?.excerpt + '\n' + article?.textContent : article?.textContent || null;
-    const isSuccess = textContent !== null && textContent.length > 0;
+    const title = article?.title || '';
+    const lang = article?.lang || null;
+    const url = document.URL;
+    const textContent = article?.excerpt ? article?.excerpt + '\n' + article?.textContent : article?.textContent || '';
+    const isSuccess = title.length > 0 && textContent.length > 0;
     if (!isSuccess) {
       return {
-        title: null,
-        lang: null,
-        url: null,
-        textContent: null,
-        isSuccess: false,
+        title,
+        lang,
+        url,
+        textContent,
+        isSuccess,
       };
     }
-
     return {
       title: article?.title || null,
       lang: article?.lang || null,

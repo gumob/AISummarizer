@@ -37,35 +37,7 @@ export class ArticleService {
         if (!videoId) {
           throw new Error('Could not extract video ID from URL');
         }
-
-        /** Extract youtube video */
-        const result = await extractYoutube(videoId);
-        logger.debug('extractYoutube result:', result.textContent);
-
-        if (result.isSuccess && result.title && result.textContent) {
-          /** Add article to database */
-          await useArticleStore.getState().addArticle({
-            url: url,
-            title: result.title,
-            content: result.textContent,
-            date: new Date(),
-            is_success: true,
-          });
-          /** Return extraction result */
-          return {
-            ...result,
-          };
-        }
-
-        logger.warn('Article is not extracted');
-        return {
-          isSuccess: false,
-          title: null,
-          lang: null,
-          url: url,
-          textContent: null,
-          error: new Error('Article is not extracted'),
-        };
+        return await extractYoutube(videoId);
       } catch (error: any) {
         return {
           isSuccess: false,
@@ -84,31 +56,7 @@ export class ArticleService {
     try {
       /** Extract article */
       logger.debug('Extracting normal web page');
-      const result = await extractReadability(document);
-      logger.debug('extract result:', result.textContent);
-
-      if (result.isSuccess) {
-        /** Add article to database */
-        await useArticleStore.getState().addArticle({
-          url: url,
-          title: result.title,
-          content: result.textContent ?? '',
-          date: new Date(),
-          is_success: true,
-        });
-        return {
-          ...result,
-        };
-      }
-      logger.warn('Article is not extracted');
-      return {
-        isSuccess: false,
-        title: null,
-        lang: null,
-        url: url,
-        textContent: null,
-        error: new Error('Article is not extracted'),
-      };
+      return await extractReadability(document);
     } catch (error: any) {
       logger.error('Failed to extract article:', error);
       return {

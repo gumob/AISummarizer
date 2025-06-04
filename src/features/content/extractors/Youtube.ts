@@ -251,27 +251,35 @@ export async function extractYoutube(videoID: string): Promise<ArticleExtraction
       const textElements = xmlDoc.getElementsByTagName('text');
 
       /** Extract and group the caption data. */
-      const transcript = groupTranscriptSegments(textElements, videoID);
+      const transcript = groupTranscriptSegments(textElements, videoID).join('\n');
+
+      if (transcript.length === 0) {
+        logger.error('Empty transcript', videoID);
+        return {
+          title: videoTitle,
+          lang: selectedTrack.languageCode,
+          url: videoURL,
+          textContent: null,
+          isSuccess: false,
+          error: new Error('Empty transcript'),
+        };
+      }
 
       return {
         title: videoTitle,
         lang: selectedTrack.languageCode,
         url: videoURL,
-        textContent: transcript.join('\n'),
+        textContent: transcript,
         isSuccess: true,
       };
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        logger.error(`Error parsing XML: ${error.message}`, videoID);
-      } else {
-        logger.error('Unknown error occurred while parsing XML', videoID);
-      }
       return {
         title: null,
         lang: null,
         url: videoURL,
         textContent: null,
         isSuccess: false,
+        error: error instanceof Error ? error : new Error('Failed to extract YouTube transcript'),
       };
     }
   } else {
