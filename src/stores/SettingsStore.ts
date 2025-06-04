@@ -49,13 +49,12 @@ interface SettingsStore extends SettingsState {
   setPrompt: (service: AIService, prompt: string) => Promise<void>;
   setTabBehavior: (tabBehavior: TabBehavior) => Promise<void>;
   setFloatButtonPosition: (floatButtonPosition: FloatButtonPosition) => Promise<void>;
-  contentExtractionTiming: ContentExtractionTiming;
   setContentExtractionTiming: (contentExtractionTiming: ContentExtractionTiming) => Promise<void>;
   setIsShowMessage: (isShowMessage: boolean) => Promise<void>;
   setIsShowBadge: (isShowBadge: boolean) => Promise<void>;
-  saveArticleOnClipboard: boolean;
   setSaveArticleOnClipboard: (saveArticleOnClipboard: boolean) => Promise<void>;
   getContentExtractionTiming: () => Promise<ContentExtractionTiming>;
+  getSaveArticleOnClipboard: () => Promise<boolean>;
 }
 
 export const useSettingsStore = create<SettingsStore>()(
@@ -100,6 +99,10 @@ export const useSettingsStore = create<SettingsStore>()(
       getContentExtractionTiming: async () => {
         const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
         return settings[STORAGE_KEYS.SETTINGS]?.state?.contentExtractionTiming ?? DEFAULT_SETTINGS.contentExtractionTiming;
+      },
+      getSaveArticleOnClipboard: async () => {
+        const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
+        return settings[STORAGE_KEYS.SETTINGS]?.state?.saveArticleOnClipboard ?? DEFAULT_SETTINGS.saveArticleOnClipboard;
       },
     }),
     {

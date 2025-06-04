@@ -2,7 +2,7 @@
 
 ## Article Extraction
 
-- [ ] Start extracting articles automatically after the page has finished loading
+- [✓] Start extracting articles automatically after the page has finished loading
 - [ ] Automatically insert prompts and execute in AI services
 
 ## UI

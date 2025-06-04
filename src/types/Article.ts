@@ -6,3 +6,15 @@ export interface ArticleExtractionResult {
   isSuccess: boolean;
   error?: Error | null;
 }
+
+export const formatArticleForClipboard = (article: ArticleExtractionResult) => {
+  return `# Title
+${article.title}
+
+# URL
+${article.url}
+
+# Content
+${article.content}
+`;
+};

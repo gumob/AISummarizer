@@ -21,6 +21,17 @@ export class ArticleService {
         error: new Error('Skipping extraction for browser-specific URLs'),
       };
     }
+    if (/(https?)\:\/\/(www\.)?(chatgpt\.com|gemini\.com|grok\.com|perplexity\.com|deepseek\.com|claude\.ai)/.test(url)) {
+      logger.debug('Skipping extraction for AI service URLs');
+      return {
+        isSuccess: false,
+        title: null,
+        lang: null,
+        url: url,
+        content: null,
+        error: new Error('Skipping extraction for AI service URLs'),
+      };
+    }
 
     /**
      * YouTube

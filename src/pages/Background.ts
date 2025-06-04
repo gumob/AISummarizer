@@ -3,7 +3,7 @@ import { db } from '@/db';
 import { BackgroundThemeService, CleanupDBService, ContextMenuService } from '@/features/background/services';
 import { ArticleService } from '@/features/content/services';
 import { useSettingsStore } from '@/stores';
-import { ContentExtractionTiming, MessageAction } from '@/types';
+import { ContentExtractionTiming, formatArticleForClipboard, MessageAction } from '@/types';
 import { logger } from '@/utils';
 
 /**
@@ -125,6 +125,7 @@ const handleMessage = async (message: any, sender: chrome.runtime.MessageSender,
     case MessageAction.EXTRACT_CONTENT_COMPLETE:
       logger.debug('Extracting content complete', message.result);
       if (message.result.isSuccess) {
+        /** Save the article to the database */
         db.addArticle({
           url: message.result.url,
           title: message.result.title,
@@ -132,6 +133,19 @@ const handleMessage = async (message: any, sender: chrome.runtime.MessageSender,
           date: new Date(),
           is_success: true,
         });
+        /** Copy the article to the clipboard */
+        const saveArticleOnClipboard = await useSettingsStore.getState().getSaveArticleOnClipboard();
+        logger.debug('Save article on clipboard', saveArticleOnClipboard);
+        if (saveArticleOnClipboard) {
+          const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+          if (tab.id) {
+            chrome.tabs.sendMessage(tab.id, {
+              action: MessageAction.COPY_ARTICLE_TO_CLIPBOARD,
+              payload: { text: formatArticleForClipboard(message.result) },
+            });
+            logger.debug('Article copied to clipboard');
+          }
+        }
       }
       break;
     default:

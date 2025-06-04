@@ -24,6 +24,9 @@ const handleMessage = async (message: any, sender: chrome.runtime.MessageSender,
         sendResponse({ error: error.message });
         return false;
       }
+    case MessageAction.COPY_ARTICLE_TO_CLIPBOARD:
+      await navigator.clipboard.writeText(message.payload.text);
+      return true;
     default:
       return false;
   }
