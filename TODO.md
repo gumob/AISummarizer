@@ -17,5 +17,5 @@
   - When the tab becomes active
   - If `isShowBadge` on `GlobalContext` is true
   - If there is a record where `url` matches and `is_extracted` is `true`
-- [ ] Copy the article text to the clipboard when extraction is complete
+- [✓] Copy the article text to the clipboard when extraction is complete
 - [ ] Add settings for each AI service
