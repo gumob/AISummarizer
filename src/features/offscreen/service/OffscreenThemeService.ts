@@ -32,7 +32,7 @@ export class OffscreenThemeService {
     logger.debug('Initializing theme detection service');
     logger.debug('Initial media query state:', this.mediaQuery.matches);
 
-    // 初期状態の送信を少し遅延させる
+    /** Send the initial theme status after a delay */
     setTimeout(() => {
       logger.debug('Sending initial theme status');
       this.sendThemeStatus();
@@ -47,6 +47,22 @@ export class OffscreenThemeService {
     }
 
     this.isInitialized = true;
+  }
+
+  /**
+   * Cleanup the service
+   */
+  cleanup() {
+    if (!this.isInitialized) return;
+
+    try {
+      this.mediaQuery.removeEventListener('change', this.handleThemeChange);
+      logger.debug('Theme change listener removed successfully');
+    } catch (error) {
+      logger.error('Failed to remove theme change listener:', error);
+    }
+
+    this.isInitialized = false;
   }
 
   /**
@@ -81,20 +97,4 @@ export class OffscreenThemeService {
     logger.debug('Theme change detected:', event.matches ? 'dark' : 'light');
     this.sendThemeStatus();
   };
-
-  /**
-   * Cleanup the service
-   */
-  cleanup() {
-    if (!this.isInitialized) return;
-
-    try {
-      this.mediaQuery.removeEventListener('change', this.handleThemeChange);
-      logger.debug('Theme change listener removed successfully');
-    } catch (error) {
-      logger.error('Failed to remove theme change listener:', error);
-    }
-
-    this.isInitialized = false;
-  }
 }
