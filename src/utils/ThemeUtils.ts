@@ -1,4 +1,3 @@
-import { chromeAPI } from '@/api';
 import { MessageAction } from '@/types';
 import { logger } from '@/utils';
 
@@ -12,7 +11,7 @@ import { logger } from '@/utils';
  */
 const isBackgroundScriptReady = async (): Promise<boolean> => {
   try {
-    await chromeAPI.sendRuntimeMessage({ action: MessageAction.PING });
+    await chrome.runtime.sendMessage({ action: MessageAction.PING });
     return true;
   } catch (error) {
     return false;
@@ -35,7 +34,7 @@ export const detectTheme = async () => {
 
   /** Send the message to the offscreen document */
   try {
-    await chrome.runtime.sendMessage({
+    chrome.runtime.sendMessage({
       type: MessageAction.COLOR_SCHEME_CHANGED,
       isDarkMode: isDarkMode,
     });
@@ -53,7 +52,7 @@ export const updateExtensionIcon = async (isDarkMode: boolean) => {
 
   try {
     const iconPath = isDarkMode ? '/icons/dark/' : '/icons/light/';
-    await chromeAPI.setIcon({
+    await chrome.action.setIcon({
       path: {
         16: `${iconPath}icon16.png`,
         48: `${iconPath}icon48.png`,

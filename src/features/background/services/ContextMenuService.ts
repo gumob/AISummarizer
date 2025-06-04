@@ -1,4 +1,3 @@
-import { chromeAPI } from '@/api';
 import { MENU_ITEMS } from '@/models';
 import { MessageAction } from '@/types';
 import { logger } from '@/utils';
@@ -144,7 +143,7 @@ export class ContextMenuService {
           break;
         case 'settings':
           logger.debug('Settings clicked');
-          chromeAPI.openSidePanel(tab.windowId);
+          chrome.sidePanel.open({ windowId: tab.windowId });
           break;
       }
     });

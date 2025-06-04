@@ -1,9 +1,13 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import { chromeAPI } from '@/api';
 import { STORAGE_KEYS } from '@/constants';
-import { AIService, ContentExtractionTiming, FloatButtonPosition, TabBehavior } from '@/types';
+import {
+  AIService,
+  ContentExtractionTiming,
+  FloatButtonPosition,
+  TabBehavior,
+} from '@/types';
 
 interface SettingsState {
   prompts: {
@@ -103,7 +107,7 @@ export const useSettingsStore = create<SettingsStore>()(
          * Handles errors and logs them appropriately
          */
         getItem: async (name: string) => {
-          const result = await chromeAPI.getLocalStorage(name);
+          const result = await chrome.storage.local.get(name);
           return result[name];
         },
         /**
@@ -111,14 +115,14 @@ export const useSettingsStore = create<SettingsStore>()(
          * Handles errors and logs them appropriately
          */
         setItem: async (name: string, value: any) => {
-          await chromeAPI.setLocalStorage({ [name]: value });
+          await chrome.storage.local.set({ [name]: value });
         },
         /**
          * Custom storage remover that deletes data from Chrome storage
          * Handles errors and logs them appropriately
          */
         removeItem: async (name: string) => {
-          await chromeAPI.removeLocalStorage(name);
+          await chrome.storage.local.remove(name);
         },
       },
     }

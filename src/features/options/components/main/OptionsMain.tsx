@@ -7,7 +7,6 @@ import React, {
 import clsx from 'clsx';
 import { IoClose } from 'react-icons/io5';
 
-import { chromeAPI } from '@/api';
 import { OptionCard } from '@/features/options/components/main';
 import {
   useArticleStore,
@@ -143,7 +142,7 @@ export const OptionsMain: React.FC = () => {
           <button
             onClick={async () => {
               try {
-                await chromeAPI.closeSidePanel();
+                await chrome.sidePanel.setOptions({ enabled: false });
               } catch (error) {
                 logger.error('Failed to close side panel', error);
               }

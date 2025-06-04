@@ -6,7 +6,6 @@ import {
   IoSettingsOutline,
 } from 'react-icons/io5';
 
-import { chromeAPI } from '@/api';
 import {
   Divider,
   ServiceIcon,
@@ -85,7 +84,8 @@ export const PopupMain: React.FC = () => {
             logger.debug('Settings clicked');
             const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
             if (tab?.id) {
-              chromeAPI.openSidePanel(tab.windowId);
+              chrome.sidePanel.setOptions({ path: 'options.html', enabled: true });
+              chrome.sidePanel.open({ windowId: tab.windowId });
               window.close();
             }
           }}

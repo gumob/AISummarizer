@@ -133,17 +133,13 @@ export class ChromeAPI {
     }
   }
 
-  /************************************************
-   * Message API
-   ************************************************/
-
   /**
    * The function that sends a message.
    * @param tabId - The tab id.
    * @param message - The message.
    * @returns The message response.
    */
-  public async sendMessage<T>(tabId: number, message: Message): Promise<MessageResponse<T>> {
+  public async sendTabMessage<T = any, M = any>(tabId: number, message: M): Promise<MessageResponse<T>> {
     try {
       return await chrome.tabs.sendMessage(tabId, message);
     } catch (error) {
@@ -161,9 +157,9 @@ export class ChromeAPI {
    * @param message - The message.
    * @returns The message response.
    */
-  public async sendRuntimeMessage<T = any>(message: T): Promise<T> {
+  public async sendRuntimeMessage<T = any, R = any>(message: T, responseCallback: (response: R) => void = () => {}): Promise<void> {
     try {
-      return await chrome.runtime.sendMessage(message);
+      chrome.runtime.sendMessage(message, responseCallback);
     } catch (error) {
       logger.warn('Failed to send runtime message', error);
       throw error;

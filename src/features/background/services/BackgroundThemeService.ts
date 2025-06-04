@@ -1,4 +1,3 @@
-import { chromeAPI } from '@/api';
 import { useThemeStore } from '@/stores/ThemeStore';
 import {
   Message,
@@ -14,11 +13,15 @@ export class BackgroundThemeService {
 
   async initialize() {
     try {
-      if (await chromeAPI.hasOffscreenDocument()) {
-        await chromeAPI.closeOffscreenDocument();
+      if (await chrome.offscreen.hasDocument()) {
+        await chrome.offscreen.closeDocument();
       }
 
-      await chromeAPI.createOffscreenDocument('offscreen.html', ['MATCH_MEDIA' as chrome.offscreen.Reason], 'Detect system color scheme changes');
+      await chrome.offscreen.createDocument({
+        url: 'offscreen.html',
+        reasons: ['MATCH_MEDIA' as chrome.offscreen.Reason],
+        justification: 'Detect system color scheme changes',
+      });
       logger.debug('Offscreen document created successfully');
     } catch (error) {
       logger.error('Failed to create offscreen document', error);
