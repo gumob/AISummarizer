@@ -1,10 +1,10 @@
 import React from 'react';
 
 import { FloatButton } from '@/features/content/components/main';
-import { useFloatButton } from '@/hooks';
+import { useContentContext } from '@/stores/ContentContext';
 
 export const ContentMain: React.FC = () => {
-  const { isVisible } = useFloatButton();
+  const { isFloatButtonVisible } = useContentContext();
 
-  return <FloatButton isVisible={isVisible} />;
+  return <FloatButton isVisible={isFloatButtonVisible} />;
 };

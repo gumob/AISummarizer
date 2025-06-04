@@ -3,10 +3,7 @@ import {
   useState,
 } from 'react';
 
-import {
-  useArticleStore,
-  useSettingsStore,
-} from '@/stores';
+import { useSettingsStore } from '@/stores';
 import { useGlobalContext } from '@/stores/GlobalContext';
 import {
   FloatButtonPosition,
@@ -21,7 +18,6 @@ import { logger } from '@/utils';
 export const useFloatButton = () => {
   const [isVisible, setIsVisible] = useState(false);
   const { floatButtonPosition } = useGlobalContext();
-  const { isArticleExtractedForUrl } = useArticleStore();
 
   useEffect(() => {
     logger.debug('🛟', 'mounting');
@@ -55,7 +51,7 @@ export const useFloatButton = () => {
     };
 
     checkVisibility();
-  }, [floatButtonPosition, isArticleExtractedForUrl]);
+  }, [floatButtonPosition]);
 
   const handleMessage = (message: any, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void) => {
     logger.debug('🛟', 'handleMessage', message.action);
@@ -67,5 +63,8 @@ export const useFloatButton = () => {
     }
   };
 
-  return { isVisible };
+  return {
+    isFloatButtonVisible: isVisible,
+    setIsFloatButtonVisible: setIsVisible,
+  };
 };
