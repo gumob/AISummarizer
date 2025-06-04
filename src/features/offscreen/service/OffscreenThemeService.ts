@@ -29,19 +29,19 @@ export class OffscreenThemeService {
   initialize() {
     if (this.isInitialized) return;
 
-    logger.debug('Initializing theme detection service');
-    logger.debug('Initial media query state:', this.mediaQuery.matches);
+    logger.debug('🧑‍🍳🎨', 'Initializing theme detection service');
+    logger.debug('🧑‍🍳🎨', 'Initial media query state:', this.mediaQuery.matches);
 
     /** Send the initial theme status after a delay */
     setTimeout(() => {
-      logger.debug('Sending initial theme status');
+      logger.debug('🧑‍🍳🎨', 'Sending initial theme status');
       this.sendThemeStatus();
     }, 2000);
 
     /** Set up the theme change listener */
     try {
       this.mediaQuery.addEventListener('change', this.handleThemeChange);
-      logger.debug('Theme change listener added successfully');
+      logger.debug('🧑‍🍳🎨', 'Theme change listener added successfully');
     } catch (error) {
       logger.error('Failed to add theme change listener:', error);
     }
@@ -57,7 +57,7 @@ export class OffscreenThemeService {
 
     try {
       this.mediaQuery.removeEventListener('change', this.handleThemeChange);
-      logger.debug('Theme change listener removed successfully');
+      logger.debug('🧑‍🍳🎨', 'Theme change listener removed successfully');
     } catch (error) {
       logger.error('Failed to remove theme change listener:', error);
     }
@@ -70,7 +70,7 @@ export class OffscreenThemeService {
    */
   private sendThemeStatus = () => {
     const isDarkMode = this.mediaQuery.matches;
-    logger.debug('isDarkMode', isDarkMode);
+    logger.debug('🧑‍🍳🎨', 'isDarkMode', isDarkMode);
 
     try {
       chrome.runtime.sendMessage({ type: MessageAction.COLOR_SCHEME_CHANGED, isDarkMode }, () => {
@@ -79,7 +79,7 @@ export class OffscreenThemeService {
           /** If there is a connection error, wait a moment and try again */
           setTimeout(this.sendThemeStatus, 1000);
         } else {
-          logger.debug('Theme status sent successfully');
+          logger.debug('🧑‍🍳🎨', 'Theme status sent successfully');
         }
       });
     } catch (error) {
@@ -94,7 +94,7 @@ export class OffscreenThemeService {
    * @param event - Media query list event
    */
   private handleThemeChange = (event: MediaQueryListEvent) => {
-    logger.debug('Theme change detected:', event.matches ? 'dark' : 'light');
+    logger.debug('🧑‍🍳🎨', 'Theme change detected:', event.matches ? 'dark' : 'light');
     this.sendThemeStatus();
   };
 }

@@ -1,17 +1,20 @@
-import { extractReadability, extractYoutube } from '@/features/content/extractors';
+import {
+  extractReadability,
+  extractYoutube,
+} from '@/features/content/extractors';
 import { useArticleStore } from '@/stores';
 import { ArticleExtractionResult } from '@/types';
 import { logger } from '@/utils';
 
 export class ArticleService {
   async execute(url: string, message: any = {}): Promise<ArticleExtractionResult> {
-    logger.debug('extracting', '\nurl:', url, '\nmessage:', message);
+    logger.debug('🧑‍🍳📖', 'extracting', '\nurl:', url, '\nmessage:', message);
 
     /**
      * Skip processing for browser-specific URLs
      */
     if (/^(chrome|brave|edge|opera|vivaldi)/.test(url)) {
-      logger.debug('Skipping extraction for browser-specific URLs');
+      logger.debug('🧑‍🍳📖', 'Skipping extraction for browser-specific URLs');
       return {
         isSuccess: false,
         title: null,
@@ -22,7 +25,7 @@ export class ArticleService {
       };
     }
     if (/(https?)\:\/\/(www\.)?(chatgpt\.com|gemini\.com|grok\.com|perplexity\.com|deepseek\.com|claude\.ai)/.test(url)) {
-      logger.debug('Skipping extraction for AI service URLs');
+      logger.debug('🧑‍🍳📖', 'Skipping extraction for AI service URLs');
       return {
         isSuccess: false,
         title: null,
@@ -37,7 +40,7 @@ export class ArticleService {
      * YouTube
      */
     if (/^https?:\/\/(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=|embed\/|v\/|shorts\/)?([a-zA-Z0-9_-]{11})/.test(url)) {
-      logger.debug('Extracting youtube video');
+      logger.debug('🧑‍🍳📖', 'Extracting youtube video');
       try {
         /** Extract youtube video id from url */
         const match = url.match(/(?:watch\?v=|embed\/|v\/|shorts\/)?([a-zA-Z0-9_-]{11})/);
@@ -63,7 +66,7 @@ export class ArticleService {
      */
     try {
       /** Extract article */
-      logger.debug('Extracting normal web page');
+      logger.debug('🧑‍🍳📖', 'Extracting normal web page');
       return await extractReadability(document);
     } catch (error: any) {
       logger.error('Failed to extract article:', error);

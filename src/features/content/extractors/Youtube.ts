@@ -155,7 +155,7 @@ function groupTranscriptSegments(elements: HTMLCollectionOf<Element>, videoID: s
  * @returns The transcript of the YouTube video.
  */
 export async function extractYoutube(videoID: string): Promise<ArticleExtractionResult> {
-  logger.debug('Extracting YouTube transcript', videoID);
+  logger.debug('🎥', 'v', 'Extracting YouTube transcript', videoID);
 
   /** Get the HTML of the YouTube video. */
   const html = await getHtmlByVideoID(videoID);
@@ -200,7 +200,7 @@ export async function extractYoutube(videoID: string): Promise<ArticleExtraction
 
       /** Generate the caption URL (XML format). */
       const captionUrl = selectedTrack.baseUrl;
-      logger.debug('captionUrl', captionUrl);
+      logger.debug('🎥', 'v', 'captionUrl', captionUrl);
 
       /** Fetch the caption XML. */
       const response = await fetch(captionUrl, {
@@ -283,7 +283,7 @@ export async function extractYoutube(videoID: string): Promise<ArticleExtraction
       };
     }
   } else {
-    logger.debug('no captions', videoID);
+    logger.debug('🎥', 'v', 'no captions', videoID);
     return {
       title: null,
       lang: null,

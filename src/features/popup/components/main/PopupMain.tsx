@@ -34,7 +34,7 @@ export const PopupMain: React.FC = () => {
           <ServiceListMenu
             key={index}
             onClick={() => {
-              logger.debug(service);
+              logger.debug('📦🍿', service);
               window.close();
             }}
           >
@@ -45,7 +45,7 @@ export const PopupMain: React.FC = () => {
         <Divider />
         <ServiceListMenu
           onClick={() => {
-            logger.debug('Copy to clipboard');
+            logger.debug('📦🍿', 'Copy to clipboard');
             window.close();
           }}
         >
@@ -54,7 +54,7 @@ export const PopupMain: React.FC = () => {
         </ServiceListMenu>
         <ServiceListMenu
           onClick={async () => {
-            logger.debug('Extract article again');
+            logger.debug('📦🍿', 'Extract article again');
             /** Check if the content script is injected */
             const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
             if (!tab.id) throw new Error('No active tab found');
@@ -81,7 +81,7 @@ export const PopupMain: React.FC = () => {
         <Divider />
         <ServiceListMenu
           onClick={async () => {
-            logger.debug('Settings clicked');
+            logger.debug('📦🍿', 'Settings clicked');
             const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
             if (tab?.id) {
               chrome.sidePanel.setOptions({ path: 'options.html', enabled: true });

@@ -16,7 +16,7 @@ import {
   logger,
 } from '@/utils';
 
-logger.debug('Content script loaded');
+logger.debug('📄🥡', 'Content script loaded');
 
 /**
  * The main component for the content script.
@@ -34,7 +34,7 @@ const Content: React.FC = () => {
       if (isInitialized.current) return;
       isInitialized.current = true;
 
-      logger.debug('Initializing content document');
+      logger.debug('📄🥡', 'Initializing content document');
       await detectTheme();
 
       chrome.runtime.onMessage.addListener(handleMessage);
@@ -45,12 +45,12 @@ const Content: React.FC = () => {
     return () => {
       chrome.runtime.onMessage.removeListener(handleMessage);
       isInitialized.current = false;
-      logger.debug('Deinitializing content document');
+      logger.debug('📄🥡', 'Deinitializing content document');
     };
   }, []);
 
   const handleMessage = async (message: any, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void) => {
-    logger.debug('Received message:', message);
+    logger.debug('📄🥡', 'Received message:', message);
 
     switch (message.action) {
       case MessageAction.EXTRACT_CONTENT_START:

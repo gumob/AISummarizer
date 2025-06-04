@@ -23,7 +23,7 @@ const isBackgroundScriptReady = async (): Promise<boolean> => {
  */
 export const detectTheme = async () => {
   const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  logger.debug('Theme detected');
+  logger.debug('🎨', 'Theme detected');
 
   /** Check if the background script is ready */
   const isReady = await isBackgroundScriptReady();
@@ -48,7 +48,7 @@ export const detectTheme = async () => {
  * @param isDarkMode - Whether the color scheme is dark
  */
 export const updateExtensionIcon = async (isDarkMode: boolean) => {
-  logger.debug('Updating extension icon');
+  logger.debug('🎨', 'Updating extension icon');
 
   try {
     const iconPath = isDarkMode ? '/icons/dark/' : '/icons/light/';
@@ -59,7 +59,7 @@ export const updateExtensionIcon = async (isDarkMode: boolean) => {
         128: `${iconPath}icon128.png`,
       },
     });
-    logger.debug('Icon updated');
+    logger.debug('🎨', 'Icon updated');
   } catch (error) {
     logger.error('Failed to update extension icon', error);
   }

@@ -6,8 +6,8 @@ export async function extractReadability(document: Document): Promise<ArticleExt
   try {
     const clonedDoc = document.cloneNode(true) as Document;
     const article = new Readability(clonedDoc).parse();
-    logger.debug('extractReadability url:', document.URL);
-    // logger.debug('extractReadability article:', article);
+    logger.debug('📕', 'extractReadability url:', document.URL);
+    // logger.debug('📕', 'extractReadability article:', article);
     const title = article?.title || null;
     const lang = article?.lang || null;
     const url = document.URL;

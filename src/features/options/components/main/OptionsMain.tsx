@@ -1,13 +1,17 @@
+import React, {
+  Fragment,
+  useEffect,
+  useState,
+} from 'react';
+
 import clsx from 'clsx';
-
-import React, { Fragment, useEffect, useState } from 'react';
-
 import { IoClose } from 'react-icons/io5';
 
-import { Field, Switch, Tab, TabGroup, TabList, TabPanel, TabPanels, Textarea } from '@headlessui/react';
-
 import { OptionCard } from '@/features/options/components/main';
-import { useArticleStore, useGlobalContext } from '@/stores';
+import {
+  useArticleStore,
+  useGlobalContext,
+} from '@/stores';
 import {
   AIService,
   ContentExtractionTiming,
@@ -18,6 +22,16 @@ import {
 } from '@/types';
 import { TabBehavior } from '@/types/TabBahavior';
 import { logger } from '@/utils';
+import {
+  Field,
+  Switch,
+  Tab,
+  TabGroup,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Textarea,
+} from '@headlessui/react';
 
 /**
  * The main component for the options page.
@@ -87,34 +101,34 @@ export const OptionsMain: React.FC = () => {
   /** Set ShowMessage index */
   useEffect(() => {
     if (enableShowMessage !== null) setIsShowMessage(enableShowMessage);
-    logger.debug('enableShowMessage', enableShowMessage);
+    logger.debug('📦⌥', 'enableShowMessage', enableShowMessage);
   }, [enableShowMessage]);
 
   useEffect(() => {
     if (enableShowMessage === null) setEnableShowMessage(isShowMessage);
-    logger.debug('isShowMessage', isShowMessage);
+    logger.debug('📦⌥', 'isShowMessage', isShowMessage);
   }, [isShowMessage]);
 
   /** Set ShowBadge index */
   useEffect(() => {
     if (enableShowBadge !== null) setIsShowBadge(enableShowBadge);
-    logger.debug('enableShowBadge', enableShowBadge);
+    logger.debug('📦⌥', 'enableShowBadge', enableShowBadge);
   }, [enableShowBadge]);
 
   useEffect(() => {
     if (enableShowBadge === null) setEnableShowBadge(isShowBadge);
-    logger.debug('isShowBadge', isShowBadge);
+    logger.debug('📦⌥', 'isShowBadge', isShowBadge);
   }, [isShowBadge]);
 
   /** Set SaveArticleOnClipboard index */
   useEffect(() => {
     if (enableSaveArticleOnClipboard !== null) setSaveArticleOnClipboard(enableSaveArticleOnClipboard);
-    logger.debug('enableSaveArticleOnClipboard', enableSaveArticleOnClipboard);
+    logger.debug('📦⌥', 'enableSaveArticleOnClipboard', enableSaveArticleOnClipboard);
   }, [enableSaveArticleOnClipboard]);
 
   useEffect(() => {
     if (enableSaveArticleOnClipboard === null) setEnableSaveArticleOnClipboard(saveArticleOnClipboard);
-    logger.debug('saveArticleOnClipboard', saveArticleOnClipboard);
+    logger.debug('📦⌥', 'saveArticleOnClipboard', saveArticleOnClipboard);
   }, [saveArticleOnClipboard]);
 
   useEffect(() => {
@@ -324,7 +338,7 @@ export const OptionsMain: React.FC = () => {
             onClick={async () => {
               try {
                 await cleanupDatabase();
-                logger.debug('Database cleanup completed');
+                logger.debug('📦⌥', 'Database cleanup completed');
               } catch (error) {
                 logger.error('Failed to cleanup database:', error);
               }
