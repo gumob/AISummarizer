@@ -3,17 +3,11 @@ import {
   extractYoutube,
 } from '@/features/content/extractors';
 import { useArticleStore } from '@/stores/ArticleStore';
-import { ExtractionResult } from '@/types';
+import { ArticleExtractionResult } from '@/types';
 import { logger } from '@/utils';
 
-interface ArticleServiceResult {
-  isSuccess: boolean;
-  result?: ExtractionResult | null;
-  error?: Error | null;
-}
-
 export class ArticleService {
-  async execute(url: string, message: any = {}): Promise<ArticleServiceResult> {
+  async execute(url: string, message: any = {}): Promise<ArticleExtractionResult> {
     logger.debug('extracting', '\nurl:', url, '\nmessage:', message);
 
     /**
@@ -23,8 +17,11 @@ export class ArticleService {
       logger.debug('Skipping extraction for browser-specific URLs');
       return {
         isSuccess: false,
-        result: null,
-        error: null,
+        title: null,
+        lang: null,
+        url: url,
+        textContent: null,
+        error: new Error('Skipping extraction for browser-specific URLs'),
       };
     }
 
@@ -45,32 +42,38 @@ export class ArticleService {
         const result = await extractYoutube(videoId);
         logger.debug('extractYoutube result:', result.textContent);
 
-        if (result.isExtracted && result.title && result.textContent) {
+        if (result.isSuccess && result.title && result.textContent) {
           /** Add article to database */
           await useArticleStore.getState().addArticle({
             url: url,
             title: result.title,
             content: result.textContent,
             date: new Date(),
-            is_extracted: true,
+            is_success: true,
           });
           /** Return extraction result */
           return {
-            isSuccess: true,
-            result,
+            ...result,
           };
         }
 
         logger.warn('Article is not extracted');
         return {
           isSuccess: false,
-          result: null,
+          title: null,
+          lang: null,
+          url: url,
+          textContent: null,
           error: new Error('Article is not extracted'),
         };
       } catch (error: any) {
         return {
           isSuccess: false,
-          error: error,
+          title: null,
+          lang: null,
+          url: url,
+          textContent: null,
+          error: error instanceof Error ? error : new Error('Failed to extract article'),
         };
       }
     }
@@ -84,31 +87,37 @@ export class ArticleService {
       const result = await extractReadability(document);
       logger.debug('extract result:', result.textContent);
 
-      if (result.isExtracted) {
+      if (result.isSuccess) {
         /** Add article to database */
         await useArticleStore.getState().addArticle({
           url: url,
           title: result.title,
           content: result.textContent ?? '',
           date: new Date(),
-          is_extracted: true,
+          is_success: true,
         });
         return {
-          isSuccess: true,
-          result,
+          ...result,
         };
       }
       logger.warn('Article is not extracted');
       return {
         isSuccess: false,
-        result: null,
+        title: null,
+        lang: null,
+        url: url,
+        textContent: null,
         error: new Error('Article is not extracted'),
       };
     } catch (error: any) {
       logger.error('Failed to extract article:', error);
       return {
         isSuccess: false,
-        error: error,
+        title: null,
+        lang: null,
+        url: url,
+        textContent: null,
+        error: error instanceof Error ? error : new Error('Failed to extract article'),
       };
     }
   }

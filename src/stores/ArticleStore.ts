@@ -25,7 +25,7 @@ export const useArticleStore = create<ArticleStore>((set, get) => ({
     logger.debug('Checking if article is extracted for url:', url);
     const article = await get().getArticleByUrl(url);
     logger.debug('Found article:', article);
-    const result = article?.is_extracted ?? false;
+    const result = article?.is_success ?? false;
     logger.debug('Article is extracted for url:', result);
     return result;
   },

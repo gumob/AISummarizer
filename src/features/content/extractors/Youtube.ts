@@ -1,4 +1,4 @@
-import { ExtractionResult } from '@/types';
+import { ArticleExtractionResult } from '@/types';
 import { logger } from '@/utils';
 
 /** List of punctuation marks. */
@@ -154,11 +154,12 @@ function groupTranscriptSegments(elements: HTMLCollectionOf<Element>, videoID: s
  * @param videoID - The ID of the YouTube video.
  * @returns The transcript of the YouTube video.
  */
-export async function extractYoutube(videoID: string): Promise<ExtractionResult> {
+export async function extractYoutube(videoID: string): Promise<ArticleExtractionResult> {
   logger.debug('Extracting YouTube transcript', videoID);
 
   /** Get the HTML of the YouTube video. */
   const html = await getHtmlByVideoID(videoID);
+  const videoURL = `https://youtu.be/${videoID}`;
 
   /** Extract the JSON part of ytInitialPlayerResponse. */
   const ytInitialPlayerResponsePattern = /var\s+ytInitialPlayerResponse\s*=\s*({[\s\S]+?});/;
@@ -178,8 +179,9 @@ export async function extractYoutube(videoID: string): Promise<ExtractionResult>
         return {
           title: videoTitle,
           lang: null,
+          url: videoURL,
           textContent: null,
-          isExtracted: false,
+          isSuccess: false,
         };
       }
 
@@ -190,8 +192,9 @@ export async function extractYoutube(videoID: string): Promise<ExtractionResult>
         return {
           title: videoTitle,
           lang: null,
+          url: videoURL,
           textContent: null,
-          isExtracted: false,
+          isSuccess: false,
         };
       }
 
@@ -223,8 +226,9 @@ export async function extractYoutube(videoID: string): Promise<ExtractionResult>
         return {
           title: videoTitle,
           lang: selectedTrack.languageCode,
+          url: videoURL,
           textContent: null,
-          isExtracted: false,
+          isSuccess: false,
         };
       }
 
@@ -235,8 +239,9 @@ export async function extractYoutube(videoID: string): Promise<ExtractionResult>
         return {
           title: videoTitle,
           lang: selectedTrack.languageCode,
+          url: videoURL,
           textContent: null,
-          isExtracted: false,
+          isSuccess: false,
         };
       }
 
@@ -251,8 +256,9 @@ export async function extractYoutube(videoID: string): Promise<ExtractionResult>
       return {
         title: videoTitle,
         lang: selectedTrack.languageCode,
+        url: videoURL,
         textContent: transcript.join('\n'),
-        isExtracted: true,
+        isSuccess: true,
       };
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -263,8 +269,9 @@ export async function extractYoutube(videoID: string): Promise<ExtractionResult>
       return {
         title: null,
         lang: null,
+        url: videoURL,
         textContent: null,
-        isExtracted: false,
+        isSuccess: false,
       };
     }
   } else {
@@ -272,8 +279,9 @@ export async function extractYoutube(videoID: string): Promise<ExtractionResult>
     return {
       title: null,
       lang: null,
+      url: videoURL,
       textContent: null,
-      isExtracted: false,
+      isSuccess: false,
     };
   }
 }

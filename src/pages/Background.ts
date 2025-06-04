@@ -26,10 +26,10 @@ async function initialize() {
    */
   (self as any).updateArticleExtractionState = async (tabId: number, url: string) => {
     logger.debug('Updating article extraction state', tabId, url);
-    const isExtracted = await articleService.isArticleExtractedForUrl(url);
+    const isSuccess = await articleService.isArticleExtractedForUrl(url);
     logger.debug('url', url);
-    logger.debug('Article is extracted', isExtracted);
-    if (isExtracted) {
+    logger.debug('Article is extracted', isSuccess);
+    if (isSuccess) {
       chrome.action.setBadgeText({ text: '✓', tabId });
       chrome.action.setBadgeBackgroundColor({ color: '#4CAF50', tabId });
     } else {

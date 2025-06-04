@@ -1,9 +1,8 @@
-export interface ExtractionResult {
+export interface ArticleExtractionResult {
   title: string | null;
   lang: string | null;
+  url: string | null;
   textContent: string | null;
-  isExtracted: boolean;
-}
-export interface Extractor {
-  extract(): ExtractionResult;
+  isSuccess: boolean;
+  error?: Error | null;
 }

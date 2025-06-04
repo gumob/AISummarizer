@@ -13,7 +13,7 @@ import { logger } from '@/utils';
  * - title: string | null
  * - content: string | null
  * - date: Date
- * - is_extracted: boolean
+ * - is_success: boolean
  */
 export interface ArticleRecord {
   id: string;
@@ -21,7 +21,7 @@ export interface ArticleRecord {
   title: string | null;
   content: string | null;
   date: Date;
-  is_extracted: boolean;
+  is_success: boolean;
 }
 
 /**
