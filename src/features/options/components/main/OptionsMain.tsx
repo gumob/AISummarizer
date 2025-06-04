@@ -1,17 +1,13 @@
-import React, {
-  Fragment,
-  useEffect,
-  useState,
-} from 'react';
-
 import clsx from 'clsx';
+
+import React, { Fragment, useEffect, useState } from 'react';
+
 import { IoClose } from 'react-icons/io5';
 
+import { Field, Switch, Tab, TabGroup, TabList, TabPanel, TabPanels, Textarea } from '@headlessui/react';
+
 import { OptionCard } from '@/features/options/components/main';
-import {
-  useArticleStore,
-  useGlobalContext,
-} from '@/stores';
+import { useArticleStore, useGlobalContext } from '@/stores';
 import {
   AIService,
   ContentExtractionTiming,
@@ -22,16 +18,6 @@ import {
 } from '@/types';
 import { TabBehavior } from '@/types/TabBahavior';
 import { logger } from '@/utils';
-import {
-  Field,
-  Switch,
-  Tab,
-  TabGroup,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Textarea,
-} from '@headlessui/react';
 
 /**
  * The main component for the options page.
@@ -68,6 +54,7 @@ export const OptionsMain: React.FC = () => {
   const [enableShowMessage, setEnableShowMessage] = useState<boolean | null>(null);
   const [enableShowBadge, setEnableShowBadge] = useState<boolean | null>(null);
   const [enableSaveArticleOnClipboard, setEnableSaveArticleOnClipboard] = useState<boolean | null>(null);
+  const [promptValues, setPromptValues] = useState<{ [key in AIService]?: string }>({});
 
   /*******************************************************
    * Initialize selected indices based on stored values
@@ -130,6 +117,14 @@ export const OptionsMain: React.FC = () => {
     logger.debug('saveArticleOnClipboard', saveArticleOnClipboard);
   }, [saveArticleOnClipboard]);
 
+  useEffect(() => {
+    const loadPrompts = async () => {
+      const values = await Promise.all(Object.values(AIService).map(async service => [service, await prompt(service)] as const));
+      setPromptValues(Object.fromEntries(values));
+    };
+    loadPrompts();
+  }, [prompt]);
+
   /*******************************************************
    * Render
    *******************************************************/
@@ -188,7 +183,7 @@ export const OptionsMain: React.FC = () => {
                         'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-300 dark:focus-visible:ring-zinc-700'
                       )}
                       rows={12}
-                      value={prompt(service)}
+                      value={promptValues[service] ?? ''}
                       onChange={e => setPrompt(service, e.target.value)}
                     />
                   </Field>

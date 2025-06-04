@@ -2,12 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 import { STORAGE_KEYS } from '@/constants';
-import {
-  AIService,
-  ContentExtractionTiming,
-  FloatButtonPosition,
-  TabBehavior,
-} from '@/types';
+import { AIService, ContentExtractionTiming, FloatButtonPosition, TabBehavior } from '@/types';
 
 interface SettingsState {
   prompts: {
@@ -50,54 +45,62 @@ const DEFAULT_SETTINGS: SettingsState = {
 };
 
 interface SettingsStore extends SettingsState {
-  prompt: (service: AIService) => string;
-  setPrompt: (service: AIService, prompt: string) => void;
-  setTabBehavior: (tabBehavior: TabBehavior) => void;
-  setFloatButtonPosition: (floatButtonPosition: FloatButtonPosition) => void;
+  prompt: (service: AIService) => Promise<string>;
+  setPrompt: (service: AIService, prompt: string) => Promise<void>;
+  setTabBehavior: (tabBehavior: TabBehavior) => Promise<void>;
+  setFloatButtonPosition: (floatButtonPosition: FloatButtonPosition) => Promise<void>;
   contentExtractionTiming: ContentExtractionTiming;
-  setContentExtractionTiming: (contentExtractionTiming: ContentExtractionTiming) => void;
-  setIsShowMessage: (isShowMessage: boolean) => void;
-  setIsShowBadge: (isShowBadge: boolean) => void;
+  setContentExtractionTiming: (contentExtractionTiming: ContentExtractionTiming) => Promise<void>;
+  setIsShowMessage: (isShowMessage: boolean) => Promise<void>;
+  setIsShowBadge: (isShowBadge: boolean) => Promise<void>;
   saveArticleOnClipboard: boolean;
-  setSaveArticleOnClipboard: (saveArticleOnClipboard: boolean) => void;
+  setSaveArticleOnClipboard: (saveArticleOnClipboard: boolean) => Promise<void>;
+  getContentExtractionTiming: () => Promise<ContentExtractionTiming>;
 }
 
 export const useSettingsStore = create<SettingsStore>()(
   persist(
     (set, get) => ({
       ...DEFAULT_SETTINGS,
-      prompt: (service: AIService) => get().prompts[service],
-      setPrompt: (service: AIService, prompt: string) =>
+      prompt: async (service: AIService) => {
+        const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
+        return settings[STORAGE_KEYS.SETTINGS]?.state?.prompts?.[service] ?? DEFAULT_SETTINGS.prompts[service];
+      },
+      setPrompt: async (service: AIService, prompt: string) =>
         set(state => ({
           prompts: {
             ...state.prompts,
             [service]: prompt,
           },
         })),
-      setTabBehavior: (tabBehavior: TabBehavior) =>
+      setTabBehavior: async (tabBehavior: TabBehavior) =>
         set(() => ({
           tabBehavior,
         })),
-      setFloatButtonPosition: (floatButtonPosition: FloatButtonPosition) =>
+      setFloatButtonPosition: async (floatButtonPosition: FloatButtonPosition) =>
         set(() => ({
           floatButtonPosition,
         })),
-      setContentExtractionTiming: (contentExtractionTiming: ContentExtractionTiming) =>
+      setContentExtractionTiming: async (contentExtractionTiming: ContentExtractionTiming) =>
         set(() => ({
           contentExtractionTiming,
         })),
-      setIsShowMessage: (isShowMessage: boolean) =>
+      setIsShowMessage: async (isShowMessage: boolean) =>
         set(() => ({
           isShowMessage,
         })),
-      setIsShowBadge: (isShowBadge: boolean) =>
+      setIsShowBadge: async (isShowBadge: boolean) =>
         set(() => ({
           isShowBadge,
         })),
-      setSaveArticleOnClipboard: (saveArticleOnClipboard: boolean) =>
+      setSaveArticleOnClipboard: async (saveArticleOnClipboard: boolean) =>
         set(() => ({
           saveArticleOnClipboard,
         })),
+      getContentExtractionTiming: async () => {
+        const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
+        return settings[STORAGE_KEYS.SETTINGS]?.state?.contentExtractionTiming ?? DEFAULT_SETTINGS.contentExtractionTiming;
+      },
     }),
     {
       name: STORAGE_KEYS.SETTINGS,

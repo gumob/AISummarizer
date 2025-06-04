@@ -38,20 +38,20 @@ interface GlobalContextValue {
   prompts: {
     [key in AIService]: string;
   };
-  prompt: (service: AIService) => string;
-  setPrompt: (service: AIService, prompt: string) => void;
+  prompt: (service: AIService) => Promise<string>;
+  setPrompt: (service: AIService, prompt: string) => Promise<void>;
   tabBehavior: TabBehavior;
-  setTabBehavior: (tabBehavior: TabBehavior) => void;
+  setTabBehavior: (tabBehavior: TabBehavior) => Promise<void>;
   floatButtonPosition: FloatButtonPosition;
-  setFloatButtonPosition: (floatButtonPosition: FloatButtonPosition) => void;
+  setFloatButtonPosition: (floatButtonPosition: FloatButtonPosition) => Promise<void>;
   contentExtractionTiming: ContentExtractionTiming;
-  setContentExtractionTiming: (contentExtractionTiming: ContentExtractionTiming) => void;
+  setContentExtractionTiming: (contentExtractionTiming: ContentExtractionTiming) => Promise<void>;
   isShowMessage: boolean;
-  setIsShowMessage: (isShowMessage: boolean) => void;
+  setIsShowMessage: (isShowMessage: boolean) => Promise<void>;
   isShowBadge: boolean;
-  setIsShowBadge: (isShowBadge: boolean) => void;
+  setIsShowBadge: (isShowBadge: boolean) => Promise<void>;
   saveArticleOnClipboard: boolean;
-  setSaveArticleOnClipboard: (saveArticleOnClipboard: boolean) => void;
+  setSaveArticleOnClipboard: (saveArticleOnClipboard: boolean) => Promise<void>;
 }
 
 /**

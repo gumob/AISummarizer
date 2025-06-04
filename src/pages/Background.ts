@@ -1,3 +1,4 @@
+import { STORAGE_KEYS } from '@/constants';
 import { db } from '@/db';
 import { BackgroundThemeService, CleanupDBService, ContextMenuService } from '@/features/background/services';
 import { ArticleService } from '@/features/content/services';
@@ -44,7 +45,7 @@ const reload = async (tabId: number, url: string) => {
       chrome.action.setBadgeBackgroundColor({ color: '#999999', tabId });
     } else {
       chrome.action.setBadgeText({ text: '', tabId });
-      const contentExtractionTiming = useSettingsStore.getState().contentExtractionTiming;
+      const contentExtractionTiming = await useSettingsStore.getState().getContentExtractionTiming();
       logger.debug('Content extraction timing', contentExtractionTiming);
       switch (contentExtractionTiming) {
         case ContentExtractionTiming.AUTOMATIC:
