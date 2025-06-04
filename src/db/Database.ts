@@ -109,13 +109,6 @@ export class Database {
 
       // Verify database connection
       const tx = this.db.transaction('articles', 'readonly');
-      const count = await tx.store.count();
-      logger.debug('Database initialized successfully, article count:', count);
-
-      // List all articles for debugging
-      const allArticles = await tx.store.getAll();
-      logger.debug('All articles in database:', allArticles);
-
       await tx.done;
     } catch (error) {
       logger.error('Failed to initialize database:', error);
@@ -166,10 +159,6 @@ export class Database {
       const index = tx.store.index('by-url');
       const article = await index.get(url);
       logger.debug('Found article:', article);
-
-      // Debug: List all articles
-      const allArticles = await tx.store.getAll();
-      logger.debug('All articles in database:', allArticles);
 
       await tx.done;
       return article;

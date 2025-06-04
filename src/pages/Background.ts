@@ -87,8 +87,6 @@ const handleMessage = async (message: any, sender: chrome.runtime.MessageSender,
   switch (message.action) {
     case MessageAction.EXTRACT_CONTENT_COMPLETE:
       logger.debug('Extracting content complete', message.result);
-      // const result = await articleService.execute(message.url);
-      // sendResponse(result);
       if (message.result.isSuccess) {
         db.addArticle({
           url: message.result.url,
