@@ -2,7 +2,12 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 import { STORAGE_KEYS } from '@/constants';
-import { AIService, ContentExtractionTiming, FloatButtonPosition, TabBehavior } from '@/types';
+import {
+  AIService,
+  ContentExtractionTiming,
+  FloatButtonPosition,
+  TabBehavior,
+} from '@/types';
 
 interface SettingsState {
   prompts: {
@@ -55,6 +60,7 @@ interface SettingsStore extends SettingsState {
   setSaveArticleOnClipboard: (saveArticleOnClipboard: boolean) => Promise<void>;
   getContentExtractionTiming: () => Promise<ContentExtractionTiming>;
   getSaveArticleOnClipboard: () => Promise<boolean>;
+  getFloatButtonPosition: () => Promise<FloatButtonPosition>;
 }
 
 export const useSettingsStore = create<SettingsStore>()(
@@ -103,6 +109,10 @@ export const useSettingsStore = create<SettingsStore>()(
       getSaveArticleOnClipboard: async () => {
         const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
         return settings[STORAGE_KEYS.SETTINGS]?.state?.saveArticleOnClipboard ?? DEFAULT_SETTINGS.saveArticleOnClipboard;
+      },
+      getFloatButtonPosition: async () => {
+        const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
+        return settings[STORAGE_KEYS.SETTINGS]?.state?.floatButtonPosition ?? DEFAULT_SETTINGS.floatButtonPosition;
       },
     }),
     {

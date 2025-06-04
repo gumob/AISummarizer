@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import { IoAddOutline } from 'react-icons/io5';
 
@@ -12,6 +12,10 @@ interface FloatButtonProps {
 }
 
 export const FloatButton: React.FC<FloatButtonProps> = ({ isVisible }) => {
+  useEffect(() => {
+    logger.debug('🛟🛟', 'isVisible', isVisible);
+  }, [isVisible]);
+
   if (!isVisible) return null;
 
   return (

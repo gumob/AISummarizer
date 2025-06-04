@@ -1,4 +1,8 @@
-import { DBSchema, IDBPDatabase, openDB } from 'idb';
+import {
+  DBSchema,
+  IDBPDatabase,
+  openDB,
+} from 'idb';
 
 import { logger } from '@/utils';
 
@@ -76,21 +80,21 @@ export class Database {
    */
   async init() {
     try {
-      logger.debug('Initializing IndexedDB');
+      logger.debug('💾', 'Initializing IndexedDB');
       if (this.db) {
-        logger.debug('Database already initialized');
+        logger.debug('💾', 'Database already initialized');
         return;
       }
 
       this.db = await openDB<AISummarizerDB>(DB_NAME, DB_VERSION, {
         upgrade(db, oldVersion, newVersion) {
-          logger.debug('Upgrading database:', { oldVersion, newVersion });
+          logger.debug('💾', 'Upgrading database:', { oldVersion, newVersion });
           const articleStore = db.createObjectStore('articles', { keyPath: 'id' });
           articleStore.createIndex('by-url', 'url');
           articleStore.createIndex('by-date', 'date');
 
           db.createObjectStore('metadata', { keyPath: 'key' });
-          logger.debug('Database upgrade completed');
+          logger.debug('💾', 'Database upgrade completed');
         },
         blocked() {
           logger.warn('Database blocked');
@@ -121,20 +125,20 @@ export class Database {
     try {
       if (!this.db) await this.init();
       const id = crypto.randomUUID();
-      logger.debug('Adding article to database:', { id, url: article.url });
+      logger.debug('💾', 'Adding article to database:', { id, url: article.url });
 
       /** Search for an entry with the same URL. */
       const existingArticle = await this.getArticleByUrl(article.url);
       if (existingArticle) {
-        logger.debug('Updating existing article:', { id: existingArticle.id, url: article.url });
+        logger.debug('💾', 'Updating existing article:', { id: existingArticle.id, url: article.url });
         await this.db!.put('articles', { ...article, id: existingArticle.id });
-        logger.debug('Article updated successfully');
+        logger.debug('💾', 'Article updated successfully');
         return existingArticle.id;
       }
 
       /** Add a new entry. */
       await this.db!.add('articles', { ...article, id });
-      logger.debug('Article added successfully');
+      logger.debug('💾', 'Article added successfully');
       return id;
     } catch (error) {
       logger.error('Failed to add article:', error);
@@ -151,20 +155,20 @@ export class Database {
     try {
       /** Skip processing for browser-specific URLs */
       if (/^(chrome|brave|edge|opera|vivaldi)/.test(url)) {
-        logger.debug('Skipping extraction for browser-specific URLs');
+        logger.debug('💾', 'Skipping extraction for browser-specific URLs');
         return undefined;
       }
       if (/(https?)\:\/\/(www\.)?(chatgpt\.com|gemini\.com|grok\.com|perplexity\.com|deepseek\.com|claude\.ai)/.test(url)) {
-        logger.debug('Skipping extraction for AI service URLs');
+        logger.debug('💾', 'Skipping extraction for AI service URLs');
         return undefined;
       }
 
       if (!this.db) await this.init();
-      logger.debug('Getting article by url:', url);
+      logger.debug('💾', 'Getting article by url:', url);
       const tx = this.db!.transaction('articles', 'readonly');
       const index = tx.store.index('by-url');
       const article = await index.get(url);
-      logger.debug('Found article:', article);
+      logger.debug('💾', 'Found article:', article);
 
       await tx.done;
       return article;
@@ -179,7 +183,7 @@ export class Database {
    */
   async cleanup() {
     if (!this.db) await this.init();
-    logger.debug('Cleaning up database');
+    logger.debug('💾', 'Cleaning up database');
     const tx = this.db!.transaction('articles', 'readwrite');
     const store = tx.store;
     const index = store.index('by-date');
