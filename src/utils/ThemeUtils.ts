@@ -26,14 +26,14 @@ export const detectTheme = async () => {
   const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
   logger.debug('Theme detected');
 
-  // バックグラウンドスクリプトの起動を確認
+  /** Check if the background script is ready */
   const isReady = await isBackgroundScriptReady();
   if (!isReady) {
     logger.warn('Background script is not ready, skipping theme detection');
     return;
   }
 
-  // オフスクリーンドキュメントにメッセージを送信
+  /** Send the message to the offscreen document */
   try {
     await chrome.runtime.sendMessage({
       type: MessageAction.COLOR_SCHEME_CHANGED,
