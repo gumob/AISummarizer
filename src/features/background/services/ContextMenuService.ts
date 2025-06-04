@@ -8,20 +8,28 @@ export class ContextMenuService {
   }
 
   async createMenu() {
-    logger.debug('Creating context menu');
-    await chrome.contextMenus.removeAll();
+    try {
+      logger.debug('Creating context menu');
+      await chrome.contextMenus.removeAll();
 
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    if (!tab.url) return;
-    this.createFullMenu();
-    // if (await useArticleStore.getState().isArticleExtractedForUrl(tab.url)) {
-    // this.createBasicMenu();
-    // } else {
-    //   this.createFullMenu();
-    // }
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (tab.url) {
+        this.createFullMenu();
+      } else {
+        this.createBasicMenu();
+      }
+      // if (await useArticleStore.getState().isArticleExtractedForUrl(tab.url)) {
+      // this.createBasicMenu();
+      // } else {
+      //   this.createFullMenu();
+      // }
+    } catch (error) {
+      logger.error('Failed to create context menu:', error);
+    }
   }
 
   private createFullMenu() {
+    logger.debug('Creating full menu');
     const root = chrome.contextMenus.create({
       id: MENU_ITEMS.ROOT.id,
       title: MENU_ITEMS.ROOT.title,
@@ -80,6 +88,7 @@ export class ContextMenuService {
   }
 
   private createBasicMenu() {
+    logger.debug('Creating basic menu');
     const root = chrome.contextMenus.create({
       id: MENU_ITEMS.NOT_AVAILABLE.id,
       title: MENU_ITEMS.NOT_AVAILABLE.title,
