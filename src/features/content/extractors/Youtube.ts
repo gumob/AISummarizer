@@ -175,7 +175,7 @@ export async function extractYoutube(videoID: string): Promise<ArticleExtraction
       const defaultAudioTrackIndex = json.captions?.playerCaptionsTracklistRenderer?.defaultAudioTrackIndex;
 
       if (!captionTracks || captionTracks.length === 0) {
-        logger.error('no captions', videoID);
+        logger.error('🎥', 'no captions', videoID);
         return {
           title: videoTitle,
           lang: null,
@@ -188,7 +188,7 @@ export async function extractYoutube(videoID: string): Promise<ArticleExtraction
       /** Select the caption track based on the language priority. */
       const selectedTrack = selectCaptionTrack(captionTracks, defaultAudioTrackIndex);
       if (!selectedTrack) {
-        logger.error('no suitable caption track found', videoID);
+        logger.error('🎥', 'no suitable caption track found', videoID);
         return {
           title: videoTitle,
           lang: null,
@@ -222,7 +222,7 @@ export async function extractYoutube(videoID: string): Promise<ArticleExtraction
       });
 
       if (!response.ok) {
-        logger.error('Failed to fetch captions XML', videoID);
+        logger.error('🎥', 'Failed to fetch captions XML', videoID);
         return {
           title: videoTitle,
           lang: selectedTrack.languageCode,
@@ -235,7 +235,7 @@ export async function extractYoutube(videoID: string): Promise<ArticleExtraction
       const responseText = await response.text();
 
       if (!responseText.trim()) {
-        logger.error('Empty response received', videoID);
+        logger.error('🎥', 'Empty response received', videoID);
         return {
           title: videoTitle,
           lang: selectedTrack.languageCode,
@@ -254,7 +254,7 @@ export async function extractYoutube(videoID: string): Promise<ArticleExtraction
       const transcript = groupTranscriptSegments(textElements, videoID).join('\n');
 
       if (transcript.length === 0) {
-        logger.error('Empty transcript', videoID);
+        logger.error('🎥', 'Empty transcript', videoID);
         return {
           title: videoTitle,
           lang: selectedTrack.languageCode,

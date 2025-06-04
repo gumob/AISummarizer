@@ -21,7 +21,7 @@ export class BackgroundThemeService {
       });
       logger.debug('🎨', 'Offscreen document created successfully');
     } catch (error) {
-      logger.error('Failed to create offscreen document', error);
+      logger.error('🎨', 'Failed to create offscreen document', error);
       throw error;
     }
   }

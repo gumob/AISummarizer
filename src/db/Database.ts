@@ -111,7 +111,7 @@ export class Database {
       const tx = this.db.transaction('articles', 'readonly');
       await tx.done;
     } catch (error) {
-      logger.error('Failed to initialize database:', error);
+      logger.error('💾', 'Failed to initialize database:', error);
       throw error;
     }
   }
@@ -141,7 +141,7 @@ export class Database {
       logger.debug('💾', 'Article added successfully');
       return id;
     } catch (error) {
-      logger.error('Failed to add article:', error);
+      logger.error('💾', 'Failed to add article:', error);
       throw error;
     }
   }
@@ -173,7 +173,7 @@ export class Database {
       await tx.done;
       return article;
     } catch (error) {
-      logger.error('Failed to get article by url:', error);
+      logger.error('💾', 'Failed to get article by url:', error);
       throw error;
     }
   }

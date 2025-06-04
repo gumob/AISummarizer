@@ -69,7 +69,7 @@ export class ArticleService {
       logger.debug('🧑‍🍳📖', 'Extracting normal web page');
       return await extractReadability(document);
     } catch (error: any) {
-      logger.error('Failed to extract article:', error);
+      logger.error('🧑‍🍳📖', 'Failed to extract article:', error);
       return {
         isSuccess: false,
         title: null,

@@ -63,7 +63,7 @@ const Content: React.FC = () => {
           });
           return true;
         } catch (error: any) {
-          logger.error('Error in content script:', error);
+          logger.error('📄🥡', 'Error in content script:', error);
           sendResponse({ error: error.message });
           return false;
         }

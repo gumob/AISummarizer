@@ -43,7 +43,7 @@ export class OffscreenThemeService {
       this.mediaQuery.addEventListener('change', this.handleThemeChange);
       logger.debug('🧑‍🍳🎨', 'Theme change listener added successfully');
     } catch (error) {
-      logger.error('Failed to add theme change listener:', error);
+      logger.error('🧑‍🍳🎨', 'Failed to add theme change listener:', error);
     }
 
     this.isInitialized = true;
@@ -59,7 +59,7 @@ export class OffscreenThemeService {
       this.mediaQuery.removeEventListener('change', this.handleThemeChange);
       logger.debug('🧑‍🍳🎨', 'Theme change listener removed successfully');
     } catch (error) {
-      logger.error('Failed to remove theme change listener:', error);
+      logger.error('🧑‍🍳🎨', 'Failed to remove theme change listener:', error);
     }
 
     this.isInitialized = false;
@@ -75,7 +75,7 @@ export class OffscreenThemeService {
     try {
       chrome.runtime.sendMessage({ type: MessageAction.COLOR_SCHEME_CHANGED, isDarkMode }, () => {
         if (chrome.runtime.lastError) {
-          logger.error('Failed to send theme status:', chrome.runtime.lastError);
+          logger.error('🧑‍🍳🎨', 'Failed to send theme status:', chrome.runtime.lastError);
           /** If there is a connection error, wait a moment and try again */
           setTimeout(this.sendThemeStatus, 1000);
         } else {
@@ -83,7 +83,7 @@ export class OffscreenThemeService {
         }
       });
     } catch (error) {
-      logger.error('Failed to send theme status:', error);
+      logger.error('🧑‍🍳🎨', 'Failed to send theme status:', error);
       /** If there is an error, wait a moment and try again */
       setTimeout(this.sendThemeStatus, 1000);
     }

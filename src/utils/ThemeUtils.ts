@@ -39,7 +39,7 @@ export const detectTheme = async () => {
       isDarkMode: isDarkMode,
     });
   } catch (error) {
-    logger.error('Failed to send theme detection message', error);
+    logger.error('🎨', 'Failed to send theme detection message', error);
   }
 };
 
@@ -61,6 +61,6 @@ export const updateExtensionIcon = async (isDarkMode: boolean) => {
     });
     logger.debug('🎨', 'Icon updated');
   } catch (error) {
-    logger.error('Failed to update extension icon', error);
+    logger.error('🎨', 'Failed to update extension icon', error);
   }
 };

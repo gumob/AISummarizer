@@ -21,7 +21,7 @@ export async function extractReadability(document: Document): Promise<ArticleExt
       isSuccess: isSuccess,
     };
   } catch (error: unknown) {
-    logger.error('Failed to extract article:', error);
+    logger.error('📕', 'Failed to extract article:', error);
     return {
       title: null,
       lang: null,

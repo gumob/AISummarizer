@@ -24,7 +24,7 @@ export class ContextMenuService {
       //   this.createFullMenu();
       // }
     } catch (error) {
-      logger.error('Failed to create context menu:', error);
+      logger.error('📃', 'Failed to create context menu:', error);
     }
   }
 
@@ -147,7 +147,7 @@ export class ContextMenuService {
               url: tab.url!,
             });
           } catch (error: any) {
-            logger.error('Failed to send message to content script:', error);
+            logger.error('📃', 'Failed to send message to content script:', error);
           }
           break;
         case 'settings':

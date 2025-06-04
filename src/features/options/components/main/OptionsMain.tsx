@@ -153,7 +153,7 @@ export const OptionsMain: React.FC = () => {
               try {
                 await chrome.sidePanel.setOptions({ enabled: false });
               } catch (error) {
-                logger.error('Failed to close side panel', error);
+                logger.error('📦⌥', 'Failed to close side panel', error);
               }
             }}
             className="rounded-full p-2 text-lg text-zinc-600 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:bg-zinc-800"
@@ -340,7 +340,7 @@ export const OptionsMain: React.FC = () => {
                 await cleanupDatabase();
                 logger.debug('📦⌥', 'Database cleanup completed');
               } catch (error) {
-                logger.error('Failed to cleanup database:', error);
+                logger.error('📦⌥', 'Failed to cleanup database:', error);
               }
             }}
           >

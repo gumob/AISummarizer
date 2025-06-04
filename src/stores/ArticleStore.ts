@@ -33,7 +33,7 @@ export const useArticleStore = create<ArticleStore>((set, get) => ({
       const id = await db.addArticle(article);
       return id;
     } catch (error) {
-      logger.error('Failed to add article:', error);
+      logger.error('🏪🖼️', 'Failed to add article:', error);
       throw error;
     }
   },
@@ -42,7 +42,7 @@ export const useArticleStore = create<ArticleStore>((set, get) => ({
       // logger.debug('🏪🖼️','Getting article by url:', url);
       return await db.getArticleByUrl(url);
     } catch (error) {
-      logger.error('Failed to get article:', error);
+      logger.error('🏪🖼️', 'Failed to get article:', error);
       throw error;
     }
   },
@@ -52,7 +52,7 @@ export const useArticleStore = create<ArticleStore>((set, get) => ({
       await db.cleanup();
       // logger.debug('🏪🖼️','Database cleaned up');
     } catch (error) {
-      logger.error('Failed to cleanup:', error);
+      logger.error('🏪🖼️', 'Failed to cleanup:', error);
       throw error;
     }
   },
@@ -61,7 +61,7 @@ export const useArticleStore = create<ArticleStore>((set, get) => ({
       // logger.debug('🏪🖼️','Getting last cleanup date');
       return await db.getLastCleanupDate();
     } catch (error) {
-      logger.error('Failed to get last cleanup date:', error);
+      logger.error('🏪🖼️', 'Failed to get last cleanup date:', error);
       throw error;
     }
   },

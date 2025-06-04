@@ -76,7 +76,7 @@ const reload = async (tabId: number, url: string) => {
     }
     contextMenuService.createMenu();
   } catch (error: any) {
-    logger.error('Failed to update article extraction state', error);
+    logger.error('📄⌥', 'Failed to update article extraction state', error);
   }
 };
 

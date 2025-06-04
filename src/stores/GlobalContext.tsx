@@ -128,7 +128,7 @@ export const GlobalContextProvider: React.FC<GlobalContextProviderProps> = ({ ch
         /* Initialize stores in sequence */
         isInitialized.current = true;
       } catch (error) {
-        logger.error('Failed to initialize extensions', error);
+        logger.error('🌏', 'Failed to initialize extensions', error);
       }
     };
     if (!isInitialized.current) initialize();
