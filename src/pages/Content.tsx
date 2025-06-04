@@ -70,6 +70,8 @@ const Content: React.FC = () => {
       case MessageAction.COPY_ARTICLE_TO_CLIPBOARD:
         await navigator.clipboard.writeText(message.payload.text);
         return true;
+      case MessageAction.SETTINGS_UPDATED:
+        return true;
       default:
         return false;
     }

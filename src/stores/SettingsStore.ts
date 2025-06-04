@@ -6,6 +6,7 @@ import {
   AIService,
   ContentExtractionTiming,
   FloatButtonPosition,
+  MessageAction,
   TabBehavior,
 } from '@/types';
 
@@ -71,37 +72,39 @@ export const useSettingsStore = create<SettingsStore>()(
         const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
         return settings[STORAGE_KEYS.SETTINGS]?.state?.prompts?.[service] ?? DEFAULT_SETTINGS.prompts[service];
       },
-      setPrompt: async (service: AIService, prompt: string) =>
+      setPrompt: async (service: AIService, prompt: string) => {
         set(state => ({
           prompts: {
             ...state.prompts,
             [service]: prompt,
           },
-        })),
-      setTabBehavior: async (tabBehavior: TabBehavior) =>
-        set(() => ({
-          tabBehavior,
-        })),
-      setFloatButtonPosition: async (floatButtonPosition: FloatButtonPosition) =>
-        set(() => ({
-          floatButtonPosition,
-        })),
-      setContentExtractionTiming: async (contentExtractionTiming: ContentExtractionTiming) =>
-        set(() => ({
-          contentExtractionTiming,
-        })),
-      setIsShowMessage: async (isShowMessage: boolean) =>
-        set(() => ({
-          isShowMessage,
-        })),
-      setIsShowBadge: async (isShowBadge: boolean) =>
-        set(() => ({
-          isShowBadge,
-        })),
-      setSaveArticleOnClipboard: async (saveArticleOnClipboard: boolean) =>
-        set(() => ({
-          saveArticleOnClipboard,
-        })),
+        }));
+        chrome.runtime.sendMessage({ action: MessageAction.SETTINGS_UPDATED });
+      },
+      setTabBehavior: async (tabBehavior: TabBehavior) => {
+        set(() => ({ tabBehavior }));
+        chrome.runtime.sendMessage({ action: MessageAction.SETTINGS_UPDATED });
+      },
+      setFloatButtonPosition: async (floatButtonPosition: FloatButtonPosition) => {
+        set(() => ({ floatButtonPosition }));
+        chrome.runtime.sendMessage({ action: MessageAction.SETTINGS_UPDATED });
+      },
+      setContentExtractionTiming: async (contentExtractionTiming: ContentExtractionTiming) => {
+        set(() => ({ contentExtractionTiming }));
+        chrome.runtime.sendMessage({ action: MessageAction.SETTINGS_UPDATED });
+      },
+      setIsShowMessage: async (isShowMessage: boolean) => {
+        set(() => ({ isShowMessage }));
+        chrome.runtime.sendMessage({ action: MessageAction.SETTINGS_UPDATED });
+      },
+      setIsShowBadge: async (isShowBadge: boolean) => {
+        set(() => ({ isShowBadge }));
+        chrome.runtime.sendMessage({ action: MessageAction.SETTINGS_UPDATED });
+      },
+      setSaveArticleOnClipboard: async (saveArticleOnClipboard: boolean) => {
+        set(() => ({ saveArticleOnClipboard }));
+        chrome.runtime.sendMessage({ action: MessageAction.SETTINGS_UPDATED });
+      },
       getContentExtractionTiming: async () => {
         const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
         return settings[STORAGE_KEYS.SETTINGS]?.state?.contentExtractionTiming ?? DEFAULT_SETTINGS.contentExtractionTiming;
