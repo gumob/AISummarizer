@@ -18,7 +18,7 @@ const config: Configuration = {
     },
     background: './src/pages/Background.ts',
     offscreen: './src/pages/Offscreen.ts',
-    content: './src/pages/Content.ts',
+    content: './src/pages/Content.tsx',
   },
   output: {
     path: path.resolve(__dirname, isDev ? 'dist/dev' : 'dist/prod'),
