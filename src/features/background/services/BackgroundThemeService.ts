@@ -1,9 +1,5 @@
 import { useThemeStore } from '@/stores/ThemeStore';
-import {
-  Message,
-  MessageAction,
-  MessageResponse,
-} from '@/types';
+import { Message, MessageAction, MessageResponse } from '@/types';
 import { logger } from '@/utils';
 
 export class BackgroundThemeService {
@@ -13,10 +9,7 @@ export class BackgroundThemeService {
 
   async initialize() {
     try {
-      if (await chrome.offscreen.hasDocument()) {
-        await chrome.offscreen.closeDocument();
-      }
-
+      if (await chrome.offscreen.hasDocument()) await chrome.offscreen.closeDocument();
       await chrome.offscreen.createDocument({
         url: 'offscreen.html',
         reasons: ['MATCH_MEDIA' as chrome.offscreen.Reason],

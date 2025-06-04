@@ -14,25 +14,53 @@ const contextMenuService = new ContextMenuService();
 const articleService = new ArticleService();
 const cleanupService = new CleanupDBService();
 
-themeService.initialize();
-contextMenuService.createMenu();
-cleanupService.startCleanup();
+/**
+ * Initialize the extension
+ */
+const initialize = async () => {
+  logger.debug('Initializing extension');
+  themeService.initialize();
+  cleanupService.startCleanup();
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (tab.id && tab.url) {
+    updateArticleExtractionState(tab.id, tab.url);
+  } else {
+    logger.error('Tab id or url is undefined');
+  }
+};
 
 /**
  * Export the function to update the article extraction state
  */
 const updateArticleExtractionState = async (tabId: number, url: string) => {
   logger.debug('Updating article extraction state', tabId, url);
-  const isSuccess = await articleService.isArticleExtractedForUrl(url);
+  const isExist = await articleService.isArticleExtractedForUrl(url);
   logger.debug('url', url);
-  logger.debug('Article is extracted', isSuccess);
-  if (isSuccess) {
+  logger.debug('Article exists', isExist);
+  if (isExist) {
     chrome.action.setBadgeText({ text: '✓', tabId });
     chrome.action.setBadgeBackgroundColor({ color: '#999999', tabId });
   } else {
     chrome.action.setBadgeText({ text: '', tabId });
   }
   contextMenuService.createMenu();
+};
+
+/**
+ * Event listener for when the extension is installed
+ * @param details - The details of the installation
+ */
+const handleInstalled = async (_details: chrome.runtime.InstalledDetails) => {
+  logger.debug('Extension installed');
+  await initialize();
+};
+
+/**
+ * Event listener for when the extension is started
+ */
+const handleStartup = async () => {
+  logger.debug('Extension started');
+  await initialize();
 };
 
 /**
@@ -82,6 +110,12 @@ const handleMessage = async (message: any, sender: chrome.runtime.MessageSender,
       break;
   }
 };
+
+chrome.runtime.onInstalled.removeListener(handleInstalled);
+chrome.runtime.onInstalled.addListener(handleInstalled);
+
+chrome.runtime.onStartup.removeListener(handleStartup);
+chrome.runtime.onStartup.addListener(handleStartup);
 
 chrome.tabs.onActivated.removeListener(handleTabActivated);
 chrome.tabs.onActivated.addListener(handleTabActivated);
