@@ -651,36 +651,8 @@ video {
   top: 1.25rem !important;
 }
 
-.bottom-full {
-  bottom: 100%;
-}
-
 .left-0 {
   left: 0px;
-}
-
-.left-1\/2 {
-  left: 50%;
-}
-
-.left-full {
-  left: 100%;
-}
-
-.right-0 {
-  right: 0px;
-}
-
-.right-full {
-  right: 100%;
-}
-
-.top-1\/2 {
-  top: 50%;
-}
-
-.top-full {
-  top: 100%;
 }
 
 .z-50 {
@@ -704,16 +676,8 @@ video {
   margin-bottom: 1rem;
 }
 
-.ml-2 {
-  margin-left: 0.5rem;
-}
-
 .mr-1 {
   margin-right: 0.25rem;
-}
-
-.mr-2 {
-  margin-right: 0.5rem;
 }
 
 .mt-3 {
