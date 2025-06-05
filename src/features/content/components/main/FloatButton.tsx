@@ -1,20 +1,15 @@
+import clsx from 'clsx';
+
 import React from 'react';
 
-import clsx from 'clsx';
 import { IoAddOutline } from 'react-icons/io5';
+
+import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
 
 import { ServiceIcon } from '@/components/ServiceIcon';
 import { useContentContext } from '@/features/content/contexts';
-import {
-  AIService,
-  FloatButtonPosition,
-} from '@/types';
+import { AIService, FloatButtonPosition } from '@/types';
 import { logger } from '@/utils';
-import {
-  Popover,
-  PopoverButton,
-  PopoverPanel,
-} from '@headlessui/react';
 
 interface FloatButtonProps {}
 
@@ -24,30 +19,29 @@ export const FloatButton: React.FC<FloatButtonProps> = ({}) => {
   if (!isFloatButtonVisible || settings.floatButtonPosition === FloatButtonPosition.HIDE) return null;
 
   return (
-    <Popover
-      className={clsx(
-        'fixed z-[777777777777] flex items-center justify-center',
-        settings.floatButtonPosition === FloatButtonPosition.TOP_LEFT && '!top-4 !left-4',
-        settings.floatButtonPosition === FloatButtonPosition.TOP_CENTER && '!top-4 !left-1/2 -translate-x-1/2',
-        settings.floatButtonPosition === FloatButtonPosition.TOP_RIGHT && '!top-4 !right-4',
-        settings.floatButtonPosition === FloatButtonPosition.MIDDLE_LEFT && '!left-4 !top-1/2 -translate-y-1/2',
-        settings.floatButtonPosition === FloatButtonPosition.MIDDLE_RIGHT && '!right-4 !top-1/2 -translate-y-1/2',
-        settings.floatButtonPosition === FloatButtonPosition.BOTTOM_LEFT && '!bottom-4 !left-4',
-        settings.floatButtonPosition === FloatButtonPosition.BOTTOM_CENTER && '!bottom-4 !left-1/2 -translate-x-1/2',
-        settings.floatButtonPosition === FloatButtonPosition.BOTTOM_RIGHT && '!bottom-4 !right-4'
-      )}
-    >
+    <Popover>
       {({ open }) => (
         <>
           <PopoverButton
-            className={`
-                inline-flex items-center gap-2 px-4 py-2 rounded-full
+            className={clsx(
+              `
+                fixed z-[777777777777] flex items-center justify-center
+                gap-2 px-4 py-2 rounded-full
                 bg-blue-600 hover:bg-blue-700
                 text-white shadow-lg
-                transition-all duration-200
+                transition-color duration-200
                 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
                 dark:focus:ring-offset-zinc-900
-              `}
+                `,
+              settings.floatButtonPosition === FloatButtonPosition.TOP_LEFT && '!top-4 !left-4',
+              settings.floatButtonPosition === FloatButtonPosition.TOP_CENTER && '!top-4 !left-1/2 -translate-x-1/2',
+              settings.floatButtonPosition === FloatButtonPosition.TOP_RIGHT && '!top-4 !right-4',
+              settings.floatButtonPosition === FloatButtonPosition.MIDDLE_LEFT && '!left-4 !top-1/2 -translate-y-1/2',
+              settings.floatButtonPosition === FloatButtonPosition.MIDDLE_RIGHT && '!right-4 !top-1/2 -translate-y-1/2',
+              settings.floatButtonPosition === FloatButtonPosition.BOTTOM_LEFT && '!bottom-4 !left-4',
+              settings.floatButtonPosition === FloatButtonPosition.BOTTOM_CENTER && '!bottom-4 !left-1/2 -translate-x-1/2',
+              settings.floatButtonPosition === FloatButtonPosition.BOTTOM_RIGHT && '!bottom-4 !right-4'
+            )}
           >
             <IoAddOutline className="w-5 h-5" />
             <span>Summarize</span>
