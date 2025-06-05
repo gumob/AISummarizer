@@ -54,7 +54,6 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
     strategy: 'fixed',
     middleware: [offset(10)],
   });
-  const dismiss = useDismiss(context);
 
   if (!isFloatPanelVisible || settings.floatButtonPosition === FloatPanelPosition.HIDE) return null;
 
@@ -62,6 +61,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
     <Popover>
       {({ open }) => (
         <>
+          <PopoverBackdrop className="fixed inset-0 z-[777777777776]" />
           <PopoverButton
             ref={refs.setReference}
             className={clsx(
