@@ -34,8 +34,10 @@ const Content: React.FC = () => {
           }
           ${globalsCss}
         `;
+        /** Append elements to the shadow DOM */
         const shadowRoot = document.getElementById('ai-summarizer-root')?.shadowRoot;
         shadowRoot?.appendChild(style);
+        shadowRoot?.appendChild(reactContainer);
       });
   }, []);
   /**
@@ -60,9 +62,6 @@ const shadowRoot = rootContainer.attachShadow({ mode: process.env.NODE_ENV === '
 /** Create a container for the React app inside the shadow DOM */
 const reactContainer = document.createElement('div');
 reactContainer.id = 'ai-summarizer-react-root';
-
-/** Append elements to the shadow DOM */
-shadowRoot.appendChild(reactContainer);
 
 /** Render the React app */
 const root = createRoot(reactContainer);

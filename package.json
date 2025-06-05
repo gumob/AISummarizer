@@ -4,9 +4,9 @@
   "description": "A Chrome extension to manage other extensions",
   "type": "module",
   "scripts": {
-    "dev": "NODE_ENV=development node --loader ts-node/esm node_modules/webpack/bin/webpack.js --config webpack.config.ts --mode=development --watch",
-    "build": "NODE_ENV=production node --loader ts-node/esm node_modules/webpack/bin/webpack.js --config webpack.config.ts --mode=production",
-    "start": "NODE_ENV=development node --loader ts-node/esm node_modules/webpack/bin/webpack.js --config webpack.config.ts --mode=development",
+    "dev": "pnpm build:css && NODE_ENV=development node --loader ts-node/esm node_modules/webpack/bin/webpack.js --config webpack.config.ts --mode=development --watch",
+    "build": "pnpm build:css && NODE_ENV=production node --loader ts-node/esm node_modules/webpack/bin/webpack.js --config webpack.config.ts --mode=production",
+    "start": "pnpm build:css && NODE_ENV=development node --loader ts-node/esm node_modules/webpack/bin/webpack.js --config webpack.config.ts --mode=development",
     "build:css": "tailwindcss -i ./src/styles/globals.css -o ./public/globals.css --minify",
     "prettier-check": "prettier --config prettier.config.js --check \"src/**/*.{js,jsx,ts,tsx,css,scss,json}\"",
     "prettier-fix": "prettier --config prettier.config.js --write \"src/**/*.{js,jsx,ts,tsx,css,scss,json}\"",
