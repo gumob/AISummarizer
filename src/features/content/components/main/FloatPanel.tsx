@@ -70,17 +70,7 @@ interface FloatPopoverPanelProps {
 export const FloatPopoverPanel: React.FC<FloatPopoverPanelProps> = ({ settings }) => {
   return (
     <PopoverPanel
-      className={clsx(
-        'absolute mb-2 bg-white dark:bg-zinc-800 rounded-lg shadow-lg p-2 min-w-[200px] border border-zinc-200 dark:border-zinc-700',
-        settings.floatButtonPosition === FloatPanelPosition.TOP_LEFT && 'bottom-full right-0',
-        settings.floatButtonPosition === FloatPanelPosition.TOP_CENTER && 'bottom-full left-1/2 -translate-x-1/2',
-        settings.floatButtonPosition === FloatPanelPosition.TOP_RIGHT && 'bottom-full left-0',
-        settings.floatButtonPosition === FloatPanelPosition.MIDDLE_LEFT && 'right-full top-1/2 -translate-y-1/2 mr-2',
-        settings.floatButtonPosition === FloatPanelPosition.MIDDLE_RIGHT && 'left-full top-1/2 -translate-y-1/2 ml-2',
-        settings.floatButtonPosition === FloatPanelPosition.BOTTOM_LEFT && 'top-full right-0',
-        settings.floatButtonPosition === FloatPanelPosition.BOTTOM_CENTER && 'top-full left-1/2 -translate-x-1/2',
-        settings.floatButtonPosition === FloatPanelPosition.BOTTOM_RIGHT && 'top-full left-0'
-      )}
+      className={clsx('absolute mb-2 bg-white dark:bg-zinc-800 rounded-lg shadow-lg p-2 min-w-[200px] border border-zinc-200 dark:border-zinc-700')}
     >
       <div className="flex flex-col gap-1">
         {Object.entries(AIService).map(([_, service], index) => (
