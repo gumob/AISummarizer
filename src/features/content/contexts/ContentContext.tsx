@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 
 import { useChromeMessage } from '@/features/content/hooks';
-import { useSettingsStore } from '@/stores';
-import { AIService, ArticleExtractionResult, ContentExtractionTiming, FloatButtonPosition, TabBehavior } from '@/types';
+import { SettingsState } from '@/stores';
+import { ArticleExtractionResult, FloatButtonPosition } from '@/types';
 import { logger } from '@/utils';
 
 /**
@@ -12,45 +12,14 @@ import { logger } from '@/utils';
  * @property tabUrl - The tab url.
  * @property article - The article data.
  * @property isFloatButtonVisible - The is float button visible.
- * @property setIsFloatButtonVisible - The set is float button visible function.
- * @property prompts - The prompts data.
- * @property prompt - The get prompt function.
- * @property tabBehavior - The tab behavior.
- * @property floatButtonPosition - The float button position.
- * @property contentExtractionTiming - The page extraction method.
- * @property setContentExtractionTiming - The set page extraction method function.
- * @property setPrompt - The set prompt function.
- * @property setTabBehavior - The set tab behavior function.
- * @property setFloatButtonPosition - The set float button position function.
- * @property isShowMessage - The is show message.
- * @property setIsShowMessage - The set is show message function.
- * @property isShowBadge - The is show badge.
- * @property setIsShowBadge - The set is show badge function.
- * @property saveArticleOnClipboard - The save article on clipboard.
- * @property setSaveArticleOnClipboard - The set save article on clipboard function.
+ * @property settings - The settings data.
  */
 interface ContentContextValue {
   tabId: number | null;
   tabUrl: string | null;
   article: ArticleExtractionResult | null;
   isFloatButtonVisible: boolean;
-  prompts: {
-    [key in AIService]: string;
-  };
-  prompt: (service: AIService) => Promise<string>;
-  setPrompt: (service: AIService, prompt: string) => Promise<void>;
-  tabBehavior: TabBehavior;
-  setTabBehavior: (tabBehavior: TabBehavior) => Promise<void>;
-  floatButtonPosition: FloatButtonPosition;
-  setFloatButtonPosition: (floatButtonPosition: FloatButtonPosition) => Promise<void>;
-  contentExtractionTiming: ContentExtractionTiming;
-  setContentExtractionTiming: (contentExtractionTiming: ContentExtractionTiming) => Promise<void>;
-  isShowMessage: boolean;
-  setIsShowMessage: (isShowMessage: boolean) => Promise<void>;
-  isShowBadge: boolean;
-  setIsShowBadge: (isShowBadge: boolean) => Promise<void>;
-  saveArticleOnClipboard: boolean;
-  setSaveArticleOnClipboard: (saveArticleOnClipboard: boolean) => Promise<void>;
+  settings: SettingsState;
 }
 
 /**
@@ -79,9 +48,8 @@ export const ContentContextProvider: React.FC<ContentContextProviderProps> = ({ 
    * State Management
    *******************************************************/
 
-  const { tabId, tabUrl, article } = useChromeMessage();
+  const { tabId, tabUrl, article, settings } = useChromeMessage();
   const [isFloatButtonVisible, setIsFloatButtonVisible] = useState(false);
-  const settings = useSettingsStore();
 
   /*******************************************************
    * Lifecycle
@@ -89,17 +57,13 @@ export const ContentContextProvider: React.FC<ContentContextProviderProps> = ({ 
 
   useEffect(() => {
     const checkVisibility = async () => {
-      logger.debug('🗣️🎁', 'checkVisibility', 'article', article);
       const isArticleExtracted = article != null && article.isSuccess;
-      const floatButtonPosition = await useSettingsStore.getState().getFloatButtonPosition();
-      logger.debug('🗣️🎁', 'checkVisibility', 'isArticleExtracted', isArticleExtracted);
-      logger.debug('🗣️🎁', 'checkVisibility', 'floatButtonPosition', floatButtonPosition);
-      const state = isArticleExtracted && floatButtonPosition !== FloatButtonPosition.HIDE;
+      const state = isArticleExtracted && settings.floatButtonPosition !== FloatButtonPosition.HIDE;
       logger.debug('🗣️🎁', 'checkVisibility', 'state', state);
       setIsFloatButtonVisible(state);
     };
     checkVisibility();
-  }, [tabId, tabUrl, article]);
+  }, [tabId, tabUrl, article, settings]);
 
   /*******************************************************
    * Exported Value
@@ -111,7 +75,7 @@ export const ContentContextProvider: React.FC<ContentContextProviderProps> = ({ 
       tabUrl,
       article,
       isFloatButtonVisible,
-      ...settings,
+      settings,
     }),
     [tabId, tabUrl, article, isFloatButtonVisible, settings]
   );

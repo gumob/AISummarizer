@@ -2,15 +2,10 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 import { STORAGE_KEYS } from '@/constants';
-import {
-  AIService,
-  ContentExtractionTiming,
-  FloatButtonPosition,
-  MessageAction,
-  TabBehavior,
-} from '@/types';
+import { AIService, ContentExtractionTiming, FloatButtonPosition, MessageAction, TabBehavior } from '@/types';
+import { logger } from '@/utils';
 
-interface SettingsState {
+export interface SettingsState {
   prompts: {
     [key in AIService]: string;
   };
@@ -79,31 +74,32 @@ export const useSettingsStore = create<SettingsStore>()(
             [service]: prompt,
           },
         }));
-        chrome.runtime.sendMessage({ action: MessageAction.SETTINGS_UPDATED });
+        await sendSettingsUpdate();
       },
       setTabBehavior: async (tabBehavior: TabBehavior) => {
         set(() => ({ tabBehavior }));
-        chrome.runtime.sendMessage({ action: MessageAction.SETTINGS_UPDATED });
+        await sendSettingsUpdate();
       },
       setFloatButtonPosition: async (floatButtonPosition: FloatButtonPosition) => {
         set(() => ({ floatButtonPosition }));
-        chrome.runtime.sendMessage({ action: MessageAction.SETTINGS_UPDATED });
+        logger.debug('🏪⚙️', 'setFloatButtonPosition', 'floatButtonPosition', floatButtonPosition);
+        await sendSettingsUpdate();
       },
       setContentExtractionTiming: async (contentExtractionTiming: ContentExtractionTiming) => {
         set(() => ({ contentExtractionTiming }));
-        chrome.runtime.sendMessage({ action: MessageAction.SETTINGS_UPDATED });
+        await sendSettingsUpdate();
       },
       setIsShowMessage: async (isShowMessage: boolean) => {
         set(() => ({ isShowMessage }));
-        chrome.runtime.sendMessage({ action: MessageAction.SETTINGS_UPDATED });
+        await sendSettingsUpdate();
       },
       setIsShowBadge: async (isShowBadge: boolean) => {
         set(() => ({ isShowBadge }));
-        chrome.runtime.sendMessage({ action: MessageAction.SETTINGS_UPDATED });
+        await sendSettingsUpdate();
       },
       setSaveArticleOnClipboard: async (saveArticleOnClipboard: boolean) => {
         set(() => ({ saveArticleOnClipboard }));
-        chrome.runtime.sendMessage({ action: MessageAction.SETTINGS_UPDATED });
+        await sendSettingsUpdate();
       },
       getContentExtractionTiming: async () => {
         const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
@@ -147,3 +143,33 @@ export const useSettingsStore = create<SettingsStore>()(
     }
   )
 );
+
+/**
+ * Send settings update to content script
+ */
+const sendSettingsUpdate = async () => {
+  try {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (!tab.id) {
+      logger.warn('🏪⚙️', 'No active tab found');
+      return;
+    }
+
+    const settings = useSettingsStore.getState();
+    await chrome.tabs.sendMessage(tab.id, {
+      action: MessageAction.SETTINGS_UPDATED,
+      payload: {
+        prompts: settings.prompts,
+        tabBehavior: settings.tabBehavior,
+        floatButtonPosition: settings.floatButtonPosition,
+        contentExtractionTiming: settings.contentExtractionTiming,
+        isShowMessage: settings.isShowMessage,
+        isShowBadge: settings.isShowBadge,
+        saveArticleOnClipboard: settings.saveArticleOnClipboard,
+      },
+    });
+    logger.debug('🏪⚙️', 'Settings update message sent to content script');
+  } catch (error) {
+    logger.error('🏪⚙️', 'Failed to send settings update message:', error);
+  }
+};

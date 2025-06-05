@@ -1,3 +1,5 @@
+import clsx from 'clsx';
+
 import React from 'react';
 
 import { IoAddOutline } from 'react-icons/io5';
@@ -6,18 +8,30 @@ import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
 
 import { ServiceIcon } from '@/components/ServiceIcon';
 import { useContentContext } from '@/features/content/contexts';
-import { AIService } from '@/types';
+import { AIService, FloatButtonPosition } from '@/types';
 import { logger } from '@/utils';
 
 interface FloatButtonProps {}
 
 export const FloatButton: React.FC<FloatButtonProps> = ({}) => {
-  const { isFloatButtonVisible } = useContentContext();
+  const { isFloatButtonVisible, settings } = useContentContext();
 
-  if (!isFloatButtonVisible) return null;
+  if (!isFloatButtonVisible || settings.floatButtonPosition === FloatButtonPosition.HIDE) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-50" style={{ position: 'fixed', bottom: '1rem', right: '1rem', zIndex: 50 }}>
+    <div
+      className={clsx(
+        `fixed z-50`,
+        settings.floatButtonPosition === FloatButtonPosition.TOP_LEFT && 'top-4 left-4',
+        settings.floatButtonPosition === FloatButtonPosition.TOP_CENTER && 'top-4 left-1/2 -translate-x-1/2',
+        settings.floatButtonPosition === FloatButtonPosition.TOP_RIGHT && 'top-4 right-4',
+        settings.floatButtonPosition === FloatButtonPosition.MIDDLE_LEFT && 'left-4 top-1/2 -translate-y-1/2',
+        settings.floatButtonPosition === FloatButtonPosition.MIDDLE_RIGHT && 'right-4 top-1/2 -translate-y-1/2',
+        settings.floatButtonPosition === FloatButtonPosition.BOTTOM_LEFT && 'bottom-4 left-4',
+        settings.floatButtonPosition === FloatButtonPosition.BOTTOM_CENTER && 'bottom-4 left-1/2 -translate-x-1/2',
+        settings.floatButtonPosition === FloatButtonPosition.BOTTOM_RIGHT && 'bottom-4 right-4'
+      )}
+    >
       <Popover className="relative">
         {({ open }) => (
           <>
