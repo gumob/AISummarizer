@@ -4,10 +4,11 @@
   "description": "A Chrome extension to manage other extensions",
   "type": "module",
   "scripts": {
-    "dev": "pnpm build:css && NODE_ENV=development node --loader ts-node/esm node_modules/webpack/bin/webpack.js --config webpack.config.ts --mode=development --watch",
+    "dev": "concurrently \"pnpm build:css:watch\" \"NODE_ENV=development node --loader ts-node/esm node_modules/webpack/bin/webpack.js --config webpack.config.ts --mode=development --watch\"",
     "build": "pnpm build:css && NODE_ENV=production node --loader ts-node/esm node_modules/webpack/bin/webpack.js --config webpack.config.ts --mode=production",
     "start": "pnpm build:css && NODE_ENV=development node --loader ts-node/esm node_modules/webpack/bin/webpack.js --config webpack.config.ts --mode=development",
     "build:css": "tailwindcss -i ./src/styles/globals.css -o ./public/globals.css --minify",
+    "build:css:watch": "tailwindcss -i ./src/styles/globals.css -o ./public/globals.css --watch",
     "prettier-check": "prettier --config prettier.config.js --check \"src/**/*.{js,jsx,ts,tsx,css,scss,json}\"",
     "prettier-fix": "prettier --config prettier.config.js --write \"src/**/*.{js,jsx,ts,tsx,css,scss,json}\"",
     "eslint-check": "eslint \"src/**/*.{ts,tsx,js,jsx}\"",
@@ -60,6 +61,7 @@
     "@typescript-eslint/eslint-plugin": "^8.33.0",
     "@typescript-eslint/parser": "^8.33.0",
     "autoprefixer": "^10.4.21",
+    "concurrently": "^9.1.2",
     "copy-webpack-plugin": "^13.0.0",
     "css-loader": "^7.1.2",
     "cws-publish": "^2.1.1",
@@ -78,5 +80,5 @@
     "webpack": "^5.99.9",
     "webpack-cli": "^6.0.1"
   },
-  "packageManager": "pnpm@10.11.0+sha512.6540583f41cc5f628eb3d9773ecee802f4f9ef9923cc45b69890fb47991d4b092964694ec3a4f738a420c918a333062c8b925d312f42e4f0c263eb603551f977"
+  "packageManager": "pnpm@10.11.1+sha512.e519b9f7639869dc8d5c3c5dfef73b3f091094b0a006d7317353c72b124e80e1afd429732e28705ad6bfa1ee879c1fce46c128ccebd3192101f43dd67c667912"
 }

@@ -54,13 +54,17 @@ export const FloatButton: React.FC<FloatButtonProps> = ({}) => {
           </PopoverButton>
 
           <PopoverPanel
-            className={`
-                absolute bottom-full right-0 mb-2
-                bg-white dark:bg-zinc-800
-                rounded-lg shadow-lg
-                p-2 min-w-[200px]
-                border border-zinc-200 dark:border-zinc-700
-              `}
+            className={clsx(
+              'absolute mb-2 bg-white dark:bg-zinc-800 rounded-lg shadow-lg p-2 min-w-[200px] border border-zinc-200 dark:border-zinc-700',
+              settings.floatButtonPosition === FloatButtonPosition.TOP_LEFT && 'bottom-full right-0',
+              settings.floatButtonPosition === FloatButtonPosition.TOP_CENTER && 'bottom-full left-1/2 -translate-x-1/2',
+              settings.floatButtonPosition === FloatButtonPosition.TOP_RIGHT && 'bottom-full left-0',
+              settings.floatButtonPosition === FloatButtonPosition.MIDDLE_LEFT && 'right-full top-1/2 -translate-y-1/2 mr-2',
+              settings.floatButtonPosition === FloatButtonPosition.MIDDLE_RIGHT && 'left-full top-1/2 -translate-y-1/2 ml-2',
+              settings.floatButtonPosition === FloatButtonPosition.BOTTOM_LEFT && 'top-full right-0',
+              settings.floatButtonPosition === FloatButtonPosition.BOTTOM_CENTER && 'top-full left-1/2 -translate-x-1/2',
+              settings.floatButtonPosition === FloatButtonPosition.BOTTOM_RIGHT && 'top-full left-0'
+            )}
           >
             <div className="flex flex-col gap-1">
               {Object.entries(AIService).map(([_, service], index) => (
