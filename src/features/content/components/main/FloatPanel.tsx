@@ -12,10 +12,18 @@ import { SettingsState } from '@/stores/SettingsStore';
 import { AIService, FloatPanelPosition } from '@/types';
 import { logger } from '@/utils';
 
+/**
+ * FloatPopoverButton
+ */
 interface FloatPopoverButtonProps {
   settings: SettingsState;
 }
 
+/**
+ * FloatPopoverButton
+ * @param settings - The settings state
+ * @returns The FloatPopoverButton component
+ */
 export const FloatPopoverButton: React.FC<FloatPopoverButtonProps> = ({ settings }) => {
   return (
     <PopoverButton
@@ -45,10 +53,20 @@ export const FloatPopoverButton: React.FC<FloatPopoverButtonProps> = ({ settings
   );
 };
 
+/**
+ * FloatPopoverPanel
+ * @param settings - The settings state
+ * @returns The FloatPopoverPanel component
+ */
 interface FloatPopoverPanelProps {
   settings: SettingsState;
 }
 
+/**
+ * FloatPopoverPanel
+ * @param settings - The settings state
+ * @returns The FloatPopoverPanel component
+ */
 export const FloatPopoverPanel: React.FC<FloatPopoverPanelProps> = ({ settings }) => {
   return (
     <PopoverPanel
@@ -88,8 +106,16 @@ export const FloatPopoverPanel: React.FC<FloatPopoverPanelProps> = ({ settings }
   );
 };
 
+/**
+ * FloatPanel
+ * @returns The FloatPanel component
+ */
 interface FloatPanelProps {}
 
+/**
+ * FloatPanel
+ * @returns The FloatPanel component
+ */
 export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
   const { isFloatPanelVisible, settings } = useContentContext();
 
