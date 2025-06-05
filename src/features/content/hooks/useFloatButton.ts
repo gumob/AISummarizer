@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { useSettingsStore } from '@/stores';
-import { ArticleExtractionResult, FloatButtonPosition } from '@/types';
+import { ArticleExtractionResult, FloatPanelPosition } from '@/types';
 import { logger } from '@/utils';
 
 /**
@@ -24,7 +24,7 @@ export const useFloatButton = (url: string | null, article: ArticleExtractionRes
       }
 
       const isArticleExtracted = article.isSuccess;
-      const state = isArticleExtracted && floatButtonPosition !== FloatButtonPosition.HIDE;
+      const state = isArticleExtracted && floatButtonPosition !== FloatPanelPosition.HIDE;
       logger.debug('🫳🛟', 'checkVisibility', 'state', state);
       setIsVisible(state);
     };
@@ -33,7 +33,7 @@ export const useFloatButton = (url: string | null, article: ArticleExtractionRes
   }, [url, article, floatButtonPosition]);
 
   return {
-    isFloatButtonVisible: isVisible,
-    setIsFloatButtonVisible: setIsVisible,
+    isFloatPanelVisible: isVisible,
+    setIsFloatPanelVisible: setIsVisible,
   };
 };

@@ -2,7 +2,13 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 import { STORAGE_KEYS } from '@/constants';
-import { AIService, ContentExtractionTiming, FloatButtonPosition, MessageAction, TabBehavior } from '@/types';
+import {
+  AIService,
+  ContentExtractionTiming,
+  FloatPanelPosition,
+  MessageAction,
+  TabBehavior,
+} from '@/types';
 import { logger } from '@/utils';
 
 export interface SettingsState {
@@ -10,7 +16,7 @@ export interface SettingsState {
     [key in AIService]: string;
   };
   tabBehavior: TabBehavior;
-  floatButtonPosition: FloatButtonPosition;
+  floatButtonPosition: FloatPanelPosition;
   contentExtractionTiming: ContentExtractionTiming;
   isShowMessage: boolean;
   isShowBadge: boolean;
@@ -38,7 +44,7 @@ const DEFAULT_SETTINGS: SettingsState = {
     [AIService.DEEPSEEK]: DEFAULT_PROMPT,
   },
   tabBehavior: TabBehavior.CURRENT_TAB,
-  floatButtonPosition: FloatButtonPosition.HIDE,
+  floatButtonPosition: FloatPanelPosition.HIDE,
   contentExtractionTiming: ContentExtractionTiming.AUTOMATIC,
   isShowMessage: true,
   isShowBadge: true,
@@ -49,14 +55,14 @@ interface SettingsStore extends SettingsState {
   prompt: (service: AIService) => Promise<string>;
   setPrompt: (service: AIService, prompt: string) => Promise<void>;
   setTabBehavior: (tabBehavior: TabBehavior) => Promise<void>;
-  setFloatButtonPosition: (floatButtonPosition: FloatButtonPosition) => Promise<void>;
+  setFloatButtonPosition: (floatButtonPosition: FloatPanelPosition) => Promise<void>;
   setContentExtractionTiming: (contentExtractionTiming: ContentExtractionTiming) => Promise<void>;
   setIsShowMessage: (isShowMessage: boolean) => Promise<void>;
   setIsShowBadge: (isShowBadge: boolean) => Promise<void>;
   setSaveArticleOnClipboard: (saveArticleOnClipboard: boolean) => Promise<void>;
   getContentExtractionTiming: () => Promise<ContentExtractionTiming>;
   getSaveArticleOnClipboard: () => Promise<boolean>;
-  getFloatButtonPosition: () => Promise<FloatButtonPosition>;
+  getFloatButtonPosition: () => Promise<FloatPanelPosition>;
 }
 
 export const useSettingsStore = create<SettingsStore>()(
@@ -80,7 +86,7 @@ export const useSettingsStore = create<SettingsStore>()(
         set(() => ({ tabBehavior }));
         await sendSettingsUpdate();
       },
-      setFloatButtonPosition: async (floatButtonPosition: FloatButtonPosition) => {
+      setFloatButtonPosition: async (floatButtonPosition: FloatPanelPosition) => {
         set(() => ({ floatButtonPosition }));
         logger.debug('🏪⚙️', 'setFloatButtonPosition', 'floatButtonPosition', floatButtonPosition);
         await sendSettingsUpdate();

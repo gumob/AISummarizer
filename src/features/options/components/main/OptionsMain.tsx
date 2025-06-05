@@ -15,7 +15,7 @@ import {
 import {
   AIService,
   ContentExtractionTiming,
-  FloatButtonPosition,
+  FloatPanelPosition,
   getContentExtractionTimingLabel,
   getFloatButtonPositionLabel,
   getTabBehaviorLabel,
@@ -82,9 +82,9 @@ export const OptionsMain: React.FC = () => {
     }
   }, [tabBehavior]);
 
-  /** Set FloatButtonPosition index */
+  /** Set FloatPanelPosition index */
   useEffect(() => {
-    const floatButtonIndex = Object.values(FloatButtonPosition).findIndex(value => value === floatButtonPosition);
+    const floatButtonIndex = Object.values(FloatPanelPosition).findIndex(value => value === floatButtonPosition);
     if (floatButtonIndex !== -1) {
       setSelectedFloatButtonIndex(floatButtonIndex);
     }
@@ -233,7 +233,7 @@ export const OptionsMain: React.FC = () => {
         <OptionCard title="Float Button">
           <TabGroup selectedIndex={selectedFloatButtonIndex} onChange={setSelectedFloatButtonIndex}>
             <TabList className="flex flex-wrap gap-2">
-              {Object.entries(FloatButtonPosition).map(([name, position]: [string, FloatButtonPosition], index) => (
+              {Object.entries(FloatPanelPosition).map(([name, position]: [string, FloatPanelPosition], index) => (
                 <Tab
                   key={name}
                   className={clsx(

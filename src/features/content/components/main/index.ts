@@ -1,2 +1,2 @@
 export * from './ContentMain';
-export * from './FloatButton';
+export * from './FloatPanel';

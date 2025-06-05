@@ -683,14 +683,6 @@ video {
   top: 100%;
 }
 
-.\!left-1\/4 {
-  left: 25% !important;
-}
-
-.\!top-1\/4 {
-  top: 25% !important;
-}
-
 .z-50 {
   z-index: 50;
 }

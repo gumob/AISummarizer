@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useMemo, useRef, useState 
 
 import { ArticleModel } from '@/models';
 import { useSettingsStore } from '@/stores';
-import { AIService, ContentExtractionTiming, FloatButtonPosition, TabBehavior } from '@/types';
+import { AIService, ContentExtractionTiming, FloatPanelPosition, TabBehavior } from '@/types';
 import { logger } from '@/utils';
 
 /**
@@ -42,8 +42,8 @@ interface GlobalContextValue {
   setPrompt: (service: AIService, prompt: string) => Promise<void>;
   tabBehavior: TabBehavior;
   setTabBehavior: (tabBehavior: TabBehavior) => Promise<void>;
-  floatButtonPosition: FloatButtonPosition;
-  setFloatButtonPosition: (floatButtonPosition: FloatButtonPosition) => Promise<void>;
+  floatButtonPosition: FloatPanelPosition;
+  setFloatButtonPosition: (floatButtonPosition: FloatPanelPosition) => Promise<void>;
   contentExtractionTiming: ContentExtractionTiming;
   setContentExtractionTiming: (contentExtractionTiming: ContentExtractionTiming) => Promise<void>;
   isShowMessage: boolean;

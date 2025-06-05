@@ -1,8 +1,17 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 
 import { useChromeMessage } from '@/features/content/hooks';
 import { SettingsState } from '@/stores';
-import { ArticleExtractionResult, FloatButtonPosition } from '@/types';
+import {
+  ArticleExtractionResult,
+  FloatPanelPosition,
+} from '@/types';
 import { logger } from '@/utils';
 
 /**
@@ -11,14 +20,14 @@ import { logger } from '@/utils';
  * @property tabId - The tab id.
  * @property tabUrl - The tab url.
  * @property article - The article data.
- * @property isFloatButtonVisible - The is float button visible.
+ * @property isFloatPanelVisible - The is float button visible.
  * @property settings - The settings data.
  */
 interface ContentContextValue {
   tabId: number | null;
   tabUrl: string | null;
   article: ArticleExtractionResult | null;
-  isFloatButtonVisible: boolean;
+  isFloatPanelVisible: boolean;
   settings: SettingsState;
 }
 
@@ -49,7 +58,7 @@ export const ContentContextProvider: React.FC<ContentContextProviderProps> = ({ 
    *******************************************************/
 
   const { tabId, tabUrl, article, settings } = useChromeMessage();
-  const [isFloatButtonVisible, setIsFloatButtonVisible] = useState(false);
+  const [isFloatPanelVisible, setIsFloatPanelVisible] = useState(false);
 
   /*******************************************************
    * Lifecycle
@@ -58,9 +67,9 @@ export const ContentContextProvider: React.FC<ContentContextProviderProps> = ({ 
   useEffect(() => {
     const checkVisibility = async () => {
       const isArticleExtracted = article != null && article.isSuccess;
-      const state = isArticleExtracted && settings.floatButtonPosition !== FloatButtonPosition.HIDE;
+      const state = isArticleExtracted && settings.floatButtonPosition !== FloatPanelPosition.HIDE;
       logger.debug('🗣️🎁', 'checkVisibility', 'state', state);
-      setIsFloatButtonVisible(state);
+      setIsFloatPanelVisible(state);
     };
     checkVisibility();
   }, [tabId, tabUrl, article, settings]);
@@ -74,10 +83,10 @@ export const ContentContextProvider: React.FC<ContentContextProviderProps> = ({ 
       tabId,
       tabUrl,
       article,
-      isFloatButtonVisible,
+      isFloatPanelVisible,
       settings,
     }),
-    [tabId, tabUrl, article, isFloatButtonVisible, settings]
+    [tabId, tabUrl, article, isFloatPanelVisible, settings]
   );
 
   return <ContentContext.Provider value={value}>{children}</ContentContext.Provider>;
