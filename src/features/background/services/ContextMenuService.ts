@@ -9,7 +9,7 @@ export class ContextMenuService {
 
   async createMenu() {
     try {
-      logger.debug('📃', 'Creating context menu');
+      logger.debug('🧑‍🍳📃', 'Creating context menu');
       await chrome.contextMenus.removeAll();
 
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -24,12 +24,12 @@ export class ContextMenuService {
       //   this.createFullMenu();
       // }
     } catch (error) {
-      logger.error('📃', 'Failed to create context menu:', error);
+      logger.error('🧑‍🍳📃', 'Failed to create context menu:', error);
     }
   }
 
   private createFullMenu() {
-    logger.debug('📃', 'Creating full menu');
+    logger.debug('🧑‍🍳📃', 'Creating full menu');
     const root = chrome.contextMenus.create({
       id: MENU_ITEMS.ROOT.id,
       title: MENU_ITEMS.ROOT.title,
@@ -88,7 +88,7 @@ export class ContextMenuService {
   }
 
   private createBasicMenu() {
-    logger.debug('📃', 'Creating basic menu');
+    logger.debug('🧑‍🍳📃', 'Creating basic menu');
     const root = chrome.contextMenus.create({
       id: MENU_ITEMS.NOT_AVAILABLE.id,
       title: MENU_ITEMS.NOT_AVAILABLE.title,
@@ -108,28 +108,28 @@ export class ContextMenuService {
 
       switch (info.menuItemId) {
         case 'chatgpt':
-          logger.debug('📃', 'ChatGPT clicked');
+          logger.debug('🧑‍🍳📃', 'ChatGPT clicked');
           break;
         case 'gemini':
-          logger.debug('📃', 'Gemini clicked');
+          logger.debug('🧑‍🍳📃', 'Gemini clicked');
           break;
         case 'claude':
-          logger.debug('📃', 'Claude clicked');
+          logger.debug('🧑‍🍳📃', 'Claude clicked');
           break;
         case 'grok':
-          logger.debug('📃', 'Grok clicked');
+          logger.debug('🧑‍🍳📃', 'Grok clicked');
           break;
         case 'perplexity':
-          logger.debug('📃', 'Perplexity clicked');
+          logger.debug('🧑‍🍳📃', 'Perplexity clicked');
           break;
         case 'deepseek':
-          logger.debug('📃', 'Deepseek clicked');
+          logger.debug('🧑‍🍳📃', 'Deepseek clicked');
           break;
         case 'copy':
-          logger.debug('📃', 'Copy clicked');
+          logger.debug('🧑‍🍳📃', 'Copy clicked');
           break;
         case 'extract':
-          logger.debug('📃', 'Extract clicked');
+          logger.debug('🧑‍🍳📃', 'Extract clicked');
           try {
             /** Check if the content script is injected */
             const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -147,11 +147,11 @@ export class ContextMenuService {
               url: tab.url!,
             });
           } catch (error: any) {
-            logger.error('📃', 'Failed to send message to content script:', error);
+            logger.error('🧑‍🍳📃', 'Failed to send message to content script:', error);
           }
           break;
         case 'settings':
-          logger.debug('📃', 'Settings clicked');
+          logger.debug('🧑‍🍳📃', 'Settings clicked');
           chrome.sidePanel.open({ windowId: tab.windowId });
           break;
       }
