@@ -26,9 +26,11 @@ const Content: React.FC = () => {
           }
           #ai-summarizer-root {
             all: initial;
+            font-family: system-ui, -apple-system, sans-serif;
           }
           #ai-summarizer-react-root {
             all: initial;
+            font-family: system-ui, -apple-system, sans-serif;
           }
           ${globalsCss}
         `;
