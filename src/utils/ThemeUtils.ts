@@ -23,7 +23,7 @@ const isBackgroundScriptReady = async (): Promise<boolean> => {
  */
 export const detectTheme = async () => {
   const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  logger.debug('🎨', 'Theme detected');
+  logger.debug('🎨', 'Theme detected', isDarkMode ? 'dark' : 'light');
 
   /** Check if the background script is ready */
   const isReady = await isBackgroundScriptReady();

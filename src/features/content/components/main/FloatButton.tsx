@@ -2,21 +2,23 @@ import React, { useEffect } from 'react';
 
 import { IoAddOutline } from 'react-icons/io5';
 
-import { ServiceIcon } from '@/components/ServiceIcon';
-import { AIService } from '@/types';
-import { logger } from '@/utils';
 import { Popover } from '@headlessui/react';
 
-interface FloatButtonProps {
-  isVisible: boolean;
-}
+import { ServiceIcon } from '@/components/ServiceIcon';
+import { useContentContext } from '@/features/content/contexts/ContentContext';
+import { AIService } from '@/types';
+import { logger } from '@/utils';
 
-export const FloatButton: React.FC<FloatButtonProps> = ({ isVisible }) => {
+interface FloatButtonProps {}
+
+export const FloatButton: React.FC<FloatButtonProps> = ({}) => {
+  const { isFloatButtonVisible } = useContentContext();
+
   useEffect(() => {
-    logger.debug('🛟🛟', 'isVisible', isVisible);
-  }, [isVisible]);
+    logger.debug('🛟🛟', 'isFloatButtonVisible', isFloatButtonVisible);
+  }, [isFloatButtonVisible]);
 
-  if (!isVisible) return null;
+  if (!isFloatButtonVisible) return null;
 
   return (
     <div className="fixed bottom-4 right-4 z-50">

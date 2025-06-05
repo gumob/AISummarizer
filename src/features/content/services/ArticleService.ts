@@ -1,8 +1,4 @@
-import {
-  extractReadability,
-  extractYoutube,
-} from '@/features/content/extractors';
-import { useArticleStore } from '@/stores';
+import { extractReadability, extractYoutube } from '@/features/content/extractors';
 import { ArticleExtractionResult } from '@/types';
 import { logger } from '@/utils';
 
@@ -79,9 +75,5 @@ export class ArticleService {
         error: error instanceof Error ? error : new Error('Failed to extract article'),
       };
     }
-  }
-
-  async isArticleExtractedForUrl(url: string): Promise<boolean> {
-    return await useArticleStore.getState().isArticleExtractedForUrl(url);
   }
 }

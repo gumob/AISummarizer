@@ -1,20 +1,10 @@
-import '@/styles/globals.css';
-
-import React, {
-  useEffect,
-  useRef,
-} from 'react';
+import React from 'react';
 
 import { createRoot } from 'react-dom/client';
 
 import { ContentMain } from '@/features/content/components/main';
-import { ArticleService } from '@/features/content/services';
-import { GlobalContextProvider } from '@/stores';
-import { MessageAction } from '@/types';
-import {
-  detectTheme,
-  logger,
-} from '@/utils';
+import { ContentContextProvider } from '@/features/content/contexts/ContentContext';
+import { logger } from '@/utils';
 
 logger.debug('📄🥡', 'Content script loaded');
 
@@ -23,76 +13,71 @@ logger.debug('📄🥡', 'Content script loaded');
  * @returns
  */
 const Content: React.FC = () => {
-  const isInitialized = useRef(false);
-  const extractionService = useRef(new ArticleService());
-
-  /**
-   * Setup color scheme listener and message handler.
-   */
-  useEffect(() => {
-    const initialize = async () => {
-      if (isInitialized.current) return;
-      isInitialized.current = true;
-
-      logger.debug('📄🥡', 'Initializing content document');
-      await detectTheme();
-
-      chrome.runtime.onMessage.addListener(handleMessage);
-    };
-
-    initialize();
-
-    return () => {
-      chrome.runtime.onMessage.removeListener(handleMessage);
-      isInitialized.current = false;
-      logger.debug('📄🥡', 'Deinitializing content document');
-    };
-  }, []);
-
-  const handleMessage = async (message: any, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void) => {
-    logger.debug('📄🥡', 'Received message:', message);
-
-    switch (message.action) {
-      case MessageAction.EXTRACT_CONTENT_START:
-        try {
-          const result = await extractionService.current.execute(message.url, message);
-          sendResponse(result);
-          chrome.runtime.sendMessage({
-            action: MessageAction.EXTRACT_CONTENT_COMPLETE,
-            result: result,
-          });
-          return true;
-        } catch (error: any) {
-          logger.error('📄🥡', 'Error in content script:', error);
-          sendResponse({ error: error.message });
-          return false;
-        }
-      case MessageAction.COPY_ARTICLE_TO_CLIPBOARD:
-        await navigator.clipboard.writeText(message.payload.text);
-        return true;
-      case MessageAction.SETTINGS_UPDATED:
-        return true;
-      default:
-        return false;
-    }
-  };
-
   /**
    * Render the component.
    * @returns
    */
   return (
-    <GlobalContextProvider>
+    <ContentContextProvider>
       <ContentMain />
-    </GlobalContextProvider>
+    </ContentContextProvider>
   );
 };
 
-// Create a container for the React app
+/** Create a container for the React app */
 const container = document.createElement('div');
 container.id = 'ai-summarizer-root';
+
+/** Create a shadow root */
+const shadowRoot = container.attachShadow({ mode: 'open' });
+
+/** Create a style element for the shadow DOM */
+const style = document.createElement('style');
+
+/** Get all stylesheets from the document */
+const stylesheets = Array.from(document.styleSheets);
+const cssText = stylesheets
+  .map(sheet => {
+    try {
+      return Array.from(sheet.cssRules)
+        .map(rule => rule.cssText)
+        .join('\n');
+    } catch (e) {
+      return '';
+    }
+  })
+  .join('\n');
+
+/** Load globals.css content */
+fetch(chrome.runtime.getURL('globals.css'))
+  .then(response => response.text())
+  .then(globalsCss => {
+    style.textContent = `
+      :host {
+        all: initial;
+      }
+      #ai-summarizer-root {
+        all: initial;
+        font-family: system-ui, -apple-system, sans-serif;
+      }
+      #ai-summarizer-react-root {
+        all: initial;
+        font-family: system-ui, -apple-system, sans-serif;
+      }
+      ${globalsCss}
+      ${cssText}
+    `;
+  });
+
+/** Create a container for the React app inside the shadow DOM */
+const reactContainer = document.createElement('div');
+reactContainer.id = 'ai-summarizer-react-root';
+
+/** Append elements to the shadow DOM */
+shadowRoot.appendChild(style);
+shadowRoot.appendChild(reactContainer);
 document.body.appendChild(container);
 
-// Render the React app
-const root = createRoot(container);
+/** Render the React app */
+const root = createRoot(reactContainer);
 root.render(<Content />);

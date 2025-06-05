@@ -1,26 +1,18 @@
-import React, {
-  createContext,
-  useContext,
-  useMemo,
-} from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 
-import { useFloatButton } from '@/hooks';
+import { useChromeMessage } from '@/features/content/hooks';
 import { useSettingsStore } from '@/stores';
-import {
-  AIService,
-  ContentExtractionTiming,
-  FloatButtonPosition,
-  TabBehavior,
-} from '@/types';
+import { AIService, ArticleExtractionResult, ContentExtractionTiming, FloatButtonPosition, TabBehavior } from '@/types';
+import { logger } from '@/utils';
 
 /**
  * The context value type for ContentContext.
  *
- * @property isArticleExtracted - The is article extracted.
- * @property setIsArticleExtracted - The set is article extracted function.
+ * @property tabId - The tab id.
+ * @property tabUrl - The tab url.
  * @property article - The article data.
- * @property setArticle - The set article data function.
- * @property isLoading - The is loading.
+ * @property isFloatButtonVisible - The is float button visible.
+ * @property setIsFloatButtonVisible - The set is float button visible function.
  * @property prompts - The prompts data.
  * @property prompt - The get prompt function.
  * @property tabBehavior - The tab behavior.
@@ -38,8 +30,10 @@ import {
  * @property setSaveArticleOnClipboard - The set save article on clipboard function.
  */
 interface ContentContextValue {
+  tabId: number | null;
+  tabUrl: string | null;
+  article: ArticleExtractionResult | null;
   isFloatButtonVisible: boolean;
-  setIsFloatButtonVisible: (isFloatButtonVisible: boolean) => void;
   prompts: {
     [key in AIService]: string;
   };
@@ -85,12 +79,27 @@ export const ContentContextProvider: React.FC<ContentContextProviderProps> = ({ 
    * State Management
    *******************************************************/
 
-  const { isFloatButtonVisible, setIsFloatButtonVisible } = useFloatButton();
+  const { tabId, tabUrl, article } = useChromeMessage();
+  const [isFloatButtonVisible, setIsFloatButtonVisible] = useState(false);
   const settings = useSettingsStore();
 
   /*******************************************************
    * Lifecycle
    *******************************************************/
+
+  useEffect(() => {
+    const checkVisibility = async () => {
+      logger.debug('🗣️🎁', 'checkVisibility', 'article', article);
+      const isArticleExtracted = article != null && article.isSuccess;
+      const floatButtonPosition = await useSettingsStore.getState().getFloatButtonPosition();
+      logger.debug('🗣️🎁', 'checkVisibility', 'isArticleExtracted', isArticleExtracted);
+      logger.debug('🗣️🎁', 'checkVisibility', 'floatButtonPosition', floatButtonPosition);
+      const state = isArticleExtracted && floatButtonPosition !== FloatButtonPosition.HIDE;
+      logger.debug('🗣️🎁', 'checkVisibility', 'state', state);
+      setIsFloatButtonVisible(state);
+    };
+    checkVisibility();
+  }, [tabId, tabUrl, article]);
 
   /*******************************************************
    * Exported Value
@@ -98,11 +107,13 @@ export const ContentContextProvider: React.FC<ContentContextProviderProps> = ({ 
 
   const value = useMemo(
     () => ({
+      tabId,
+      tabUrl,
+      article,
       isFloatButtonVisible,
-      setIsFloatButtonVisible,
       ...settings,
     }),
-    [isFloatButtonVisible, setIsFloatButtonVisible, settings]
+    [tabId, tabUrl, article, isFloatButtonVisible, settings]
   );
 
   return <ContentContext.Provider value={value}>{children}</ContentContext.Provider>;

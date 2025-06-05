@@ -31,5 +31,11 @@
   "options_page": "options.html",
   "side_panel": {
     "default_path": "options.html"
-  }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["globals.css"],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }

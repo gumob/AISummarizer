@@ -1,20 +1,8 @@
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 import { ArticleModel } from '@/models';
 import { useSettingsStore } from '@/stores';
-import {
-  AIService,
-  ContentExtractionTiming,
-  FloatButtonPosition,
-  TabBehavior,
-} from '@/types';
+import { AIService, ContentExtractionTiming, FloatButtonPosition, TabBehavior } from '@/types';
 import { logger } from '@/utils';
 
 /**
@@ -123,25 +111,25 @@ export const GlobalContextProvider: React.FC<GlobalContextProviderProps> = ({ ch
   useEffect(() => {
     /** Initialize extensions */
     const initialize = async () => {
-      logger.debug('🌏', 'Initializing GlobalContextProvider');
+      logger.debug('🗣️🌏', 'Initializing GlobalContextProvider');
       try {
         /* Initialize stores in sequence */
         isInitialized.current = true;
       } catch (error) {
-        logger.error('🌏', 'Failed to initialize extensions', error);
+        logger.error('🗣️🌏', 'Failed to initialize extensions', error);
       }
     };
     if (!isInitialized.current) initialize();
 
     /** Subscribe listeners */
     if (!isSubscribed.current) {
-      logger.debug('🌏', 'Subscribing listeners');
+      logger.debug('🗣️🌏', 'Subscribing listeners');
       isSubscribed.current = true;
     }
 
     /** Unsubscribe listeners */
     return () => {
-      logger.debug('🌏', 'Deinitializing GlobalContextProvider');
+      logger.debug('🗣️🌏', 'Deinitializing GlobalContextProvider');
       isSubscribed.current = false;
     };
   }, []);
