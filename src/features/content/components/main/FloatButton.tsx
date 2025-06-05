@@ -1,11 +1,11 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 
 import { IoAddOutline } from 'react-icons/io5';
 
-import { Popover } from '@headlessui/react';
+import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
 
 import { ServiceIcon } from '@/components/ServiceIcon';
-import { useContentContext } from '@/features/content/contexts/ContentContext';
+import { useContentContext } from '@/features/content/contexts';
 import { AIService } from '@/types';
 import { logger } from '@/utils';
 
@@ -14,18 +14,14 @@ interface FloatButtonProps {}
 export const FloatButton: React.FC<FloatButtonProps> = ({}) => {
   const { isFloatButtonVisible } = useContentContext();
 
-  useEffect(() => {
-    logger.debug('🛟🛟', 'isFloatButtonVisible', isFloatButtonVisible);
-  }, [isFloatButtonVisible]);
-
   if (!isFloatButtonVisible) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
+    <div className="fixed bottom-4 right-4 z-50" style={{ position: 'fixed', bottom: '1rem', right: '1rem', zIndex: 50 }}>
       <Popover className="relative">
         {({ open }) => (
           <>
-            <Popover.Button
+            <PopoverButton
               className={`
                 inline-flex items-center gap-2 px-4 py-2 rounded-full
                 bg-blue-600 hover:bg-blue-700
@@ -37,9 +33,9 @@ export const FloatButton: React.FC<FloatButtonProps> = ({}) => {
             >
               <IoAddOutline className="w-5 h-5" />
               <span>Summarize</span>
-            </Popover.Button>
+            </PopoverButton>
 
-            <Popover.Panel
+            <PopoverPanel
               className={`
                 absolute bottom-full right-0 mb-2
                 bg-white dark:bg-zinc-800
@@ -68,7 +64,7 @@ export const FloatButton: React.FC<FloatButtonProps> = ({}) => {
                   </button>
                 ))}
               </div>
-            </Popover.Panel>
+            </PopoverPanel>
           </>
         )}
       </Popover>

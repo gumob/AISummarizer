@@ -66,7 +66,6 @@ const config: Configuration = {
           },
         },
         { from: 'manifest.json', to: '.' },
-        { from: 'src/styles/globals.css', to: '.' },
       ],
     }),
   ],

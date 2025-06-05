@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import { createRoot } from 'react-dom/client';
 
@@ -13,6 +13,29 @@ logger.debug('📄🥡', 'Content script loaded');
  * @returns
  */
 const Content: React.FC = () => {
+  useEffect(() => {
+    /** Load globals.css content */
+    fetch(chrome.runtime.getURL('globals.css'))
+      .then(response => response.text())
+      .then(globalsCss => {
+        /** Create a style element for the shadow DOM */
+        const style = document.createElement('style');
+        style.textContent = `
+          :host {
+            all: initial;
+          }
+          #ai-summarizer-root {
+            all: initial;
+          }
+          #ai-summarizer-react-root {
+            all: initial;
+          }
+          ${globalsCss}
+        `;
+        const shadowRoot = document.getElementById('ai-summarizer-root')?.shadowRoot;
+        shadowRoot?.appendChild(style);
+      });
+  }, []);
   /**
    * Render the component.
    * @returns
@@ -25,58 +48,19 @@ const Content: React.FC = () => {
 };
 
 /** Create a container for the React app */
-const container = document.createElement('div');
-container.id = 'ai-summarizer-root';
+const rootContainer = document.createElement('div');
+rootContainer.id = 'ai-summarizer-root';
+document.body.appendChild(rootContainer);
 
 /** Create a shadow root */
-const shadowRoot = container.attachShadow({ mode: 'open' });
-
-/** Create a style element for the shadow DOM */
-const style = document.createElement('style');
-
-/** Get all stylesheets from the document */
-const stylesheets = Array.from(document.styleSheets);
-const cssText = stylesheets
-  .map(sheet => {
-    try {
-      return Array.from(sheet.cssRules)
-        .map(rule => rule.cssText)
-        .join('\n');
-    } catch (e) {
-      return '';
-    }
-  })
-  .join('\n');
-
-/** Load globals.css content */
-fetch(chrome.runtime.getURL('globals.css'))
-  .then(response => response.text())
-  .then(globalsCss => {
-    style.textContent = `
-      :host {
-        all: initial;
-      }
-      #ai-summarizer-root {
-        all: initial;
-        font-family: system-ui, -apple-system, sans-serif;
-      }
-      #ai-summarizer-react-root {
-        all: initial;
-        font-family: system-ui, -apple-system, sans-serif;
-      }
-      ${globalsCss}
-      ${cssText}
-    `;
-  });
+const shadowRoot = rootContainer.attachShadow({ mode: process.env.NODE_ENV === 'development' ? 'open' : 'closed' });
 
 /** Create a container for the React app inside the shadow DOM */
 const reactContainer = document.createElement('div');
 reactContainer.id = 'ai-summarizer-react-root';
 
 /** Append elements to the shadow DOM */
-shadowRoot.appendChild(style);
 shadowRoot.appendChild(reactContainer);
-document.body.appendChild(container);
 
 /** Render the React app */
 const root = createRoot(reactContainer);
