@@ -5,7 +5,7 @@ import React, { useMemo } from 'react';
 import { IoAddOutline } from 'react-icons/io5';
 
 import { autoPlacement, offset, useDismiss, useFloating } from '@floating-ui/react';
-import { Popover, PopoverBackdrop, PopoverButton, PopoverPanel } from '@headlessui/react';
+import { Popover, PopoverBackdrop, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 
 import { ServiceIcon } from '@/components/ServiceIcon';
 import { useContentContext } from '@/features/content/contexts';
@@ -87,34 +87,43 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
             <IoAddOutline className="w-5 h-5" />
             <span>Summarize</span>
           </PopoverButton>
-          <PopoverPanel
-            ref={refs.setFloating}
-            style={floatingStyles}
-            className={clsx(
-              'fixed z-[777777777777] bg-white dark:bg-zinc-800 rounded-lg shadow-lg p-2 min-w-[200px] border border-zinc-200 dark:border-zinc-700'
-            )}
+          <Transition
+            enter="transition duration-200 ease-out"
+            enterFrom="transform scale-95 opacity-0"
+            enterTo="transform scale-100 opacity-100"
+            leave="transition duration-150 ease-in"
+            leaveFrom="transform scale-100 opacity-100"
+            leaveTo="transform scale-95 opacity-0"
           >
-            <div className="flex flex-col gap-1">
-              {Object.entries(AIService).map(([_, service], index) => (
-                <button
-                  key={index}
-                  onClick={() => {
-                    logger.debug(`Clicked ${service} button`);
-                  }}
-                  className={`
-                flex items-center gap-2 px-3 py-2
-                text-zinc-900 dark:text-zinc-100
-                hover:bg-zinc-100 dark:hover:bg-zinc-700
-                rounded-md
-                transition-colors duration-200
-              `}
-                >
-                  <ServiceIcon service={service} className="w-4 h-4" />
-                  <span>{service}</span>
-                </button>
-              ))}
-            </div>
-          </PopoverPanel>
+            <PopoverPanel
+              ref={refs.setFloating}
+              style={floatingStyles}
+              className={clsx(
+                'fixed z-[777777777777] bg-white dark:bg-zinc-800 rounded-lg shadow-lg p-2 min-w-[200px] border border-zinc-200 dark:border-zinc-700'
+              )}
+            >
+              <div className="flex flex-col gap-1">
+                {Object.entries(AIService).map(([_, service], index) => (
+                  <button
+                    key={index}
+                    onClick={() => {
+                      logger.debug(`Clicked ${service} button`);
+                    }}
+                    className={`
+                      flex items-center gap-2 px-3 py-2
+                      text-zinc-900 dark:text-zinc-100
+                      hover:bg-zinc-100 dark:hover:bg-zinc-700
+                      rounded-md
+                      transition-colors duration-200
+                    `}
+                  >
+                    <ServiceIcon service={service} className="w-4 h-4" />
+                    <span>{service}</span>
+                  </button>
+                ))}
+              </div>
+            </PopoverPanel>
+          </Transition>
         </>
       )}
     </Popover>
