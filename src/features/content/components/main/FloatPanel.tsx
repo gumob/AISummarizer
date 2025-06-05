@@ -4,12 +4,11 @@ import React, { useMemo } from 'react';
 
 import { IoAddOutline } from 'react-icons/io5';
 
-import { autoPlacement, offset, useDismiss, useFloating } from '@floating-ui/react';
+import { offset, useFloating } from '@floating-ui/react';
 import { Popover, PopoverBackdrop, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 
 import { ServiceIcon } from '@/components/ServiceIcon';
 import { useContentContext } from '@/features/content/contexts';
-import { SettingsState } from '@/stores/SettingsStore';
 import { AIService, FloatPanelPosition } from '@/types';
 import { logger } from '@/utils';
 
@@ -59,7 +58,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
 
   return (
     <Popover>
-      {({ open }) => (
+      {({ open, close }) => (
         <>
           <PopoverBackdrop className="fixed inset-0 z-[777777777776]" />
           <PopoverButton
@@ -69,7 +68,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
               fixed z-[777777777777] flex items-center justify-center
               gap-2 px-4 py-2 rounded-full
               bg-blue-600 hover:bg-blue-700
-              text-white shadow-lg
+              text-white font-semibold shadow-lg
               transition-color duration-200
               focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
               dark:focus:ring-offset-zinc-900
@@ -88,12 +87,12 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
             <span>Summarize</span>
           </PopoverButton>
           <Transition
-            enter="transition duration-200 ease-out"
-            enterFrom="transform scale-95 opacity-0"
-            enterTo="transform scale-100 opacity-100"
-            leave="transition duration-150 ease-in"
-            leaveFrom="transform scale-100 opacity-100"
-            leaveTo="transform scale-95 opacity-0"
+            enter="transition-opacity transition-scale duration-100 ease-out"
+            enterFrom="scale-80 opacity-0"
+            enterTo="scale-100 opacity-100"
+            leave="transition-opacity transition-scale duration-60 ease-in"
+            leaveFrom="scale-100 opacity-100"
+            leaveTo="scale-80 opacity-0"
           >
             <PopoverPanel
               ref={refs.setFloating}
@@ -108,6 +107,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
                     key={index}
                     onClick={() => {
                       logger.debug(`Clicked ${service} button`);
+                      close();
                     }}
                     className={`
                       flex items-center gap-2 px-3 py-2
