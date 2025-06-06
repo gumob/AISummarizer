@@ -27,6 +27,8 @@ import {
   Transition,
 } from '@headlessui/react';
 
+import { useWindowSize } from '../../hooks';
+
 /**
  * FloatPanel
  * @returns The FloatPanel component
@@ -42,6 +44,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
   const [isHovered, setIsHovered] = useState(false);
   const panelRef = useRef<HTMLElement | null>(null);
   const buttonRef = useRef<HTMLElement | null>(null);
+  const { windowWidth, windowHeight } = useWindowSize();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -61,6 +64,10 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
       setIsHovered(false);
     }
   }, [settings.floatButtonPosition]);
+
+  useEffect(() => {
+    setIsHovered(false);
+  }, [windowWidth, windowHeight]);
 
   const placement = useMemo(() => {
     switch (settings.floatButtonPosition) {

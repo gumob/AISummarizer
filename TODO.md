@@ -7,7 +7,7 @@
 
 ## UI
 
-- [ ] Implement float buttons
+- [✓] Implement float buttons
 - [ ] Implement tab detection for opening summaries
 - [ ] Display a toast dialog when article extraction is complete
   - When the tab becomes active
