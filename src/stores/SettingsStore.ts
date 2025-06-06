@@ -42,20 +42,12 @@ export const DEFAULT_SETTINGS: SettingsState = {
   floatButtonPosition: FloatPanelPosition.HIDE,
   contentExtractionTiming: ContentExtractionTiming.AUTOMATIC,
   extractionDenylist: [
-    '(http|s)\\:\\/\\/(www|)\\.chatgpt\\.com',
-    '(http|s)\\:\\/\\/(www|)\\.claude\\.ai',
-    '(http|s)\\:\\/\\/(www|)\\.openai\\.com',
-    '(http|s)\\:\\/\\/(www|)\\.anthropic\\.com',
-    '(http|s)\\:\\/\\/(www|)\\.grok\\.com',
-    '(http|s)\\:\\/\\/(www|)\\.perplexity\\.ai',
-    '(http|s)\\:\\/\\/(www|)\\.deepseek\\.com',
-    '(http|s)\\:\\/\\/(www|)\\.google\\.com',
-    '(http|s)\\:\\/\\/(www|)\\.bing\\.com',
-    '(http|s)\\:\\/\\/(www|)\\.yahoo\\.com',
-    '(http|s)\\:\\/\\/(www|)\\.duckduckgo\\.com',
-    '(http|s)\\:\\/\\/(www|)\\.baidu\\.com',
-    '(http|s)\\:\\/\\/(www|)\\.yandex\\.com',
-    '(http|s)\\:\\/\\/(www|)\\.ask\\.com',
+    /** AI services */
+    '(https?)\\:\\/\\/(www\\.)?(chatgpt\\.com|gemini\\.com|grok\\.com|perplexity\\.com|deepseek\\.com|claude\\.ai)',
+    /** Search engines */
+    '(https?)\\:\\/\\/(www\\.)?(google|facebook|bing|yahoo|duckduckgo|baidu|yandex|ask|)\\.(co\\.[a-z]{2}|[a-z]{2,3})',
+    /** E-commerce sites */
+    '(https?)\\:\\/\\/(www\\.)?(amazon|shop|etsy|ebay|walmart|bestbuy|shopify|target|costoco|apple|flipkart|wix|rakuten|mercari|alibaba|aliexpress|shein|taobao|qoo10|)\\.(co\\.[a-z]{2}|[a-z]{2,3})',
   ],
   isShowMessage: true,
   isShowBadge: true,

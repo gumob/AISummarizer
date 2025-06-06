@@ -5,6 +5,8 @@
 - [✓] Start extracting articles automatically after the page has finished loading
 - [ ] Automatically insert prompts and execute in AI services
 - [ ] Implement a denylist to automatically prohibit article extraction
+  - Sanitize regex
+  - Fix state management for Textarea
 
 ## UI
 
@@ -21,3 +23,5 @@
 - [✓] Copy the article text to the clipboard when extraction is complete
 - [ ] Add settings for each AI service
 - [ ] Implement a denylist to automatically prohibit article extraction
+  - Sanitize regex
+  - Fix state management for Textarea
