@@ -108,7 +108,8 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
               `
               fixed z-[777777777777]
               flex items-center justify-center
-              gap-2 px-3 py-2 rounded-full
+              rounded-full
+              gap-1 ps-4 pe-4 py-4
               bg-blue-600 hover:bg-blue-700
               text-white font-semibold drop-shadow-lg
               dark:focus:ring-offset-zinc-900
@@ -126,7 +127,6 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
             )}
           >
             <IoAddOutline className="w-5 h-5" />
-            <span>Summarize</span>
           </PopoverButton>
           <Transition
             show={isHovered}
