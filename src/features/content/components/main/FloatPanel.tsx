@@ -1,31 +1,16 @@
-import React, {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-
 import clsx from 'clsx';
+
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+
 import { IoAddOutline } from 'react-icons/io5';
+
+import { offset, useFloating } from '@floating-ui/react';
+import { Popover, PopoverBackdrop, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 
 import { ServiceIcon } from '@/components/ServiceIcon';
 import { useContentContext } from '@/features/content/contexts';
-import {
-  AIService,
-  FloatPanelPosition,
-} from '@/types';
+import { AIService, FloatPanelPosition } from '@/types';
 import { logger } from '@/utils';
-import {
-  offset,
-  useFloating,
-} from '@floating-ui/react';
-import {
-  Popover,
-  PopoverBackdrop,
-  PopoverButton,
-  PopoverPanel,
-  Transition,
-} from '@headlessui/react';
 
 /**
  * FloatPanel
@@ -110,8 +95,11 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
               flex items-center justify-center
               rounded-full
               gap-1 ps-4 pe-4 py-4
-              bg-blue-600 hover:bg-blue-700
-              text-white font-semibold drop-shadow-lg
+              bg-white/80 dark:bg-zinc-900/80
+              text-zinc-900 dark:text-zinc-100
+              font-semibold
+              shadow-[0_0_24px_rgba(0,0,0,0.1)] dark:shadow-[0_0_24px_rgba(0,0,0,0.1)]
+              backdrop-blur-md
               dark:focus:ring-offset-zinc-900
               transition-colors duration-200
               focus:outline-none focus:ring-none
@@ -147,7 +135,9 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
                 'fixed z-[777777777777]',
                 'bg-white/80 dark:bg-zinc-900/80',
                 'backdrop-blur-md',
-                'rounded-lg shadow-lg p-2 min-w-[180px]',
+                'rounded-lg',
+                'shadow-[0_0_24px_rgba(0,0,0,0.1)] dark:shadow-[0_0_24px_rgba(0,0,0,0.4)]',
+                'p-2 min-w-[180px]',
                 'border border-white/20 dark:border-zinc-800/20'
               )}
             >
