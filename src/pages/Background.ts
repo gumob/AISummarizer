@@ -208,7 +208,6 @@ chrome.tabs.onUpdated.addListener(handleTabUpdated);
 
 chrome.runtime.onMessage.removeListener(handleMessage);
 chrome.runtime.onMessage.addListener(handleMessage);
-logger.debug('📄🀫', 'Message listener setup complete');
 
 const themeService = new BackgroundThemeService();
 const contextMenuService = new ContextMenuService(handleAIService);
