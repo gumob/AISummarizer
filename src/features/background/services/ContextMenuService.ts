@@ -12,6 +12,7 @@ export class ContextMenuService {
       logger.debug('🧑‍🍳📃', 'Creating context menu');
       await chrome.contextMenus.removeAll();
 
+      this.removeMenu();
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
       if (tab.url) {
         this.createFullMenu();
@@ -26,6 +27,10 @@ export class ContextMenuService {
     } catch (error) {
       logger.error('🧑‍🍳📃', 'Failed to create context menu:', error);
     }
+  }
+
+  private removeMenu() {
+    chrome.contextMenus.removeAll();
   }
 
   private createFullMenu() {
@@ -55,12 +60,12 @@ export class ContextMenuService {
     });
 
     /** Create copy option */
-    chrome.contextMenus.create({
-      id: MENU_ITEMS.COPY.id,
-      title: MENU_ITEMS.COPY.title,
-      contexts: ['page' as chrome.contextMenus.ContextType],
-      parentId: root,
-    });
+    // chrome.contextMenus.create({
+    //   id: MENU_ITEMS.COPY.id,
+    //   title: MENU_ITEMS.COPY.title,
+    //   contexts: ['page' as chrome.contextMenus.ContextType],
+    //   parentId: root,
+    // });
 
     /** Create extract option */
     chrome.contextMenus.create({

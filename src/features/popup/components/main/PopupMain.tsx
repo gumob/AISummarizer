@@ -1,7 +1,6 @@
 import React from 'react';
 
 import {
-  IoClipboardOutline,
   IoReloadOutline,
   IoSettingsOutline,
 } from 'react-icons/io5';
@@ -43,7 +42,7 @@ export const PopupMain: React.FC = () => {
           </ServiceListMenu>
         ))}
         <Divider />
-        <ServiceListMenu
+        {/* <ServiceListMenu
           onClick={() => {
             logger.debug('📦🍿', 'Copy to clipboard');
             window.close();
@@ -51,7 +50,7 @@ export const PopupMain: React.FC = () => {
         >
           <IoClipboardOutline className="w-4 h-4" />
           Copy to clipboard
-        </ServiceListMenu>
+        </ServiceListMenu> */}
         <ServiceListMenu
           onClick={async () => {
             logger.debug('📦🍿', 'Extract article again');

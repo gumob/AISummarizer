@@ -40,11 +40,11 @@ export const MENU_ITEMS = {
     type: 'separator' as chrome.contextMenus.ItemType,
     contexts: ['page' as const],
   },
-  COPY: {
-    id: 'copy',
-    title: 'Copy to clipboard',
-    contexts: ['page' as const],
-  },
+  // COPY: {
+  //   id: 'copy',
+  //   title: 'Copy to clipboard',
+  //   contexts: ['page' as const],
+  // },
   EXTRACT: {
     id: 'extract',
     title: 'Extract article again',
