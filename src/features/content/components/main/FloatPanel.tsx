@@ -1,4 +1,9 @@
-import React, { useMemo } from 'react';
+import React, {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import clsx from 'clsx';
 import { IoAddOutline } from 'react-icons/io5';
@@ -34,6 +39,28 @@ interface FloatPanelProps {}
  */
 export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
   const { isFloatPanelVisible, settings } = useContentContext();
+  const [isHovered, setIsHovered] = useState(false);
+  const panelRef = useRef<HTMLElement | null>(null);
+  const buttonRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (panelRef.current && !panelRef.current.contains(event.target as Node) && buttonRef.current && !buttonRef.current.contains(event.target as Node)) {
+        setIsHovered(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isHovered) {
+      setIsHovered(false);
+    }
+  }, [settings.floatButtonPosition]);
 
   const placement = useMemo(() => {
     switch (settings.floatButtonPosition) {
@@ -72,7 +99,11 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
         <>
           <PopoverBackdrop className="fixed inset-0 z-[777777777776]" />
           <PopoverButton
-            ref={refs.setReference}
+            ref={el => {
+              refs.setReference(el);
+              buttonRef.current = el;
+            }}
+            onMouseEnter={() => setIsHovered(true)}
             className={clsx(
               `
               fixed z-[777777777777]
@@ -98,6 +129,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
             <span>Summarize</span>
           </PopoverButton>
           <Transition
+            show={isHovered}
             enter="transition-opacity transition-scale duration-100 ease-out"
             enterFrom="scale-80 opacity-0"
             enterTo="scale-100 opacity-100"
@@ -106,7 +138,10 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
             leaveTo="scale-80 opacity-0"
           >
             <PopoverPanel
-              ref={refs.setFloating}
+              ref={el => {
+                refs.setFloating(el);
+                panelRef.current = el;
+              }}
               style={floatingStyles}
               className={clsx(
                 'fixed z-[777777777777]',
@@ -121,6 +156,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
                     key={index}
                     onClick={() => {
                       logger.debug(`Clicked ${service} button`);
+                      setIsHovered(false);
                       close();
                     }}
                     className={`
