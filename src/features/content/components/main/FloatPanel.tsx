@@ -145,9 +145,10 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
               style={floatingStyles}
               className={clsx(
                 'fixed z-[777777777777]',
-                'bg-white dark:bg-zinc-800',
-                'rounded-lg shadow-lg p-2 min-w-[180px]',
-                'border border-zinc-100 dark:border-zinc-800'
+                'bg-zinc-50 dark:bg-zinc-900',
+                'backdrop-blur-sm',
+                'rounded-lg shadow-lg p-2 min-w-[180px]'
+                // 'border border-zinc-50 dark:border-zinc-900'
               )}
             >
               <div className="flex flex-col gap-1">
