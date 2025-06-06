@@ -934,6 +934,10 @@ video {
   border-color: rgb(250 250 250 / var(--tw-border-opacity));
 }
 
+.border-white\/20 {
+  border-color: rgb(255 255 255 / 0.2);
+}
+
 .\!bg-zinc-50 {
   --tw-bg-opacity: 1 !important;
   background-color: rgb(250 250 250 / var(--tw-bg-opacity)) !important;
@@ -986,6 +990,14 @@ video {
 .bg-zinc-600 {
   --tw-bg-opacity: 1;
   background-color: rgb(82 82 91 / var(--tw-bg-opacity));
+}
+
+.bg-white\/30 {
+  background-color: rgb(255 255 255 / 0.3);
+}
+
+.bg-white\/50 {
+  background-color: rgb(255 255 255 / 0.5);
 }
 
 .p-2 {
@@ -1196,6 +1208,12 @@ video {
           backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
 }
 
+.backdrop-blur-md {
+  --tw-backdrop-blur: blur(12px);
+  -webkit-backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
+          backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
+}
+
 .transition {
   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-backdrop-filter;
   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
@@ -1317,6 +1335,10 @@ body {
   background-color: rgb(113 113 122 / var(--tw-bg-opacity));
 }
 
+.hover\:bg-white\/50:hover {
+  background-color: rgb(255 255 255 / 0.5);
+}
+
 .hover\:opacity-100:hover {
   opacity: 1;
 }
@@ -1364,6 +1386,10 @@ body {
     border-color: rgb(24 24 27 / var(--tw-border-opacity));
   }
 
+  .dark\:border-zinc-800\/20 {
+    border-color: rgb(39 39 42 / 0.2);
+  }
+
   .dark\:\!bg-zinc-700 {
     --tw-bg-opacity: 1 !important;
     background-color: rgb(63 63 70 / var(--tw-bg-opacity)) !important;
@@ -1401,6 +1427,14 @@ body {
 
   .dark\:bg-zinc-900\/70 {
     background-color: rgb(24 24 27 / 0.7);
+  }
+
+  .dark\:bg-zinc-900\/30 {
+    background-color: rgb(24 24 27 / 0.3);
+  }
+
+  .dark\:bg-zinc-900\/50 {
+    background-color: rgb(24 24 27 / 0.5);
   }
 
   .dark\:\!text-zinc-100 {
@@ -1470,6 +1504,10 @@ body {
   .dark\:hover\:bg-zinc-800:hover {
     --tw-bg-opacity: 1;
     background-color: rgb(39 39 42 / var(--tw-bg-opacity));
+  }
+
+  .dark\:hover\:bg-zinc-800\/50:hover {
+    background-color: rgb(39 39 42 / 0.5);
   }
 
   .dark\:focus\:ring-zinc-500:focus {
