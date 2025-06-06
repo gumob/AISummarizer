@@ -4,7 +4,7 @@
 
 - [✓] Start extracting articles automatically after the page has finished loading
 - [ ] Automatically insert prompts and execute in AI services
-- [ ] Implement a blacklist to automatically prohibit article extraction
+- [ ] Implement a denylist to automatically prohibit article extraction
 
 ## UI
 
@@ -20,4 +20,4 @@
   - If there is a record where `url` matches and `is_extracted` is `true`
 - [✓] Copy the article text to the clipboard when extraction is complete
 - [ ] Add settings for each AI service
-- [ ] Implement a blacklist to automatically prohibit article extraction
+- [ ] Implement a denylist to automatically prohibit article extraction

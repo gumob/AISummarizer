@@ -1,17 +1,13 @@
-import React, {
-  Fragment,
-  useEffect,
-  useState,
-} from 'react';
-
 import clsx from 'clsx';
+
+import React, { Fragment, useEffect, useState } from 'react';
+
 import { IoClose } from 'react-icons/io5';
 
+import { Field, Switch, Tab, TabGroup, TabList, TabPanel, TabPanels, Textarea } from '@headlessui/react';
+
 import { OptionCard } from '@/features/options/components/main';
-import {
-  useArticleStore,
-  useGlobalContext,
-} from '@/stores';
+import { useArticleStore, useGlobalContext } from '@/stores';
 import {
   AIService,
   ContentExtractionTiming,
@@ -22,16 +18,6 @@ import {
 } from '@/types';
 import { TabBehavior } from '@/types/TabBahavior';
 import { logger } from '@/utils';
-import {
-  Field,
-  Switch,
-  Tab,
-  TabGroup,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Textarea,
-} from '@headlessui/react';
 
 /**
  * The main component for the options page.
@@ -51,6 +37,8 @@ export const OptionsMain: React.FC = () => {
     setFloatButtonPosition,
     contentExtractionTiming,
     setContentExtractionTiming,
+    extractionDenylist,
+    setExtractionDenylist,
     isShowMessage,
     setIsShowMessage,
     isShowBadge,
@@ -69,6 +57,7 @@ export const OptionsMain: React.FC = () => {
   const [enableShowBadge, setEnableShowBadge] = useState<boolean | null>(null);
   const [enableSaveArticleOnClipboard, setEnableSaveArticleOnClipboard] = useState<boolean | null>(null);
   const [promptValues, setPromptValues] = useState<{ [key in AIService]?: string }>({});
+  const [extractionDenylistValue, setExtractionDenylistValue] = useState<string[]>([]);
 
   /*******************************************************
    * Initialize selected indices based on stored values
@@ -97,6 +86,11 @@ export const OptionsMain: React.FC = () => {
       setSelectedContentExtractionTimingIndex(contentExtractionTimingIndex);
     }
   }, [contentExtractionTiming]);
+
+  /** Set ExtractionDenylist */
+  useEffect(() => {
+    setExtractionDenylistValue(extractionDenylistValue);
+  }, [extractionDenylist]);
 
   /** Set ShowMessage index */
   useEffect(() => {
@@ -279,6 +273,17 @@ export const OptionsMain: React.FC = () => {
             </TabList>
           </TabGroup>
         </OptionCard>
+        {contentExtractionTiming === ContentExtractionTiming.AUTOMATIC && (
+          <OptionCard title="Denylist">
+            <Textarea
+              name="denylist"
+              className="block w-full rounded-lg px-3 py-1.5 text-base/6 text-zinc-700 dark:text-zinc-300 bg-zinc-50 dark:bg-zinc-800 border border-zinc-300 dark:border-none focus:outline-none focus:ring-1 focus:ring-zinc-300 dark:focus:ring-zinc-700 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-300 dark:focus-visible:ring-zinc-700"
+              rows={12}
+              value={extractionDenylistValue.join('\n')}
+              onChange={e => setExtractionDenylist(e.target.value.split('\n').filter(line => line.trim() !== ''))}
+            />
+          </OptionCard>
+        )}
         <OptionCard title="Copy Article on Clipboard">
           <Switch checked={enableSaveArticleOnClipboard ?? false} onChange={setEnableSaveArticleOnClipboard} as={Fragment}>
             {({ checked, disabled }) => (

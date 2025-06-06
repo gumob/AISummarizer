@@ -2,13 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 import { STORAGE_KEYS } from '@/constants';
-import {
-  AIService,
-  ContentExtractionTiming,
-  FloatPanelPosition,
-  MessageAction,
-  TabBehavior,
-} from '@/types';
+import { AIService, ContentExtractionTiming, FloatPanelPosition, MessageAction, TabBehavior } from '@/types';
 import { logger } from '@/utils';
 
 export interface SettingsState {
@@ -18,6 +12,7 @@ export interface SettingsState {
   tabBehavior: TabBehavior;
   floatButtonPosition: FloatPanelPosition;
   contentExtractionTiming: ContentExtractionTiming;
+  extractionDenylist: string[];
   isShowMessage: boolean;
   isShowBadge: boolean;
   saveArticleOnClipboard: boolean;
@@ -46,6 +41,22 @@ export const DEFAULT_SETTINGS: SettingsState = {
   tabBehavior: TabBehavior.CURRENT_TAB,
   floatButtonPosition: FloatPanelPosition.HIDE,
   contentExtractionTiming: ContentExtractionTiming.AUTOMATIC,
+  extractionDenylist: [
+    '(http|s)\\:\\/\\/(www|)\\.chatgpt\\.com',
+    '(http|s)\\:\\/\\/(www|)\\.claude\\.ai',
+    '(http|s)\\:\\/\\/(www|)\\.openai\\.com',
+    '(http|s)\\:\\/\\/(www|)\\.anthropic\\.com',
+    '(http|s)\\:\\/\\/(www|)\\.grok\\.com',
+    '(http|s)\\:\\/\\/(www|)\\.perplexity\\.ai',
+    '(http|s)\\:\\/\\/(www|)\\.deepseek\\.com',
+    '(http|s)\\:\\/\\/(www|)\\.google\\.com',
+    '(http|s)\\:\\/\\/(www|)\\.bing\\.com',
+    '(http|s)\\:\\/\\/(www|)\\.yahoo\\.com',
+    '(http|s)\\:\\/\\/(www|)\\.duckduckgo\\.com',
+    '(http|s)\\:\\/\\/(www|)\\.baidu\\.com',
+    '(http|s)\\:\\/\\/(www|)\\.yandex\\.com',
+    '(http|s)\\:\\/\\/(www|)\\.ask\\.com',
+  ],
   isShowMessage: true,
   isShowBadge: true,
   saveArticleOnClipboard: true,
@@ -57,10 +68,13 @@ interface SettingsStore extends SettingsState {
   setTabBehavior: (tabBehavior: TabBehavior) => Promise<void>;
   setFloatButtonPosition: (floatButtonPosition: FloatPanelPosition) => Promise<void>;
   setContentExtractionTiming: (contentExtractionTiming: ContentExtractionTiming) => Promise<void>;
+  setExtractionDenylist: (extractionDenylist: string[]) => Promise<void>;
   setIsShowMessage: (isShowMessage: boolean) => Promise<void>;
   setIsShowBadge: (isShowBadge: boolean) => Promise<void>;
   setSaveArticleOnClipboard: (saveArticleOnClipboard: boolean) => Promise<void>;
+  getTabBehavior: () => Promise<TabBehavior>;
   getContentExtractionTiming: () => Promise<ContentExtractionTiming>;
+  getExtractionDenylist: () => Promise<string[]>;
   getSaveArticleOnClipboard: () => Promise<boolean>;
   getFloatButtonPosition: () => Promise<FloatPanelPosition>;
 }
@@ -95,6 +109,10 @@ export const useSettingsStore = create<SettingsStore>()(
         set(() => ({ contentExtractionTiming }));
         await sendSettingsUpdate();
       },
+      setExtractionDenylist: async (extractionDenylist: string[]) => {
+        set(() => ({ extractionDenylist }));
+        await sendSettingsUpdate();
+      },
       setIsShowMessage: async (isShowMessage: boolean) => {
         set(() => ({ isShowMessage }));
         await sendSettingsUpdate();
@@ -107,9 +125,17 @@ export const useSettingsStore = create<SettingsStore>()(
         set(() => ({ saveArticleOnClipboard }));
         await sendSettingsUpdate();
       },
+      getTabBehavior: async () => {
+        const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
+        return settings[STORAGE_KEYS.SETTINGS]?.state?.tabBehavior ?? DEFAULT_SETTINGS.tabBehavior;
+      },
       getContentExtractionTiming: async () => {
         const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
         return settings[STORAGE_KEYS.SETTINGS]?.state?.contentExtractionTiming ?? DEFAULT_SETTINGS.contentExtractionTiming;
+      },
+      getExtractionDenylist: async () => {
+        const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
+        return settings[STORAGE_KEYS.SETTINGS]?.state?.extractionDenylist ?? DEFAULT_SETTINGS.extractionDenylist;
       },
       getSaveArticleOnClipboard: async () => {
         const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
@@ -123,25 +149,26 @@ export const useSettingsStore = create<SettingsStore>()(
     {
       name: STORAGE_KEYS.SETTINGS,
       storage: {
-        /**
-         * Custom storage getter that loads data from Chrome storage
-         * Handles errors and logs them appropriately
-         */
         getItem: async (name: string) => {
           const result = await chrome.storage.local.get(name);
+          if (!result[name]) {
+            // Initialize with DEFAULT_SETTINGS if storage is empty
+            await chrome.storage.local.set({
+              [name]: {
+                state: DEFAULT_SETTINGS,
+                version: 0,
+              },
+            });
+            return {
+              state: DEFAULT_SETTINGS,
+              version: 0,
+            };
+          }
           return result[name];
         },
-        /**
-         * Custom storage setter that saves data to Chrome storage
-         * Handles errors and logs them appropriately
-         */
         setItem: async (name: string, value: any) => {
           await chrome.storage.local.set({ [name]: value });
         },
-        /**
-         * Custom storage remover that deletes data from Chrome storage
-         * Handles errors and logs them appropriately
-         */
         removeItem: async (name: string) => {
           await chrome.storage.local.remove(name);
         },
@@ -169,6 +196,7 @@ const sendSettingsUpdate = async () => {
         tabBehavior: settings.tabBehavior,
         floatButtonPosition: settings.floatButtonPosition,
         contentExtractionTiming: settings.contentExtractionTiming,
+        extractionDenylist: settings.extractionDenylist,
         isShowMessage: settings.isShowMessage,
         isShowBadge: settings.isShowBadge,
         saveArticleOnClipboard: settings.saveArticleOnClipboard,

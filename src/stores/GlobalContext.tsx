@@ -19,6 +19,8 @@ import { logger } from '@/utils';
  * @property floatButtonPosition - The float button position.
  * @property contentExtractionTiming - The page extraction method.
  * @property setContentExtractionTiming - The set page extraction method function.
+ * @property extractionDenylist - The extraction denylist.
+ * @property setExtractionDenylist - The set extraction denylist function.
  * @property setPrompt - The set prompt function.
  * @property setTabBehavior - The set tab behavior function.
  * @property setFloatButtonPosition - The set float button position function.
@@ -46,6 +48,8 @@ interface GlobalContextValue {
   setFloatButtonPosition: (floatButtonPosition: FloatPanelPosition) => Promise<void>;
   contentExtractionTiming: ContentExtractionTiming;
   setContentExtractionTiming: (contentExtractionTiming: ContentExtractionTiming) => Promise<void>;
+  extractionDenylist: string[];
+  setExtractionDenylist: (extractionDenylist: string[]) => Promise<void>;
   isShowMessage: boolean;
   setIsShowMessage: (isShowMessage: boolean) => Promise<void>;
   isShowBadge: boolean;
