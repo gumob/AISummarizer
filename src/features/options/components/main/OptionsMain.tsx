@@ -144,7 +144,7 @@ export const OptionsMain: React.FC = () => {
    *******************************************************/
 
   return (
-    <div className="min-h-screen p-4 bg-zinc-50 dark:bg-zinc-900">
+    <div className="min-h-screen p-4 bg-white dark:bg-zinc-900">
       <div className="mx-auto max-w-3xl">
         <div className="flex items-center justify-between gap-2">
           <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">Settings</h1>
@@ -189,10 +189,11 @@ export const OptionsMain: React.FC = () => {
                     <Textarea
                       name="prompt"
                       className={clsx(
-                        'block w-full rounded-lg border-none',
+                        'block w-full rounded-lg',
                         'px-3 py-1.5 text-base/6',
                         'text-zinc-700 dark:text-zinc-300',
-                        'bg-zinc-200 dark:bg-zinc-800',
+                        'bg-zinc-50 dark:bg-zinc-800',
+                        'border border-zinc-300 dark:border-none',
                         'focus:outline-none focus:ring-1 focus:ring-zinc-300 dark:focus:ring-zinc-700',
                         'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-300 dark:focus-visible:ring-zinc-700'
                       )}
@@ -289,7 +290,7 @@ export const OptionsMain: React.FC = () => {
                 )}
               >
                 <span className="sr-only">Copy Article on Clipboard</span>
-                <span className={clsx('size-4 rounded-full transition', 'bg-zinc-50', checked ? 'translate-x-6' : 'translate-x-1')} />
+                <span className={clsx('size-4 rounded-full transition', 'bg-white', checked ? 'translate-x-6' : 'translate-x-1')} />
               </button>
             )}
           </Switch>
@@ -305,7 +306,7 @@ export const OptionsMain: React.FC = () => {
                 )}
               >
                 <span className="sr-only">Show Message when Article is Extracted</span>
-                <span className={clsx('size-4 rounded-full transition', 'bg-zinc-50', checked ? 'translate-x-6' : 'translate-x-1')} />
+                <span className={clsx('size-4 rounded-full transition', 'bg-white', checked ? 'translate-x-6' : 'translate-x-1')} />
               </button>
             )}
           </Switch>
@@ -321,7 +322,7 @@ export const OptionsMain: React.FC = () => {
                 )}
               >
                 <span className="sr-only">Show Message when Article is Extracted</span>
-                <span className={clsx('size-4 rounded-full transition', 'bg-zinc-50', checked ? 'translate-x-6' : 'translate-x-1')} />
+                <span className={clsx('size-4 rounded-full transition', 'bg-white', checked ? 'translate-x-6' : 'translate-x-1')} />
               </button>
             )}
           </Switch>

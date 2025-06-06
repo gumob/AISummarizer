@@ -145,7 +145,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
               style={floatingStyles}
               className={clsx(
                 'fixed z-[777777777777]',
-                'bg-zinc-50/80 dark:bg-zinc-900/80',
+                'bg-white/80 dark:bg-zinc-900/80',
                 'backdrop-blur-md',
                 'rounded-lg shadow-lg p-2 min-w-[180px]',
                 'border border-white/20 dark:border-zinc-800/20'

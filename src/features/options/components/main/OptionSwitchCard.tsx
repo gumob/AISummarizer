@@ -33,7 +33,7 @@ export const OptionSwitchCard: React.FC<OptionSwitchCardProps> = ({ title, check
             )}
           >
             <span className="sr-only">{title}</span>
-            <span className={clsx('size-4 rounded-full transition', 'bg-zinc-50', checked ? 'translate-x-6' : 'translate-x-1')} />
+            <span className={clsx('size-4 rounded-full transition', 'bg-white', checked ? 'translate-x-6' : 'translate-x-1')} />
           </button>
         )}
       </Switch>
