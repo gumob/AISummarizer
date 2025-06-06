@@ -80,7 +80,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
               bg-blue-600 hover:bg-blue-700
               text-white font-semibold shadow-lg
               transition-color duration-200
-              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+              focus:outline-none focus:ring-none
               dark:focus:ring-offset-zinc-900
               `,
               settings.floatButtonPosition === FloatPanelPosition.TOP_LEFT && '!top-4 !left-4',
