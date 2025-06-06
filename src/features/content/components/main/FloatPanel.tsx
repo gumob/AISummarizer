@@ -168,7 +168,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
                       transition-colors duration-200
                     `}
                   >
-                    <ServiceIcon service={service} className="w-4 h-4" />
+                    <ServiceIcon service={service} className="w-5 h-5" />
                     <span>{service}</span>
                   </button>
                 ))}

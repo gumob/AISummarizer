@@ -1321,10 +1321,6 @@ body {
   background-color: rgb(113 113 122 / var(--tw-bg-opacity));
 }
 
-.hover\:bg-zinc-500\/50:hover {
-  background-color: rgb(113 113 122 / 0.5);
-}
-
 .hover\:bg-zinc-500\/20:hover {
   background-color: rgb(113 113 122 / 0.2);
 }
@@ -1472,8 +1468,8 @@ body {
     background-color: rgb(113 113 122 / var(--tw-bg-opacity));
   }
 
-  .dark\:hover\:bg-zinc-500\/50:hover {
-    background-color: rgb(113 113 122 / 0.5);
+  .dark\:hover\:bg-zinc-500\/20:hover {
+    background-color: rgb(113 113 122 / 0.2);
   }
 
   .dark\:hover\:bg-zinc-600:hover {
@@ -1489,10 +1485,6 @@ body {
   .dark\:hover\:bg-zinc-800:hover {
     --tw-bg-opacity: 1;
     background-color: rgb(39 39 42 / var(--tw-bg-opacity));
-  }
-
-  .dark\:hover\:bg-zinc-500\/20:hover {
-    background-color: rgb(113 113 122 / 0.2);
   }
 
   .dark\:focus\:ring-zinc-500:focus {
