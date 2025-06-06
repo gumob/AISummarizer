@@ -1,19 +1,9 @@
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 
-import toast from 'react-hot-toast';
-
+import { toast } from '@/features/content/components/main/Toaster';
 import { useChromeMessage } from '@/features/content/hooks';
 import { SettingsState } from '@/stores';
-import {
-  ArticleExtractionResult,
-  FloatPanelPosition,
-} from '@/types';
+import { ArticleExtractionResult, FloatPanelPosition } from '@/types';
 import { logger } from '@/utils';
 
 /**
