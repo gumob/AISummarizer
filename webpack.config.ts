@@ -1,4 +1,6 @@
 import CopyPlugin from 'copy-webpack-plugin';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import type { Configuration } from 'webpack';
@@ -35,7 +37,7 @@ const config: Configuration = {
       {
         test: /\.css$/,
         use: [
-          'style-loader',
+          MiniCssExtractPlugin.loader,
           'css-loader',
           {
             loader: 'postcss-loader',
@@ -56,13 +58,26 @@ const config: Configuration = {
     },
   },
   plugins: [
+    new MiniCssExtractPlugin({
+      filename: 'globals.css',
+    }),
+    new HtmlWebpackPlugin({
+      template: './public/popup.html',
+      filename: 'popup.html',
+      chunks: ['popup'],
+    }),
+    new HtmlWebpackPlugin({
+      template: './public/options.html',
+      filename: 'options.html',
+      chunks: ['options'],
+    }),
     new CopyPlugin({
       patterns: [
         {
           from: 'public',
           to: '.',
           globOptions: {
-            ignore: ['**/*.sketch'],
+            ignore: ['**/*.sketch', '**/*.html'],
           },
         },
         { from: 'manifest.json', to: '.' },
