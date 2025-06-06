@@ -112,7 +112,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
               bg-blue-600 hover:bg-blue-700
               text-white font-semibold drop-shadow-lg
               dark:focus:ring-offset-zinc-900
-              transition-color duration-200
+              transition-colors duration-200
               focus:outline-none focus:ring-none
               `,
               settings.floatButtonPosition === FloatPanelPosition.TOP_LEFT && '!top-4 !left-4',
@@ -130,12 +130,12 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
           </PopoverButton>
           <Transition
             show={isHovered}
-            enter="transition-opacity transition-scale duration-100 ease-out"
-            enterFrom="scale-80 opacity-0"
-            enterTo="scale-100 opacity-100"
-            leave="transition-opacity transition-scale duration-60 ease-in"
-            leaveFrom="scale-100 opacity-100"
-            leaveTo="scale-80 opacity-0"
+            enter="transition-opacity duration-100 ease-out"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="transition-opacity duration-60 ease-in"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
           >
             <PopoverPanel
               ref={el => {
