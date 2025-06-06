@@ -1,16 +1,26 @@
-import clsx from 'clsx';
-
 import React, { useMemo } from 'react';
 
+import clsx from 'clsx';
 import { IoAddOutline } from 'react-icons/io5';
-
-import { offset, useFloating } from '@floating-ui/react';
-import { Popover, PopoverBackdrop, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 
 import { ServiceIcon } from '@/components/ServiceIcon';
 import { useContentContext } from '@/features/content/contexts';
-import { AIService, FloatPanelPosition } from '@/types';
+import {
+  AIService,
+  FloatPanelPosition,
+} from '@/types';
 import { logger } from '@/utils';
+import {
+  offset,
+  useFloating,
+} from '@floating-ui/react';
+import {
+  Popover,
+  PopoverBackdrop,
+  PopoverButton,
+  PopoverPanel,
+  Transition,
+} from '@headlessui/react';
 
 /**
  * FloatPanel
@@ -98,7 +108,10 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
               ref={refs.setFloating}
               style={floatingStyles}
               className={clsx(
-                'fixed z-[777777777777] bg-white dark:bg-zinc-800 rounded-lg shadow-lg p-2 min-w-[200px] border border-zinc-200 dark:border-zinc-700'
+                'fixed z-[777777777777]',
+                'bg-white dark:bg-zinc-800',
+                'rounded-lg shadow-lg p-2 min-w-[180px]',
+                'border border-zinc-100 dark:border-zinc-800'
               )}
             >
               <div className="flex flex-col gap-1">
@@ -110,7 +123,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
                       close();
                     }}
                     className={`
-                      flex items-center gap-2 px-3 py-2
+                      flex items-center gap-2 px-2 py-2
                       text-zinc-900 dark:text-zinc-100
                       hover:bg-zinc-100 dark:hover:bg-zinc-700
                       rounded-md
