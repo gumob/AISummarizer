@@ -71,6 +71,11 @@ const config: Configuration = {
       filename: 'options.html',
       chunks: ['options'],
     }),
+    new HtmlWebpackPlugin({
+      template: './public/offscreen.html',
+      filename: 'offscreen.html',
+      chunks: ['offscreen'],
+    }),
     new CopyPlugin({
       patterns: [
         {

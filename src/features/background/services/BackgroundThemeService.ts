@@ -1,9 +1,5 @@
 import { useThemeStore } from '@/stores/ThemeStore';
-import {
-  Message,
-  MessageAction,
-  MessageResponse,
-} from '@/types';
+import { Message, MessageAction, MessageResponse } from '@/types';
 import { logger } from '@/utils';
 
 export class BackgroundThemeService {
@@ -13,16 +9,26 @@ export class BackgroundThemeService {
 
   async initialize() {
     try {
-      if (await chrome.offscreen.hasDocument()) await chrome.offscreen.closeDocument();
-      await chrome.offscreen.createDocument({
-        url: 'offscreen.html',
-        reasons: ['MATCH_MEDIA' as chrome.offscreen.Reason],
-        justification: 'Detect system color scheme changes',
-      });
-      logger.debug('🧑‍🍳🎨', 'Offscreen document created successfully');
+      // Close existing document if it exists
+      if (await chrome.offscreen.hasDocument()) {
+        await chrome.offscreen.closeDocument();
+      }
+
+      // Create new document with error handling
+      try {
+        await chrome.offscreen.createDocument({
+          url: 'offscreen.html',
+          reasons: ['MATCH_MEDIA' as chrome.offscreen.Reason],
+          justification: 'Detect system color scheme changes',
+        });
+        logger.debug('🧑‍🍳🎨', 'Offscreen document created successfully');
+      } catch (createError) {
+        logger.error('🧑‍🍳🎨', 'Failed to create offscreen document', createError);
+        // Continue execution even if offscreen document creation fails
+      }
     } catch (error) {
-      logger.error('🧑‍🍳🎨', 'Failed to create offscreen document', error);
-      // throw error;
+      logger.error('🧑‍🍳🎨', 'Error in theme service initialization', error);
+      // Continue execution even if initialization fails
     }
   }
 

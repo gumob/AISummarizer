@@ -1,23 +1,9 @@
 import { STORAGE_KEYS } from '@/constants';
 import { db } from '@/db';
-import {
-  BackgroundThemeService,
-  CleanupDBService,
-  ContextMenuService,
-} from '@/features/background/services';
-import {
-  useArticleStore,
-  useSettingsStore,
-} from '@/stores';
+import { BackgroundThemeService, CleanupDBService, ContextMenuService } from '@/features/background/services';
+import { useArticleStore, useSettingsStore } from '@/stores';
 import { DEFAULT_SETTINGS } from '@/stores/SettingsStore';
-import {
-  AIService,
-  ContentExtractionTiming,
-  formatArticleForClipboard,
-  getSummarizeUrl,
-  MessageAction,
-  TabBehavior,
-} from '@/types';
+import { AIService, ContentExtractionTiming, formatArticleForClipboard, getSummarizeUrl, MessageAction, TabBehavior } from '@/types';
 import { logger } from '@/utils';
 
 /**
@@ -45,6 +31,12 @@ const initialize = async () => {
  */
 const reload = async (tabId: number, url: string) => {
   try {
+    // Skip processing for Chrome extension pages
+    if (url.startsWith('chrome://') || url.startsWith('chrome-extension://')) {
+      logger.debug('📄🀫', 'Skipping processing for Chrome extension page', url);
+      return;
+    }
+
     logger.debug('📄🀫', 'Updating article extraction state', 'tabId:', tabId, 'url:', url);
 
     /** Check if the article exists */
