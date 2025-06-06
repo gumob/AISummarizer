@@ -7,6 +7,23 @@ export enum AIService {
   DEEPSEEK = 'DEEPSEEK',
 }
 
+export const getSummarizeUrl = (service: AIService, summarizeId: string) => {
+  switch (service) {
+    case AIService.CHATGPT:
+      return `https://chatgpt.com/?smid=${summarizeId}`;
+    case AIService.GEMINI:
+      return `https://gemini.com/?smid=${summarizeId}`;
+    case AIService.CLAUDE:
+      return `https://claude.com/?smid=${summarizeId}`;
+    case AIService.GROK:
+      return `https://grok.com/?smid=${summarizeId}`;
+    case AIService.PERPLEXITY:
+      return `https://perplexity.com/?smid=${summarizeId}`;
+    case AIService.DEEPSEEK:
+      return `https://deepseek.com/?smid=${summarizeId}`;
+  }
+};
+
 export const getAIServiceFromId = (id: string): AIService => {
   switch (id) {
     case 'chatgpt':

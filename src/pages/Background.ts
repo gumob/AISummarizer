@@ -1,3 +1,4 @@
+import { STORAGE_KEYS } from '@/constants';
 import { db } from '@/db';
 import {
   BackgroundThemeService,
@@ -8,11 +9,14 @@ import {
   useArticleStore,
   useSettingsStore,
 } from '@/stores';
+import { DEFAULT_SETTINGS } from '@/stores/SettingsStore';
 import {
   AIService,
   ContentExtractionTiming,
   formatArticleForClipboard,
+  getSummarizeUrl,
   MessageAction,
+  TabBehavior,
 } from '@/types';
 import { logger } from '@/utils';
 
@@ -135,6 +139,34 @@ const handleTabActivated = async (activeInfo: chrome.tabs.TabActiveInfo) => {
 
 const handleAIService = async (service: AIService, tabId: number, url: string) => {
   logger.debug('📄🀫', 'handleAIService', service, tabId, url);
+  const article = await db.getArticleByUrl(url);
+  if (article?.is_success) {
+    const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
+    const tabBehavior = settings[STORAGE_KEYS.SETTINGS]?.state?.tabBehavior ?? DEFAULT_SETTINGS.tabBehavior;
+    const summarizeUrl = getSummarizeUrl(service, article.id.toString());
+    logger.debug('📄🀫', 'Tab behavior', tabBehavior);
+    switch (tabBehavior) {
+      case TabBehavior.CURRENT_TAB:
+        chrome.tabs.update(tabId, { url: summarizeUrl });
+        break;
+      case TabBehavior.NEW_TAB:
+        chrome.tabs.create({ url: summarizeUrl });
+        break;
+      case TabBehavior.NEW_PRIVATE_TAB:
+        const windows = await chrome.windows.getAll({ populate: true });
+        const incognitoWindow = windows.find(w => w.incognito);
+        if (incognitoWindow) {
+          chrome.tabs.create({ windowId: incognitoWindow.id, url: summarizeUrl });
+        } else {
+          chrome.windows.create({ url: summarizeUrl, incognito: true });
+        }
+        break;
+      default:
+        break;
+    }
+  } else {
+    logger.warn('📄🀫', 'Article not found', url);
+  }
 };
 
 /**

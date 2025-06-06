@@ -34,7 +34,7 @@ const DEFAULT_PROMPT = `Extract each theme from the following text without omiss
 # Content
 {content}`;
 
-const DEFAULT_SETTINGS: SettingsState = {
+export const DEFAULT_SETTINGS: SettingsState = {
   prompts: {
     [AIService.CHATGPT]: DEFAULT_PROMPT,
     [AIService.GEMINI]: DEFAULT_PROMPT,
