@@ -12,6 +12,7 @@ import {
 import { ServiceListMenu } from '@/features/popup/components/main';
 import {
   AIService,
+  getAIServiceLabel,
   MessageAction,
 } from '@/types';
 import { logger } from '@/utils';
@@ -32,13 +33,26 @@ export const PopupMain: React.FC = () => {
         {Object.entries(AIService).map(([_, service], index) => (
           <ServiceListMenu
             key={index}
-            onClick={() => {
+            onClick={async () => {
               logger.debug('📦🍿', service);
+              /** Check if the content script is injected */
+              const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+              if (!tab.id) throw new Error('No active tab found');
+
+              /** Send the message to the content script */
+              await chrome.runtime.sendMessage({
+                action: MessageAction.SUMMARIZE_CONTENT_START,
+                payload: {
+                  service: service,
+                  tabId: tab.id,
+                  url: tab.url!,
+                },
+              });
               window.close();
             }}
           >
             <ServiceIcon service={service} className="w-4 h-4 translate-y-[2px] " />
-            {service}
+            {getAIServiceLabel(service)}
           </ServiceListMenu>
         ))}
         <Divider />

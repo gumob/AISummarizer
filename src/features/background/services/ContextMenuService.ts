@@ -1,9 +1,15 @@
 import { MENU_ITEMS } from '@/models';
-import { MessageAction } from '@/types';
+import {
+  AIService,
+  getAIServiceFromId,
+  MessageAction,
+} from '@/types';
 import { logger } from '@/utils';
 
 export class ContextMenuService {
-  constructor() {
+  private aiServiceCallback: (service: AIService, tabId: number, url: string) => void;
+  constructor(aiServiceCallback: (service: AIService, tabId: number, url: string) => void) {
+    this.aiServiceCallback = aiServiceCallback;
     this.setupClickHandler();
   }
 
@@ -113,25 +119,24 @@ export class ContextMenuService {
 
       switch (info.menuItemId) {
         case 'chatgpt':
-          logger.debug('🧑‍🍳📃', 'ChatGPT clicked');
-          break;
         case 'gemini':
-          logger.debug('🧑‍🍳📃', 'Gemini clicked');
-          break;
         case 'claude':
-          logger.debug('🧑‍🍳📃', 'Claude clicked');
-          break;
         case 'grok':
-          logger.debug('🧑‍🍳📃', 'Grok clicked');
-          break;
         case 'perplexity':
-          logger.debug('🧑‍🍳📃', 'Perplexity clicked');
-          break;
         case 'deepseek':
-          logger.debug('🧑‍🍳📃', 'Deepseek clicked');
-          break;
         case 'copy':
-          logger.debug('🧑‍🍳📃', 'Copy clicked');
+          logger.debug('🧑‍🍳📃', 'Extract clicked');
+          try {
+            /** Check if the content script is injected */
+            const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+            logger.debug('🧑‍🍳📃', 'Tab:', tab);
+            if (tab.id === undefined || tab.id === null || tab.url === undefined || tab.url === null) throw new Error('No active tab found');
+
+            this.aiServiceCallback(getAIServiceFromId(info.menuItemId), tab.id, tab.url);
+          } catch (error) {
+            logger.error('🧑‍🍳📃', 'Failed to send message:', error);
+          }
+
           break;
         case 'extract':
           logger.debug('🧑‍🍳📃', 'Extract clicked');

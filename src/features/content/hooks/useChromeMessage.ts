@@ -1,8 +1,15 @@
-import { useEffect, useRef, useState } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 
 import { ArticleService } from '@/features/content/services';
 import { useSettingsStore } from '@/stores';
-import { ArticleExtractionResult, MessageAction } from '@/types';
+import {
+  ArticleExtractionResult,
+  MessageAction,
+} from '@/types';
 import { logger } from '@/utils';
 
 /**

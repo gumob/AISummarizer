@@ -1,11 +1,30 @@
 export enum AIService {
-  CHATGPT = 'ChatGPT',
-  GEMINI = 'Gemini',
-  CLAUDE = 'Claude',
-  GROK = 'Grok',
-  PERPLEXITY = 'Perplexity',
-  DEEPSEEK = 'DeepSeek',
+  CHATGPT = 'CHATGPT',
+  GEMINI = 'GEMINI',
+  CLAUDE = 'CLAUDE',
+  GROK = 'GROK',
+  PERPLEXITY = 'PERPLEXITY',
+  DEEPSEEK = 'DEEPSEEK',
 }
+
+export const getAIServiceFromId = (id: string): AIService => {
+  switch (id) {
+    case 'chatgpt':
+      return AIService.CHATGPT;
+    case 'gemini':
+      return AIService.GEMINI;
+    case 'claude':
+      return AIService.CLAUDE;
+    case 'grok':
+      return AIService.GROK;
+    case 'perplexity':
+      return AIService.PERPLEXITY;
+    case 'deepseek':
+      return AIService.DEEPSEEK;
+    default:
+      throw new Error(`Invalid AI service ID: ${id}`);
+  }
+};
 
 export const getAIServiceLabel = (service: AIService): string => {
   switch (service) {

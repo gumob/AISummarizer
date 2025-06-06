@@ -13,6 +13,8 @@ import { useContentContext } from '@/features/content/contexts';
 import {
   AIService,
   FloatPanelPosition,
+  getAIServiceLabel,
+  MessageAction,
 } from '@/types';
 import { logger } from '@/utils';
 import {
@@ -27,7 +29,10 @@ import {
   Transition,
 } from '@headlessui/react';
 
-import { useWindowSize } from '../../hooks';
+import {
+  useChromeMessage,
+  useWindowSize,
+} from '../../hooks';
 
 /**
  * FloatPanel
@@ -45,6 +50,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
   const panelRef = useRef<HTMLElement | null>(null);
   const buttonRef = useRef<HTMLElement | null>(null);
   const { windowWidth, windowHeight } = useWindowSize();
+  const { tabId, tabUrl } = useChromeMessage();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -165,11 +171,26 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
               )}
             >
               <div className="flex flex-col gap-1">
-                {Object.entries(AIService).map(([_, service], index) => (
+                {Object.entries(AIService).map(([name, service], index) => (
                   <button
                     key={index}
-                    onClick={() => {
-                      logger.debug(`Clicked ${service} button`);
+                    onClick={async () => {
+                      logger.debug(`Clicked ${name} button`);
+                      if (tabId === null || tabUrl === null) throw new Error('No active tab found');
+                      logger.debug('🫳💬', 'Sending message to background script', tabId, tabUrl);
+                      try {
+                        await chrome.runtime.sendMessage({
+                          action: MessageAction.SUMMARIZE_CONTENT_START,
+                          payload: {
+                            service: service,
+                            tabId: tabId,
+                            url: tabUrl,
+                          },
+                        });
+                        logger.debug('🫳💬', 'Message sent successfully');
+                      } catch (error) {
+                        logger.error('🫳💬', 'Failed to send message:', error);
+                      }
                       setIsHovered(false);
                       close();
                     }}
@@ -182,7 +203,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
                     `}
                   >
                     <ServiceIcon service={service} className="w-5 h-5" />
-                    <span>{service}</span>
+                    <span>{getAIServiceLabel(service)}</span>
                   </button>
                 ))}
               </div>

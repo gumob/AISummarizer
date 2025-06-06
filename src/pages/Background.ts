@@ -1,17 +1,25 @@
 import { db } from '@/db';
-import { BackgroundThemeService, CleanupDBService, ContextMenuService } from '@/features/background/services';
-import { useArticleStore, useSettingsStore } from '@/stores';
-import { ContentExtractionTiming, formatArticleForClipboard, MessageAction } from '@/types';
+import {
+  BackgroundThemeService,
+  CleanupDBService,
+  ContextMenuService,
+} from '@/features/background/services';
+import {
+  useArticleStore,
+  useSettingsStore,
+} from '@/stores';
+import {
+  AIService,
+  ContentExtractionTiming,
+  formatArticleForClipboard,
+  MessageAction,
+} from '@/types';
 import { logger } from '@/utils';
 
 /**
  * Initialize the background script
  */
 logger.debug('📄🀫', 'Initializing background script');
-
-const themeService = new BackgroundThemeService();
-const contextMenuService = new ContextMenuService();
-const cleanupService = new CleanupDBService();
 
 /**
  * Initialize the extension
@@ -125,6 +133,10 @@ const handleTabActivated = async (activeInfo: chrome.tabs.TabActiveInfo) => {
   }
 };
 
+const handleAIService = async (service: AIService, tabId: number, url: string) => {
+  logger.debug('📄🀫', 'handleAIService', service, tabId, url);
+};
+
 /**
  * Event listener for when the tab is updated
  * @description This event is triggered when the tab is newly created, url updated or reloaded
@@ -167,6 +179,16 @@ const handleMessage = async (message: any, sender: chrome.runtime.MessageSender,
         }
       }
       break;
+
+    case MessageAction.SUMMARIZE_CONTENT_START:
+      logger.debug('📄🀫', 'Summarizing content start', message.payload);
+      handleAIService(message.payload.service, message.payload.tabId, message.payload.url);
+      break;
+
+    case MessageAction.SUMMARIZE_CONTENT_COMPLETE:
+      logger.debug('📄🀫', 'Summarizing content complete', message.result);
+      break;
+
     default:
       break;
   }
@@ -186,3 +208,8 @@ chrome.tabs.onUpdated.addListener(handleTabUpdated);
 
 chrome.runtime.onMessage.removeListener(handleMessage);
 chrome.runtime.onMessage.addListener(handleMessage);
+logger.debug('📄🀫', 'Message listener setup complete');
+
+const themeService = new BackgroundThemeService();
+const contextMenuService = new ContextMenuService(handleAIService);
+const cleanupService = new CleanupDBService();
