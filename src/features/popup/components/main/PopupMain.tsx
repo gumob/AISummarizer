@@ -26,7 +26,7 @@ export const PopupMain: React.FC = () => {
    * @returns
    */
   return (
-    <main className="h-screen flex flex-col overflow-hidden">
+    <main className="h-screen flex flex-col overflow-hidden bg-white dark:bg-zinc-900">
       <div className="container mx-auto h-full flex flex-col items-start gap-1 px-2 pt-2">
         <ServiceListMenu>Summarize this page</ServiceListMenu>
         {Object.entries(AIService).map(([_, service], index) => (
