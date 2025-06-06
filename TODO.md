@@ -8,12 +8,12 @@
 ## UI
 
 - [✓] Implement float buttons
-- [ ] Implement tab detection for opening summaries
+- [✓] Implement switching tab for opening summaries
 - [ ] Display a toast dialog when article extraction is complete
   - When the tab becomes active
   - If `isShowMessage` on `GlobalContext` is true
   - If there is a record where `url` matches and `is_extracted` is `true`
-- [ ] Display the badge after article extraction is complete
+- [✓] Display the badge after article extraction is complete
   - When the tab becomes active
   - If `isShowBadge` on `GlobalContext` is true
   - If there is a record where `url` matches and `is_extracted` is `true`

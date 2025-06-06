@@ -61,7 +61,9 @@ const reload = async (tabId: number, url: string) => {
       payload: { tabId: tabId, url: url, article: article },
     });
 
-    if (isExist) {
+    const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
+    const isShowBadge = settings[STORAGE_KEYS.SETTINGS]?.state?.isShowBadge ?? DEFAULT_SETTINGS.isShowBadge;
+    if (isExist && isShowBadge) {
       /** Set the badge text */
       chrome.action.setBadgeText({ text: '✓', tabId });
       chrome.action.setBadgeBackgroundColor({ color: '#999999', tabId });
