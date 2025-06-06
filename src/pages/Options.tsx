@@ -6,7 +6,6 @@ import React, {
 } from 'react';
 
 import { createRoot } from 'react-dom/client';
-import { Toaster } from 'react-hot-toast';
 
 import { OptionsMain } from '@/features/options/components/main';
 import { GlobalContextProvider } from '@/stores';
@@ -49,13 +48,6 @@ const Options: React.FC = () => {
   return (
     <GlobalContextProvider>
       <OptionsMain />
-      <Toaster
-        position="top-center"
-        containerClassName="!top-5"
-        toastOptions={{
-          className: '!text-zinc-900 dark:!text-zinc-100 !bg-white dark:!bg-zinc-700 !rounded-xl !shadow-lg shadow-zinc-300 dark:shadow-zinc-900',
-        }}
-      />
     </GlobalContextProvider>
   );
 };

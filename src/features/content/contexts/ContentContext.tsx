@@ -6,6 +6,8 @@ import React, {
   useState,
 } from 'react';
 
+import toast from 'react-hot-toast';
+
 import { useChromeMessage } from '@/features/content/hooks';
 import { SettingsState } from '@/stores';
 import {
@@ -73,6 +75,13 @@ export const ContentContextProvider: React.FC<ContentContextProviderProps> = ({ 
     };
     checkVisibility();
   }, [tabId, tabUrl, article, settings]);
+
+  useEffect(() => {
+    if (article?.isSuccess) {
+      logger.debug('🗣️🎁', 'Article extracted successfully');
+      toast.success('Article extracted successfully');
+    }
+  }, [article]);
 
   /*******************************************************
    * Exported Value
