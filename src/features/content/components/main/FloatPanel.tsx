@@ -1,16 +1,31 @@
+import React, {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+
 import clsx from 'clsx';
-
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-
 import { IoAddOutline } from 'react-icons/io5';
-
-import { offset, useFloating } from '@floating-ui/react';
-import { Popover, PopoverBackdrop, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 
 import { ServiceIcon } from '@/components/ServiceIcon';
 import { useContentContext } from '@/features/content/contexts';
-import { AIService, FloatPanelPosition } from '@/types';
+import {
+  AIService,
+  FloatPanelPosition,
+} from '@/types';
 import { logger } from '@/utils';
+import {
+  offset,
+  useFloating,
+} from '@floating-ui/react';
+import {
+  Popover,
+  PopoverBackdrop,
+  PopoverButton,
+  PopoverPanel,
+  Transition,
+} from '@headlessui/react';
 
 /**
  * FloatPanel
@@ -98,7 +113,8 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
               bg-white/80 dark:bg-zinc-900/80
               text-zinc-900 dark:text-zinc-100
               font-semibold
-              shadow-[0_0_24px_rgba(0,0,0,0.1)] dark:shadow-[0_0_24px_rgba(0,0,0,0.1)]
+              border border-white/10 dark:border-zinc-800/10
+              shadow-[0_0_24px_rgba(0,0,0,0.1)] dark:shadow-[0_0_24px_rgba(0,0,0,0.4)]
               backdrop-blur-md
               dark:focus:ring-offset-zinc-900
               transition-colors duration-200
@@ -138,7 +154,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
                 'rounded-lg',
                 'shadow-[0_0_24px_rgba(0,0,0,0.1)] dark:shadow-[0_0_24px_rgba(0,0,0,0.4)]',
                 'p-2 min-w-[180px]',
-                'border border-white/20 dark:border-zinc-800/20'
+                'border border-white/10 dark:border-zinc-800/10'
               )}
             >
               <div className="flex flex-col gap-1">
