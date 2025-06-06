@@ -75,13 +75,14 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
             ref={refs.setReference}
             className={clsx(
               `
-              fixed z-[777777777777] flex items-center justify-center
-              gap-2 px-4 py-2 rounded-full
+              fixed z-[777777777777]
+              flex items-center justify-center
+              gap-2 px-3 py-2 rounded-full
               bg-blue-600 hover:bg-blue-700
-              text-white font-semibold shadow-lg
+              text-white font-semibold drop-shadow-lg
+              dark:focus:ring-offset-zinc-900
               transition-color duration-200
               focus:outline-none focus:ring-none
-              dark:focus:ring-offset-zinc-900
               `,
               settings.floatButtonPosition === FloatPanelPosition.TOP_LEFT && '!top-4 !left-4',
               settings.floatButtonPosition === FloatPanelPosition.TOP_CENTER && '!top-4 !left-1/2 -translate-x-1/2',
