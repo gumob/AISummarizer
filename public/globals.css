@@ -929,11 +929,6 @@ video {
   border-style: none;
 }
 
-.border-zinc-50 {
-  --tw-border-opacity: 1;
-  border-color: rgb(250 250 250 / var(--tw-border-opacity));
-}
-
 .border-white\/20 {
   border-color: rgb(255 255 255 / 0.2);
 }
@@ -987,17 +982,13 @@ video {
   background-color: rgb(250 250 250 / var(--tw-bg-opacity));
 }
 
+.bg-zinc-50\/80 {
+  background-color: rgb(250 250 250 / 0.8);
+}
+
 .bg-zinc-600 {
   --tw-bg-opacity: 1;
   background-color: rgb(82 82 91 / var(--tw-bg-opacity));
-}
-
-.bg-white\/30 {
-  background-color: rgb(255 255 255 / 0.3);
-}
-
-.bg-white\/50 {
-  background-color: rgb(255 255 255 / 0.5);
 }
 
 .p-2 {
@@ -1202,14 +1193,14 @@ video {
   filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
 }
 
-.backdrop-blur-sm {
-  --tw-backdrop-blur: blur(4px);
+.backdrop-blur-md {
+  --tw-backdrop-blur: blur(12px);
   -webkit-backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
           backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
 }
 
-.backdrop-blur-md {
-  --tw-backdrop-blur: blur(12px);
+.backdrop-blur-sm {
+  --tw-backdrop-blur: blur(4px);
   -webkit-backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
           backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
 }
@@ -1315,11 +1306,6 @@ body {
   background-color: rgb(220 38 38 / var(--tw-bg-opacity));
 }
 
-.hover\:bg-zinc-100:hover {
-  --tw-bg-opacity: 1;
-  background-color: rgb(244 244 245 / var(--tw-bg-opacity));
-}
-
 .hover\:bg-zinc-200:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(228 228 231 / var(--tw-bg-opacity));
@@ -1335,8 +1321,12 @@ body {
   background-color: rgb(113 113 122 / var(--tw-bg-opacity));
 }
 
-.hover\:bg-white\/50:hover {
-  background-color: rgb(255 255 255 / 0.5);
+.hover\:bg-zinc-500\/50:hover {
+  background-color: rgb(113 113 122 / 0.5);
+}
+
+.hover\:bg-zinc-500\/20:hover {
+  background-color: rgb(113 113 122 / 0.2);
 }
 
 .hover\:opacity-100:hover {
@@ -1381,11 +1371,6 @@ body {
 }
 
 @media (prefers-color-scheme: dark) {
-  .dark\:border-zinc-900 {
-    --tw-border-opacity: 1;
-    border-color: rgb(24 24 27 / var(--tw-border-opacity));
-  }
-
   .dark\:border-zinc-800\/20 {
     border-color: rgb(39 39 42 / 0.2);
   }
@@ -1429,12 +1414,8 @@ body {
     background-color: rgb(24 24 27 / 0.7);
   }
 
-  .dark\:bg-zinc-900\/30 {
-    background-color: rgb(24 24 27 / 0.3);
-  }
-
-  .dark\:bg-zinc-900\/50 {
-    background-color: rgb(24 24 27 / 0.5);
+  .dark\:bg-zinc-900\/80 {
+    background-color: rgb(24 24 27 / 0.8);
   }
 
   .dark\:\!text-zinc-100 {
@@ -1491,6 +1472,10 @@ body {
     background-color: rgb(113 113 122 / var(--tw-bg-opacity));
   }
 
+  .dark\:hover\:bg-zinc-500\/50:hover {
+    background-color: rgb(113 113 122 / 0.5);
+  }
+
   .dark\:hover\:bg-zinc-600:hover {
     --tw-bg-opacity: 1;
     background-color: rgb(82 82 91 / var(--tw-bg-opacity));
@@ -1506,8 +1491,8 @@ body {
     background-color: rgb(39 39 42 / var(--tw-bg-opacity));
   }
 
-  .dark\:hover\:bg-zinc-800\/50:hover {
-    background-color: rgb(39 39 42 / 0.5);
+  .dark\:hover\:bg-zinc-500\/20:hover {
+    background-color: rgb(113 113 122 / 0.2);
   }
 
   .dark\:focus\:ring-zinc-500:focus {

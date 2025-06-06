@@ -145,7 +145,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
               style={floatingStyles}
               className={clsx(
                 'fixed z-[777777777777]',
-                'bg-white/50 dark:bg-zinc-900/50',
+                'bg-zinc-50/80 dark:bg-zinc-900/80',
                 'backdrop-blur-md',
                 'rounded-lg shadow-lg p-2 min-w-[180px]',
                 'border border-white/20 dark:border-zinc-800/20'
@@ -163,7 +163,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
                     className={`
                       flex items-center gap-2 px-2 py-2
                       text-zinc-900 dark:text-zinc-100
-                      hover:bg-white/50 dark:hover:bg-zinc-800/50
+                      hover:bg-zinc-500/20 dark:hover:bg-zinc-500/20
                       rounded-md
                       transition-colors duration-200
                     `}
