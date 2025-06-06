@@ -67,7 +67,7 @@ export const ContentContextProvider: React.FC<ContentContextProviderProps> = ({ 
   }, [tabId, tabUrl, article, settings]);
 
   useEffect(() => {
-    if (article?.isSuccess) {
+    if (article?.isSuccess && settings.isShowMessage) {
       logger.debug('🗣️🎁', 'Article extracted successfully');
       toast.success('Article extracted successfully');
     }
