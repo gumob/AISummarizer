@@ -158,10 +158,6 @@ export class Database {
         logger.debug('💾', 'Skipping extraction for browser-specific URLs');
         return undefined;
       }
-      if (/(https?)\:\/\/(www\.)?(chatgpt\.com|gemini\.com|grok\.com|perplexity\.com|deepseek\.com|claude\.ai)/.test(url)) {
-        logger.debug('💾', 'Skipping extraction for AI service URLs');
-        return undefined;
-      }
 
       if (!this.db) await this.init();
       logger.debug('💾', 'Getting article by url:', url);
