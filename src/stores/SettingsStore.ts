@@ -45,7 +45,7 @@ export const DEFAULT_SETTINGS: SettingsState = {
     [AIService.DEEPSEEK]: DEFAULT_PROMPT,
   },
   tabBehavior: TabBehavior.CURRENT_TAB,
-  floatButtonPosition: FloatPanelPosition.HIDE,
+  floatButtonPosition: FloatPanelPosition.BOTTOM_RIGHT,
   contentExtractionTiming: ContentExtractionTiming.AUTOMATIC,
   extractionDenylist: [
     /** AI services */
