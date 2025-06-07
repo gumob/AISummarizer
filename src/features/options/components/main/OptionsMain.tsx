@@ -1,13 +1,17 @@
+import React, {
+  Fragment,
+  useEffect,
+  useState,
+} from 'react';
+
 import clsx from 'clsx';
-
-import React, { Fragment, useEffect, useState } from 'react';
-
 import { IoClose } from 'react-icons/io5';
 
-import { Field, Switch, Tab, TabGroup, TabList, TabPanel, TabPanels, Textarea } from '@headlessui/react';
-
 import { OptionCard } from '@/features/options/components/main';
-import { useArticleStore, useGlobalContext } from '@/stores';
+import {
+  useArticleStore,
+  useGlobalContext,
+} from '@/stores';
 import {
   AIService,
   ContentExtractionTiming,
@@ -17,7 +21,20 @@ import {
   getTabBehaviorLabel,
 } from '@/types';
 import { TabBehavior } from '@/types/TabBahavior';
-import { logger } from '@/utils';
+import {
+  escapeRegExpArray,
+  logger,
+} from '@/utils';
+import {
+  Field,
+  Switch,
+  Tab,
+  TabGroup,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Textarea,
+} from '@headlessui/react';
 
 /**
  * The main component for the options page.
@@ -57,7 +74,7 @@ export const OptionsMain: React.FC = () => {
   const [enableShowBadge, setEnableShowBadge] = useState<boolean | null>(null);
   const [enableSaveArticleOnClipboard, setEnableSaveArticleOnClipboard] = useState<boolean | null>(null);
   const [promptValues, setPromptValues] = useState<{ [key in AIService]?: string }>({});
-  const [extractionDenylistValue, setExtractionDenylistValue] = useState<string[]>([]);
+  const [extractionDenylistValue, setExtractionDenylistValue] = useState<string | null>(null);
 
   /*******************************************************
    * Initialize selected indices based on stored values
@@ -89,7 +106,7 @@ export const OptionsMain: React.FC = () => {
 
   /** Set ExtractionDenylist */
   useEffect(() => {
-    setExtractionDenylistValue(extractionDenylistValue);
+    if (extractionDenylistValue !== null) setExtractionDenylist(extractionDenylistValue.split('\n').filter(value => value.trim() !== ''));
   }, [extractionDenylist]);
 
   /** Set ShowMessage index */
@@ -277,10 +294,18 @@ export const OptionsMain: React.FC = () => {
           <OptionCard title="Denylist">
             <Textarea
               name="denylist"
-              className="block w-full rounded-lg px-3 py-1.5 text-base/6 text-zinc-700 dark:text-zinc-300 bg-zinc-50 dark:bg-zinc-800 border border-zinc-300 dark:border-none focus:outline-none focus:ring-1 focus:ring-zinc-300 dark:focus:ring-zinc-700 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-300 dark:focus-visible:ring-zinc-700"
+              className={`
+                block w-full
+                rounded-lg
+                px-3 py-1.5
+                text-base/6
+                text-zinc-700 dark:text-zinc-300 bg-zinc-50 dark:bg-zinc-800 border border-zinc-300 dark:border-none
+                focus:outline-none focus:ring-1 focus:ring-zinc-300 dark:focus:ring-zinc-700
+                focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-300 dark:focus-visible:ring-zinc-700
+              `}
               rows={12}
-              value={extractionDenylistValue.join('\n')}
-              onChange={e => setExtractionDenylist(e.target.value.split('\n').filter(line => line.trim() !== ''))}
+              value={extractionDenylistValue ?? ''}
+              onChange={e => setExtractionDenylist(escapeRegExpArray(e.target.value.split('\n').filter(value => value.trim() !== '')))}
             />
           </OptionCard>
         )}
