@@ -112,8 +112,7 @@ export const OptionsMain: React.FC = () => {
 
   /** Set ExtractionDenylist */
   useEffect(() => {
-    setExtractionDenylistValue(extractionDenylist.join('\n'));
-    logger.debug('📦⌥', 'extractionDenylist', extractionDenylist);
+    if (extractionDenylist !== null) setExtractionDenylistValue(extractionDenylist.join('\n'));
   }, [extractionDenylist]);
 
   /** Set ShowMessage index */
@@ -290,7 +289,8 @@ export const OptionsMain: React.FC = () => {
           </TabGroup>
         </OptionCard>
         {contentExtractionTiming === ContentExtractionTiming.AUTOMATIC && (
-          <OptionCard title="Denylist">
+          <div className="p-2">
+            <h3 className="mb-4 text-default font-semibold text-zinc-900 dark:text-zinc-100">Denylist</h3>
             <Textarea
               name="denylist"
               className={`
@@ -311,7 +311,7 @@ export const OptionsMain: React.FC = () => {
                 setExtractionDenylist(filteredLines);
               }}
             />
-          </OptionCard>
+          </div>
         )}
         <OptionCard title="Copy Article on Clipboard">
           <Switch checked={enableSaveArticleOnClipboard ?? false} onChange={setEnableSaveArticleOnClipboard} as={Fragment}>

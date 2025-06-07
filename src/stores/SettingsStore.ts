@@ -2,7 +2,13 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 import { STORAGE_KEYS } from '@/constants';
-import { AIService, ContentExtractionTiming, FloatPanelPosition, MessageAction, TabBehavior } from '@/types';
+import {
+  AIService,
+  ContentExtractionTiming,
+  FloatPanelPosition,
+  MessageAction,
+  TabBehavior,
+} from '@/types';
 import { logger } from '@/utils';
 
 export interface SettingsState {
@@ -49,9 +55,9 @@ export const DEFAULT_SETTINGS: SettingsState = {
     /** E-commerce sites */
     '(https?)\\:\\/\\/(www\\.)?(amazon|shop|etsy|ebay|walmart|bestbuy|shopify|target|costoco|apple|flipkart|wix|rakuten|mercari|alibaba|aliexpress|shein|taobao|qoo10|)\\.(co\\.[a-z]{2}|[a-z]{2,3})',
   ],
-  isShowMessage: true,
+  isShowMessage: false,
   isShowBadge: true,
-  saveArticleOnClipboard: true,
+  saveArticleOnClipboard: false,
 };
 
 interface SettingsStore extends SettingsState {
