@@ -49,13 +49,7 @@ export class ArticleService {
     if (/^https?:\/\/(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=|embed\/|v\/|shorts\/)?([a-zA-Z0-9_-]{11})/.test(url)) {
       logger.debug('🧑‍🍳📖', 'Extracting youtube video');
       try {
-        /** Extract youtube video id from url */
-        const match = url.match(/(?:watch\?v=|embed\/|v\/|shorts\/)?([a-zA-Z0-9_-]{11})/);
-        const videoId = match ? match[1] : null;
-        if (!videoId) {
-          throw new Error('Could not extract video ID from URL');
-        }
-        return await extractYoutube(videoId);
+        return await extractYoutube(url);
       } catch (error: any) {
         logger.error('🧑‍🍳📖', 'Failed to extract youtube video:', error);
         return {

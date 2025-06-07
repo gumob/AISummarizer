@@ -41,13 +41,13 @@ interface PlayerResponse {
 
 /**
  * This function is used to get the HTML of a YouTube video by its ID.
- * @param videoID - The ID of the YouTube video.
+ * @param videoId - The ID of the YouTube video.
  * @returns The HTML of the YouTube video.
  */
-async function getHtmlByVideoID(videoID: string): Promise<string> {
+async function getHtmlByVideoID(videoId: string): Promise<string> {
   /** Generate the URL of the YouTube video. */
   const url = new URL('https://www.youtube.com/watch');
-  url.searchParams.set('v', videoID);
+  url.searchParams.set('v', videoId);
 
   /** Fetch the HTML of the YouTube video. */
   const response = await fetch(url.toString(), {
@@ -117,10 +117,10 @@ function formatTime(seconds: number): string {
 /**
  * Group transcript segments by time intervals
  * @param elements - The text elements from XML
- * @param videoID - The YouTube video ID
+ * @param videoId - The YouTube video ID
  * @returns Array of grouped transcript segments
  */
-function groupTranscriptSegments(elements: HTMLCollectionOf<Element>, videoID: string): string[] {
+function groupTranscriptSegments(elements: HTMLCollectionOf<Element>, videoId: string): string[] {
   const groups: { start: number; texts: string[] }[] = [];
   let currentGroup: { start: number; texts: string[] } | null = null;
 
@@ -147,22 +147,28 @@ function groupTranscriptSegments(elements: HTMLCollectionOf<Element>, videoID: s
   /** Format each group into a single line */
   return groups.map(group => {
     const timestamp = formatTime(group.start);
-    const url = `https://www.youtu.be/${videoID}?t=${Math.floor(group.start)}s`;
+    const url = `https://www.youtu.be/${videoId}?t=${Math.floor(group.start)}s`;
     return `- [${timestamp}](${url}) ${group.texts.join(' ')}`;
   });
 }
 
 /**
  * This function is used to extract the YouTube transcript.
- * @param videoID - The ID of the YouTube video.
+ * @param videoId - The ID of the YouTube video.
  * @returns The transcript of the YouTube video.
  */
-export async function extractYoutube(videoID: string): Promise<ArticleExtractionResult> {
-  logger.debug('🎥', 'v', 'Extracting YouTube transcript', videoID);
+export async function extractYoutube(urls: string): Promise<ArticleExtractionResult> {
+  /** Extract youtube video id from url */
+  const urlMatch = urls.match(/(?:watch\?v=|embed\/|v\/|shorts\/)?([a-zA-Z0-9_-]{11})/);
+  const videoId = urlMatch ? urlMatch[1] : null;
+  const rawUrl = urls;
+  if (!videoId) {
+    throw new Error('Could not extract video ID from URL');
+  }
+  logger.debug('🎥', 'v', 'Extracting YouTube transcript', videoId);
 
   /** Get the HTML of the YouTube video. */
-  const html = await getHtmlByVideoID(videoID);
-  const videoURL = `https://youtu.be/${videoID}`;
+  const html = await getHtmlByVideoID(videoId);
 
   /** Extract the JSON part of ytInitialPlayerResponse. */
   const ytInitialPlayerResponsePattern = /var\s+ytInitialPlayerResponse\s*=\s*({[\s\S]+?});/;
@@ -178,11 +184,11 @@ export async function extractYoutube(videoID: string): Promise<ArticleExtraction
       const defaultAudioTrackIndex = json.captions?.playerCaptionsTracklistRenderer?.defaultAudioTrackIndex;
 
       if (!captionTracks || captionTracks.length === 0) {
-        logger.error('🎥', 'no captions', videoID);
+        logger.error('🎥', 'no captions', videoId);
         return {
           title: videoTitle,
           lang: null,
-          url: videoURL,
+          url: rawUrl,
           content: null,
           isSuccess: false,
         };
@@ -191,11 +197,11 @@ export async function extractYoutube(videoID: string): Promise<ArticleExtraction
       /** Select the caption track based on the language priority. */
       const selectedTrack = selectCaptionTrack(captionTracks, defaultAudioTrackIndex);
       if (!selectedTrack) {
-        logger.error('🎥', 'no suitable caption track found', videoID);
+        logger.error('🎥', 'no suitable caption track found', videoId);
         return {
           title: videoTitle,
           lang: null,
-          url: videoURL,
+          url: rawUrl,
           content: null,
           isSuccess: false,
         };
@@ -213,7 +219,7 @@ export async function extractYoutube(videoID: string): Promise<ArticleExtraction
           'cache-control': 'no-cache',
           dnt: '1',
           priority: 'u=1, i',
-          referer: `https://www.youtube.com/watch?v=${videoID}`,
+          referer: `https://www.youtube.com/watch?v=${videoId}`,
           'sec-fetch-dest': 'empty',
           'sec-fetch-mode': 'cors',
           'sec-fetch-site': 'same-origin',
@@ -225,11 +231,11 @@ export async function extractYoutube(videoID: string): Promise<ArticleExtraction
       });
 
       if (!response.ok) {
-        logger.error('🎥', 'Failed to fetch captions XML', videoID);
+        logger.error('🎥', 'Failed to fetch captions XML', videoId);
         return {
           title: videoTitle,
           lang: selectedTrack.languageCode,
-          url: videoURL,
+          url: rawUrl,
           content: null,
           isSuccess: false,
         };
@@ -238,11 +244,11 @@ export async function extractYoutube(videoID: string): Promise<ArticleExtraction
       const responseText = await response.text();
 
       if (!responseText.trim()) {
-        logger.error('🎥', 'Empty response received', videoID);
+        logger.error('🎥', 'Empty response received', videoId);
         return {
           title: videoTitle,
           lang: selectedTrack.languageCode,
-          url: videoURL,
+          url: rawUrl,
           content: null,
           isSuccess: false,
         };
@@ -254,15 +260,15 @@ export async function extractYoutube(videoID: string): Promise<ArticleExtraction
       const textElements = xmlDoc.getElementsByTagName('text');
 
       /** Extract and group the caption data. */
-      const rawTranscript = groupTranscriptSegments(textElements, videoID).join('\n');
+      const rawTranscript = groupTranscriptSegments(textElements, videoId).join('\n');
       const transcript = normalizeContent(rawTranscript);
 
       if (!transcript) {
-        logger.error('🎥', 'Empty transcript', videoID);
+        logger.error('🎥', 'Empty transcript', videoId);
         return {
           title: videoTitle,
           lang: selectedTrack.languageCode,
-          url: videoURL,
+          url: rawUrl,
           content: null,
           isSuccess: false,
           error: new Error('Empty transcript'),
@@ -272,7 +278,7 @@ export async function extractYoutube(videoID: string): Promise<ArticleExtraction
       return {
         title: videoTitle,
         lang: selectedTrack.languageCode,
-        url: videoURL,
+        url: rawUrl,
         content: transcript,
         isSuccess: true,
       };
@@ -280,18 +286,18 @@ export async function extractYoutube(videoID: string): Promise<ArticleExtraction
       return {
         title: null,
         lang: null,
-        url: videoURL,
+        url: rawUrl,
         content: null,
         isSuccess: false,
         error: error instanceof Error ? error : new Error('Failed to extract YouTube transcript'),
       };
     }
   } else {
-    logger.debug('🎥', 'v', 'no captions', videoID);
+    logger.debug('🎥', 'v', 'no captions', videoId);
     return {
       title: null,
       lang: null,
-      url: videoURL,
+      url: rawUrl,
       content: null,
       isSuccess: false,
     };

@@ -156,7 +156,6 @@ const handleAIService = async (service: AIService, tabId: number, url: string) =
     const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
     const tabBehavior = settings[STORAGE_KEYS.SETTINGS]?.state?.tabBehavior ?? DEFAULT_SETTINGS.tabBehavior;
     const summarizeUrl = getSummarizeUrl(service, article.id.toString());
-    logger.debug('📄🀫', 'Tab behavior', tabBehavior);
     switch (tabBehavior) {
       case TabBehavior.CURRENT_TAB:
         chrome.tabs.update(tabId, { url: summarizeUrl });
@@ -198,6 +197,15 @@ const handleTabUpdated = async (tabId: number, changeInfo: chrome.tabs.TabChange
 const handleMessage = async (message: any, sender: chrome.runtime.MessageSender, sendResponse: (response: any) => void) => {
   switch (message.action) {
     case MessageAction.EXTRACT_CONTENT_COMPLETE:
+      // Only process messages from content scripts
+      if (!sender.tab?.id) {
+        logger.warn('📄🀫', 'Ignoring EXTRACT_CONTENT_COMPLETE from non-content script');
+        return;
+      }
+      if (sender.tab?.url !== message.result.url) {
+        logger.warn('📄🀫', 'Ignoring EXTRACT_CONTENT_COMPLETE for different url', sender.tab?.url, message.result.url);
+        return;
+      }
       logger.debug('📄🀫', 'Extracting content complete', message.result);
       if (message.result.isSuccess) {
         /** Save the article to the database */
@@ -242,8 +250,8 @@ chrome.runtime.onInstalled.addListener(handleInstalled);
 chrome.runtime.onStartup.removeListener(handleStartup);
 chrome.runtime.onStartup.addListener(handleStartup);
 
-chrome.tabs.onActivated.removeListener(handleTabActivated);
-chrome.tabs.onActivated.addListener(handleTabActivated);
+// chrome.tabs.onActivated.removeListener(handleTabActivated);
+// chrome.tabs.onActivated.addListener(handleTabActivated);
 
 chrome.tabs.onUpdated.removeListener(handleTabUpdated);
 chrome.tabs.onUpdated.addListener(handleTabUpdated);
