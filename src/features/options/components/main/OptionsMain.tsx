@@ -19,12 +19,9 @@ import {
   getContentExtractionTimingLabel,
   getFloatButtonPositionLabel,
   getTabBehaviorLabel,
+  TabBehavior,
 } from '@/types';
-import { TabBehavior } from '@/types/TabBahavior';
-import {
-  escapeRegExpArray,
-  logger,
-} from '@/utils';
+import { logger } from '@/utils';
 import {
   Field,
   Switch,
@@ -74,11 +71,20 @@ export const OptionsMain: React.FC = () => {
   const [enableShowBadge, setEnableShowBadge] = useState<boolean | null>(null);
   const [enableSaveArticleOnClipboard, setEnableSaveArticleOnClipboard] = useState<boolean | null>(null);
   const [promptValues, setPromptValues] = useState<{ [key in AIService]?: string }>({});
-  const [extractionDenylistValue, setExtractionDenylistValue] = useState<string | null>(null);
+  const [extractionDenylistValue, setExtractionDenylistValue] = useState<string>('');
 
   /*******************************************************
    * Initialize selected indices based on stored values
    *******************************************************/
+
+  /** Load prompts */
+  useEffect(() => {
+    const loadPrompts = async () => {
+      const values = await Promise.all(Object.values(AIService).map(async service => [service, await prompt(service)] as const));
+      setPromptValues(Object.fromEntries(values));
+    };
+    loadPrompts();
+  }, [prompt]);
 
   /** Set TabBehavior index */
   useEffect(() => {
@@ -106,7 +112,8 @@ export const OptionsMain: React.FC = () => {
 
   /** Set ExtractionDenylist */
   useEffect(() => {
-    if (extractionDenylistValue !== null) setExtractionDenylist(extractionDenylistValue.split('\n').filter(value => value.trim() !== ''));
+    setExtractionDenylistValue(extractionDenylist.join('\n'));
+    logger.debug('📦⌥', 'extractionDenylist', extractionDenylist);
   }, [extractionDenylist]);
 
   /** Set ShowMessage index */
@@ -141,14 +148,6 @@ export const OptionsMain: React.FC = () => {
     if (enableSaveArticleOnClipboard === null) setEnableSaveArticleOnClipboard(saveArticleOnClipboard);
     logger.debug('📦⌥', 'saveArticleOnClipboard', saveArticleOnClipboard);
   }, [saveArticleOnClipboard]);
-
-  useEffect(() => {
-    const loadPrompts = async () => {
-      const values = await Promise.all(Object.values(AIService).map(async service => [service, await prompt(service)] as const));
-      setPromptValues(Object.fromEntries(values));
-    };
-    loadPrompts();
-  }, [prompt]);
 
   /*******************************************************
    * Render
@@ -304,8 +303,13 @@ export const OptionsMain: React.FC = () => {
                 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-300 dark:focus-visible:ring-zinc-700
               `}
               rows={12}
-              value={extractionDenylistValue ?? ''}
-              onChange={e => setExtractionDenylist(escapeRegExpArray(e.target.value.split('\n').filter(value => value.trim() !== '')))}
+              value={extractionDenylistValue}
+              onChange={e => {
+                const newValue = e.target.value;
+                setExtractionDenylistValue(newValue);
+                const filteredLines = newValue.split('\n');
+                setExtractionDenylist(filteredLines);
+              }}
             />
           </OptionCard>
         )}
