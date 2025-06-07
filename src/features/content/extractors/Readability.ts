@@ -1,5 +1,8 @@
 import { ArticleExtractionResult } from '@/types';
-import { logger } from '@/utils';
+import {
+  logger,
+  normalizeContent,
+} from '@/utils';
 import { Readability } from '@mozilla/readability';
 
 export async function extractReadability(document: Document): Promise<ArticleExtractionResult> {
@@ -11,7 +14,8 @@ export async function extractReadability(document: Document): Promise<ArticleExt
     const title = article?.title || null;
     const lang = article?.lang || null;
     const url = document.URL;
-    const content = article?.excerpt ? article?.excerpt + '\n' + article?.textContent : article?.textContent || null;
+    const rawContent = article?.excerpt ? article?.excerpt + '\n' + article?.textContent : article?.textContent || null;
+    const content = normalizeContent(rawContent);
     const isSuccess = title !== null && content !== null && content.length > 0;
     return {
       title: title,

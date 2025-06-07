@@ -1,5 +1,8 @@
 import { ArticleExtractionResult } from '@/types';
-import { logger } from '@/utils';
+import {
+  logger,
+  normalizeContent,
+} from '@/utils';
 
 /** List of punctuation marks. */
 const puncs = [',', '.', '?', '!', ';', ':'];
@@ -251,9 +254,10 @@ export async function extractYoutube(videoID: string): Promise<ArticleExtraction
       const textElements = xmlDoc.getElementsByTagName('text');
 
       /** Extract and group the caption data. */
-      const transcript = groupTranscriptSegments(textElements, videoID).join('\n');
+      const rawTranscript = groupTranscriptSegments(textElements, videoID).join('\n');
+      const transcript = normalizeContent(rawTranscript);
 
-      if (transcript.length === 0) {
+      if (!transcript) {
         logger.error('🎥', 'Empty transcript', videoID);
         return {
           title: videoTitle,

@@ -2,7 +2,7 @@ import {
   extractReadability,
   extractYoutube,
 } from '@/features/content/extractors';
-import { useSettingsStore } from '@/stores/SettingsStore';
+import { useSettingsStore } from '@/stores';
 import { ArticleExtractionResult } from '@/types';
 import { logger } from '@/utils';
 
@@ -29,7 +29,7 @@ export class ArticleService {
      * Skip processing for URLs in extractionDenylist
      */
     const extractionDenylist = await useSettingsStore.getState().getExtractionDenylist();
-    if (extractionDenylist.some(pattern => new RegExp(pattern).test(url))) {
+    if (extractionDenylist.some(pattern => pattern.trim() && new RegExp(pattern.trim()).test(url))) {
       logger.warn('🧑‍🍳📖', 'Skipping extraction for URLs in extractionDenylist');
       return {
         isSuccess: false,
@@ -55,6 +55,7 @@ export class ArticleService {
         }
         return await extractYoutube(videoId);
       } catch (error: any) {
+        logger.error('🧑‍🍳📖', 'Failed to extract youtube video:', error);
         return {
           isSuccess: false,
           title: null,

@@ -1,9 +1,23 @@
 import { STORAGE_KEYS } from '@/constants';
 import { db } from '@/db';
-import { BackgroundThemeService, CleanupDBService, ContextMenuService } from '@/features/background/services';
-import { useArticleStore, useSettingsStore } from '@/stores';
+import {
+  BackgroundThemeService,
+  CleanupDBService,
+  ContextMenuService,
+} from '@/features/background/services';
+import {
+  useArticleStore,
+  useSettingsStore,
+} from '@/stores';
 import { DEFAULT_SETTINGS } from '@/stores/SettingsStore';
-import { AIService, ContentExtractionTiming, formatArticleForClipboard, getSummarizeUrl, MessageAction, TabBehavior } from '@/types';
+import {
+  AIService,
+  ContentExtractionTiming,
+  formatArticleForClipboard,
+  getSummarizeUrl,
+  MessageAction,
+  TabBehavior,
+} from '@/types';
 import { logger } from '@/utils';
 
 /**
@@ -45,7 +59,6 @@ const reload = async (tabId: number, url: string) => {
     /** Get the article from the database */
     const article = await useArticleStore.getState().getArticleByUrl(url);
     logger.debug('📄🀫', 'Article', article?.is_success);
-    logger.debug('📄🀫', 'Article exists', isExist);
 
     /** Send the message to the content script */
     await chrome.tabs.sendMessage(tabId, {
