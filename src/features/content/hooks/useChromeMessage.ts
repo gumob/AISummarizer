@@ -21,6 +21,7 @@ export const useChromeMessage = () => {
    *******************************************************/
 
   const extractionService = useRef(new ArticleService());
+  const isListenerRegistered = useRef(false);
 
   const [tabId, setTabId] = useState<number | null>(null);
   const [tabUrl, setTabUrl] = useState<string | null>(null);
@@ -37,6 +38,11 @@ export const useChromeMessage = () => {
 
   useEffect(() => {
     logger.debug('🫳💬', 'useChromeMessage mounted');
+
+    if (isListenerRegistered.current) {
+      logger.debug('🫳💬', 'useChromeMessage: Listener already registered');
+      return;
+    }
 
     const handleMessage = async (message: any, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void) => {
       logger.debug('🫳💬', 'useChromeMessage:handleMessage:', message);
@@ -95,8 +101,11 @@ export const useChromeMessage = () => {
       }
     };
     chrome.runtime.onMessage.addListener(handleMessage);
+    isListenerRegistered.current = true;
+
     return () => {
       chrome.runtime.onMessage.removeListener(handleMessage);
+      isListenerRegistered.current = false;
       logger.debug('🫳💬', 'useChromeMessage unmounted');
     };
   }, []);

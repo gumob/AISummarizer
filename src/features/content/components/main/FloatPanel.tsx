@@ -8,8 +8,9 @@ import React, {
 import clsx from 'clsx';
 import { IoAddOutline } from 'react-icons/io5';
 
-import { ServiceIcon } from '@/components/ServiceIcon';
+import { ServiceIcon } from '@/components';
 import { useContentContext } from '@/features/content/contexts';
+import { useWindowSize } from '@/features/content/hooks';
 import {
   AIService,
   FloatPanelPosition,
@@ -29,11 +30,6 @@ import {
   Transition,
 } from '@headlessui/react';
 
-import {
-  useChromeMessage,
-  useWindowSize,
-} from '../../hooks';
-
 /**
  * FloatPanel
  * @returns The FloatPanel component
@@ -45,12 +41,11 @@ interface FloatPanelProps {}
  * @returns The FloatPanel component
  */
 export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
-  const { isFloatPanelVisible, settings } = useContentContext();
+  const { isFloatPanelVisible, settings, tabId, tabUrl } = useContentContext();
   const [isHovered, setIsHovered] = useState(false);
   const panelRef = useRef<HTMLElement | null>(null);
   const buttonRef = useRef<HTMLElement | null>(null);
   const { windowWidth, windowHeight } = useWindowSize();
-  const { tabId, tabUrl } = useChromeMessage();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

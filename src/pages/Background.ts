@@ -205,7 +205,6 @@ const handleMessage = async (message: any, sender: chrome.runtime.MessageSender,
         });
         /** Copy the article to the clipboard */
         const saveArticleOnClipboard = await useSettingsStore.getState().getSaveArticleOnClipboard();
-        logger.debug('📄🀫', 'Save article on clipboard', saveArticleOnClipboard);
         if (saveArticleOnClipboard) {
           const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
           if (tab.id) {
@@ -213,7 +212,6 @@ const handleMessage = async (message: any, sender: chrome.runtime.MessageSender,
               action: MessageAction.COPY_ARTICLE_TO_CLIPBOARD,
               payload: { text: formatArticleForClipboard(message.result) },
             });
-            logger.debug('📄🀫', 'Article copied to clipboard');
           }
         }
       }
