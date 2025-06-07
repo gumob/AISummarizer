@@ -57,7 +57,7 @@ export const MENU_ITEMS = {
   },
   NOT_AVAILABLE: {
     id: 'root',
-    title: 'Not Available',
+    title: 'Not available on this page',
     contexts: ['page' as const],
   },
 };

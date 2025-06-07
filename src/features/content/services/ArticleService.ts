@@ -2,9 +2,12 @@ import {
   extractReadability,
   extractYoutube,
 } from '@/features/content/extractors';
-import { useSettingsStore } from '@/stores';
 import { ArticleExtractionResult } from '@/types';
-import { logger } from '@/utils';
+import {
+  isBrowserSpecificUrl,
+  isExtractionDenylistUrl,
+  logger,
+} from '@/utils';
 
 export class ArticleService {
   async execute(url: string, message: any = {}): Promise<ArticleExtractionResult> {
@@ -13,8 +16,8 @@ export class ArticleService {
     /**
      * Skip processing for browser-specific URLs
      */
-    if (/^(chrome|brave|edge|opera|vivaldi)/.test(url)) {
-      logger.warn('🧑‍🍳📖', 'Skipping extraction for browser-specific URLs');
+    if (isBrowserSpecificUrl(url)) {
+      logger.warn('🧑‍🍳📖', 'Skipping extraction for browser-specific URLs', url);
       return {
         isSuccess: false,
         title: null,
@@ -28,8 +31,7 @@ export class ArticleService {
     /**
      * Skip processing for URLs in extractionDenylist
      */
-    const extractionDenylist = await useSettingsStore.getState().getExtractionDenylist();
-    if (extractionDenylist.some(pattern => pattern.trim() && new RegExp(pattern.trim()).test(url))) {
+    if (await isExtractionDenylistUrl(url)) {
       logger.warn('🧑‍🍳📖', 'Skipping extraction for URLs in extractionDenylist');
       return {
         isSuccess: false,

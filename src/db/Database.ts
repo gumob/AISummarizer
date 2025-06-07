@@ -4,7 +4,10 @@ import {
   openDB,
 } from 'idb';
 
-import { logger } from '@/utils';
+import {
+  isBrowserSpecificUrl,
+  logger,
+} from '@/utils';
 
 /**
  * ArticleRecord
@@ -154,8 +157,8 @@ export class Database {
   async getArticleByUrl(url: string): Promise<ArticleRecord | undefined> {
     try {
       /** Skip processing for browser-specific URLs */
-      if (/^(chrome|brave|edge|opera|vivaldi)/.test(url)) {
-        logger.debug('💾', 'Skipping extraction for browser-specific URLs');
+      if (isBrowserSpecificUrl(url)) {
+        logger.warn('💾', 'Skipping extraction for browser-specific URLs', url);
         return undefined;
       }
 

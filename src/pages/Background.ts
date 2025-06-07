@@ -18,7 +18,10 @@ import {
   MessageAction,
   TabBehavior,
 } from '@/types';
-import { logger } from '@/utils';
+import {
+  isBrowserSpecificUrl,
+  logger,
+} from '@/utils';
 
 /**
  * Initialize the background script
@@ -45,9 +48,11 @@ const initialize = async () => {
  */
 const reload = async (tabId: number, url: string) => {
   try {
+    logger.debug('📄🀫', 'Reloading', 'tabId:', tabId, 'url:', url);
     // Skip processing for Chrome extension pages
-    if (url.startsWith('chrome://') || url.startsWith('chrome-extension://')) {
-      logger.debug('📄🀫', 'Skipping processing for Chrome extension page', url);
+    if (isBrowserSpecificUrl(url)) {
+      logger.warn('📄🀫', 'Skipping processing for browser-specific URLs', url);
+      contextMenuService.createMenu();
       return;
     }
 

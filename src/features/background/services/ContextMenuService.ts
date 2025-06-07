@@ -4,7 +4,11 @@ import {
   getAIServiceFromId,
   MessageAction,
 } from '@/types';
-import { logger } from '@/utils';
+import {
+  isBrowserSpecificUrl,
+  isExtractionDenylistUrl,
+  logger,
+} from '@/utils';
 
 export class ContextMenuService {
   private aiServiceCallback: (service: AIService, tabId: number, url: string) => void;
@@ -20,7 +24,7 @@ export class ContextMenuService {
 
       this.removeMenu();
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      if (tab.url) {
+      if (tab.url && !isBrowserSpecificUrl(tab.url) && !(await isExtractionDenylistUrl(tab.url))) {
         this.createFullMenu();
       } else {
         this.createBasicMenu();
