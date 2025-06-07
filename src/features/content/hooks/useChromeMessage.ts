@@ -46,14 +46,16 @@ export const useChromeMessage = () => {
           case MessageAction.TAB_UPDATED:
             setTabId(message.payload.tabId);
             setTabUrl(message.payload.url);
-            setArticle({
-              isSuccess: message.payload.article.is_success,
-              title: message.payload.article.title ?? null,
-              lang: message.payload.article.lang ?? null,
-              url: message.payload.article.url,
-              content: message.payload.article.content ?? null,
-              error: message.payload.article.error ?? null,
-            });
+            if (message.payload.article) {
+              setArticle({
+                isSuccess: message.payload.article.is_success,
+                title: message.payload.article.title ?? null,
+                lang: message.payload.article.lang ?? null,
+                url: message.payload.article.url,
+                content: message.payload.article.content ?? null,
+                error: message.payload.article.error ?? null,
+              });
+            }
             return true;
 
           case MessageAction.EXTRACT_CONTENT_START:
