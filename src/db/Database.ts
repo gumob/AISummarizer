@@ -163,11 +163,11 @@ export class Database {
       }
 
       if (!this.db) await this.init();
-      logger.debug('💾', 'Getting article by url:', url);
+      // logger.debug('💾', 'Getting article by url:', url);
       const tx = this.db!.transaction('articles', 'readonly');
       const index = tx.store.index('by-url');
       const article = await index.get(url);
-      logger.debug('💾', 'Found article:', article);
+      // logger.debug('💾', 'Found article:', article);
 
       await tx.done;
       return article;
