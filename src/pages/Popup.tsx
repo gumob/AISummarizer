@@ -1,18 +1,11 @@
-import '@/styles/globals.css';
-
-import React, {
-  useEffect,
-  useRef,
-} from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import { createRoot } from 'react-dom/client';
 
 import { PopupMain } from '@/features/popup/components/main';
 import { GlobalContextProvider } from '@/stores';
-import {
-  detectTheme,
-  logger,
-} from '@/utils';
+import '@/styles/globals.css';
+import { detectTheme, logger } from '@/utils';
 
 /**
  * The main component for the extension manager.
@@ -28,7 +21,7 @@ const Popup: React.FC = () => {
       if (isInitialized.current) return;
       isInitialized.current = true;
 
-      logger.debug('📄🍿', 'Initializing popup document');
+      logger.debug('📄🍿', '[Popup]', '[useEffect]', 'Initializing popup document');
       await detectTheme();
     };
 
@@ -36,7 +29,7 @@ const Popup: React.FC = () => {
 
     return () => {
       isInitialized.current = false;
-      logger.debug('📄🍿', 'Deinitializing popup document');
+      logger.debug('📄🍿', '[Popup]', '[useEffect]', 'Deinitializing popup document');
     };
   }, []);
 

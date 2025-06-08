@@ -1,14 +1,6 @@
 import { MENU_ITEMS } from '@/models';
-import {
-  AIService,
-  getAIServiceFromId,
-  MessageAction,
-} from '@/types';
-import {
-  isBrowserSpecificUrl,
-  isExtractionDenylistUrl,
-  logger,
-} from '@/utils';
+import { AIService, getAIServiceFromId, MessageAction } from '@/types';
+import { isBrowserSpecificUrl, isExtractionDenylistUrl, logger } from '@/utils';
 
 export class ContextMenuService {
   private aiServiceCallback: (service: AIService, tabId: number, url: string) => void;
@@ -19,7 +11,7 @@ export class ContextMenuService {
 
   async createMenu() {
     try {
-      logger.debug('🧑‍🍳📃', 'Creating context menu');
+      logger.debug('🧑‍🍳📃', '[createMenu]', 'Creating context menu');
       await chrome.contextMenus.removeAll();
 
       this.removeMenu();
@@ -35,7 +27,7 @@ export class ContextMenuService {
       //   this.createFullMenu();
       // }
     } catch (error) {
-      logger.error('🧑‍🍳📃', 'Failed to create context menu:', error);
+      logger.error('🧑‍🍳📃', '[createMenu]', 'Failed to create context menu:', error);
     }
   }
 
@@ -44,7 +36,7 @@ export class ContextMenuService {
   }
 
   private createFullMenu() {
-    logger.debug('🧑‍🍳📃', 'Creating full menu');
+    logger.debug('🧑‍🍳📃', '[createFullMenu]', 'Creating full menu');
     const root = chrome.contextMenus.create({
       id: MENU_ITEMS.ROOT.id,
       title: MENU_ITEMS.ROOT.title,
@@ -103,7 +95,7 @@ export class ContextMenuService {
   }
 
   private createBasicMenu() {
-    logger.debug('🧑‍🍳📃', 'Creating basic menu');
+    logger.debug('🧑‍🍳📃', '[createBasicMenu]', 'Creating basic menu');
     const root = chrome.contextMenus.create({
       id: MENU_ITEMS.NOT_AVAILABLE.id,
       title: MENU_ITEMS.NOT_AVAILABLE.title,
@@ -129,21 +121,21 @@ export class ContextMenuService {
         case 'perplexity':
         case 'deepseek':
         case 'copy':
-          logger.debug('🧑‍🍳📃', 'Extract clicked');
+          logger.debug('🧑‍🍳📃', '[setupClickHandler]', 'Extract clicked');
           try {
             /** Check if the content script is injected */
             const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-            logger.debug('🧑‍🍳📃', 'Tab:', tab);
+            logger.debug('🧑‍🍳📃', '[setupClickHandler]', 'Tab:', tab);
             if (tab.id === undefined || tab.id === null || tab.url === undefined || tab.url === null) throw new Error('No active tab found');
 
             this.aiServiceCallback(getAIServiceFromId(info.menuItemId), tab.id, tab.url);
           } catch (error) {
-            logger.error('🧑‍🍳📃', 'Failed to send message:', error);
+            logger.error('🧑‍🍳📃', '[setupClickHandler]', 'Failed to send message:', error);
           }
 
           break;
         case 'extract':
-          logger.debug('🧑‍🍳📃', 'Extract clicked');
+          logger.debug('🧑‍🍳📃', '[setupClickHandler]', 'Extract clicked');
           try {
             /** Check if the content script is injected */
             const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -161,11 +153,11 @@ export class ContextMenuService {
               url: tab.url!,
             });
           } catch (error: any) {
-            logger.error('🧑‍🍳📃', 'Failed to send message to content script:', error);
+            logger.error('🧑‍🍳📃', '[setupClickHandler]', 'Failed to send message to content script:', error);
           }
           break;
         case 'settings':
-          logger.debug('🧑‍🍳📃', 'Settings clicked');
+          logger.debug('🧑‍🍳📃', '[setupClickHandler]', 'Settings clicked');
           chrome.sidePanel.open({ windowId: tab.windowId });
           break;
       }

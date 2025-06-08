@@ -2,13 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 import { STORAGE_KEYS } from '@/constants';
-import {
-  AIService,
-  ContentExtractionTiming,
-  FloatPanelPosition,
-  MessageAction,
-  TabBehavior,
-} from '@/types';
+import { AIService, ContentExtractionTiming, FloatPanelPosition, MessageAction, TabBehavior } from '@/types';
 import { logger } from '@/utils';
 
 export interface SettingsState {
@@ -100,7 +94,6 @@ export const useSettingsStore = create<SettingsStore>()(
       },
       setFloatButtonPosition: async (floatButtonPosition: FloatPanelPosition) => {
         set(() => ({ floatButtonPosition }));
-        logger.debug('🏪⚙️', 'setFloatButtonPosition', 'floatButtonPosition', floatButtonPosition);
         await sendSettingsUpdate();
       },
       setContentExtractionTiming: async (contentExtractionTiming: ContentExtractionTiming) => {
@@ -182,7 +175,7 @@ const sendSettingsUpdate = async () => {
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (!tab.id) {
-      logger.warn('🏪⚙️', 'No active tab found');
+      logger.warn('🏪⚙️', '[sendSettingsUpdate]', 'No active tab found');
       return;
     }
 
@@ -200,8 +193,8 @@ const sendSettingsUpdate = async () => {
         saveArticleOnClipboard: settings.saveArticleOnClipboard,
       },
     });
-    logger.debug('🏪⚙️', 'Settings update message sent to content script');
+    logger.debug('🏪⚙️', '[sendSettingsUpdate]', 'Settings update message sent to content script');
   } catch (error) {
-    logger.error('🏪⚙️', 'Failed to send settings update message:', error);
+    logger.error('🏪⚙️', '[sendSettingsUpdate]', 'Failed to send settings update message:', error);
   }
 };

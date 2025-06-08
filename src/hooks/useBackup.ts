@@ -45,7 +45,7 @@ export const useBackup = () => {
       }
       return date.toISOString();
     } catch (error) {
-      logger.error('🫳💾', 'Failed to convert date to ISO string', error);
+      logger.error('🫳💾', '[useBackup]', '[convertToISOString]', 'Failed to convert date to ISO string', error);
       return new Date().toISOString();
     }
   };
@@ -58,7 +58,7 @@ export const useBackup = () => {
     try {
       return chrome.runtime.getManifest().version;
     } catch (error) {
-      logger.error('🫳💾', 'Failed to get backup version', error);
+      logger.error('🫳💾', '[useBackup]', '[getBackupVersion]', 'Failed to get backup version', error);
       return '0.0.1'; // Fallback version
     }
   };

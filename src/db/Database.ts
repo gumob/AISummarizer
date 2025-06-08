@@ -1,13 +1,6 @@
-import {
-  DBSchema,
-  IDBPDatabase,
-  openDB,
-} from 'idb';
+import { DBSchema, IDBPDatabase, openDB } from 'idb';
 
-import {
-  isBrowserSpecificUrl,
-  logger,
-} from '@/utils';
+import { isBrowserSpecificUrl, logger } from '@/utils';
 
 /**
  * ArticleRecord
@@ -83,30 +76,30 @@ export class Database {
    */
   async init() {
     try {
-      logger.debug('💾', 'Initializing IndexedDB');
+      logger.debug('💾', '[init]', 'Initializing IndexedDB');
       if (this.db) {
-        logger.debug('💾', 'Database already initialized');
+        logger.debug('💾', '[init]', 'Database already initialized');
         return;
       }
 
       this.db = await openDB<AISummarizerDB>(DB_NAME, DB_VERSION, {
         upgrade(db, oldVersion, newVersion) {
-          logger.debug('💾', 'Upgrading database:', { oldVersion, newVersion });
+          logger.debug('💾', '[init]', 'Upgrading database:', { oldVersion, newVersion });
           const articleStore = db.createObjectStore('articles', { keyPath: 'id' });
           articleStore.createIndex('by-url', 'url');
           articleStore.createIndex('by-date', 'date');
 
           db.createObjectStore('metadata', { keyPath: 'key' });
-          logger.debug('💾', 'Database upgrade completed');
+          logger.debug('💾', '[init]', 'Database upgrade completed');
         },
         blocked() {
-          logger.warn('Database blocked');
+          logger.warn('💾', '[init]', 'Database blocked');
         },
         blocking() {
-          logger.warn('Database blocking');
+          logger.warn('💾', '[init]', 'Database blocking');
         },
         terminated() {
-          logger.warn('Database terminated');
+          logger.warn('💾', '[init]', 'Database terminated');
         },
       });
 
@@ -114,7 +107,7 @@ export class Database {
       const tx = this.db.transaction('articles', 'readonly');
       await tx.done;
     } catch (error) {
-      logger.error('💾', 'Failed to initialize database:', error);
+      logger.error('💾', '[init]', 'Failed to initialize database:', error);
       throw error;
     }
   }
@@ -128,23 +121,23 @@ export class Database {
     try {
       if (!this.db) await this.init();
       const id = crypto.randomUUID();
-      logger.debug('💾', 'Adding article to database:', { id, url: article.url });
+      logger.debug('💾', '[addArticle]', 'Adding article to database:', { id, url: article.url });
 
       /** Search for an entry with the same URL. */
       const existingArticle = await this.getArticleByUrl(article.url);
       if (existingArticle) {
-        logger.debug('💾', 'Updating existing article:', { id: existingArticle.id, url: article.url });
+        logger.debug('💾', '[addArticle]', 'Updating existing article:', { id: existingArticle.id, url: article.url });
         await this.db!.put('articles', { ...article, id: existingArticle.id });
-        logger.debug('💾', 'Article updated successfully');
+        logger.debug('💾', '[addArticle]', 'Article updated successfully');
         return existingArticle.id;
       }
 
       /** Add a new entry. */
       await this.db!.add('articles', { ...article, id });
-      logger.debug('💾', 'Article added successfully');
+      logger.debug('💾', '[addArticle]', 'Article added successfully');
       return id;
     } catch (error) {
-      logger.error('💾', 'Failed to add article:', error);
+      logger.error('💾', '[addArticle]', 'Failed to add article:', error);
       throw error;
     }
   }
@@ -158,21 +151,21 @@ export class Database {
     try {
       /** Skip processing for browser-specific URLs */
       if (isBrowserSpecificUrl(url)) {
-        logger.warn('💾', 'Skipping extraction for browser-specific URLs', url);
+        logger.warn('💾', '[getArticleByUrl]', 'Skipping extraction for browser-specific URLs', url);
         return undefined;
       }
 
       if (!this.db) await this.init();
-      // logger.debug('💾', 'Getting article by url:', url);
+      // logger.debug('💾', '[getArticleByUrl]', 'Getting article by url:', url);
       const tx = this.db!.transaction('articles', 'readonly');
       const index = tx.store.index('by-url');
       const article = await index.get(url);
-      // logger.debug('💾', 'Found article:', article);
+      // logger.debug('💾', '[getArticleByUrl]', 'Found article:', article);
 
       await tx.done;
       return article;
     } catch (error) {
-      logger.error('💾', 'Failed to get article by url:', error);
+      logger.error('💾', '[getArticleByUrl]', 'Failed to get article by url:', error);
       throw error;
     }
   }
@@ -182,7 +175,7 @@ export class Database {
    */
   async cleanup() {
     if (!this.db) await this.init();
-    logger.debug('💾', 'Cleaning up database');
+    logger.debug('💾', '[cleanup]', 'Cleaning up database');
     const tx = this.db!.transaction('articles', 'readwrite');
     const store = tx.store;
     const index = store.index('by-date');

@@ -4,8 +4,6 @@ import React, { useEffect, useState } from 'react';
 
 import { IoCheckmarkCircle, IoCloseCircle, IoInformationCircle, IoWarning } from 'react-icons/io5';
 
-import { logger } from '@/utils';
-
 export type ToastType = 'success' | 'error' | 'info' | 'warning';
 
 export interface Toast {

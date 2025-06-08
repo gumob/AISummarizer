@@ -1,23 +1,16 @@
-import {
-  extractReadability,
-  extractYoutube,
-} from '@/features/content/extractors';
+import { extractReadability, extractYoutube } from '@/features/content/extractors';
 import { ArticleExtractionResult } from '@/types';
-import {
-  isBrowserSpecificUrl,
-  isExtractionDenylistUrl,
-  logger,
-} from '@/utils';
+import { isBrowserSpecificUrl, isExtractionDenylistUrl, logger } from '@/utils';
 
 export class ArticleService {
   async execute(url: string, message: any = {}): Promise<ArticleExtractionResult> {
-    logger.debug('🧑‍🍳📖', 'extracting', '\nurl:', url, '\nmessage:', message);
+    logger.debug('🧑‍🍳📖', '[ArticleService]', '[execute]', 'extracting', '\nurl:', url, '\nmessage:', message);
 
     /**
      * Skip processing for browser-specific URLs
      */
     if (isBrowserSpecificUrl(url)) {
-      logger.warn('🧑‍🍳📖', 'Skipping extraction for browser-specific URLs', url);
+      logger.warn('🧑‍🍳📖', '[ArticleService]', '[execute]', 'Skipping extraction for browser-specific URLs', url);
       return {
         isSuccess: false,
         title: null,
@@ -32,7 +25,7 @@ export class ArticleService {
      * Skip processing for URLs in extractionDenylist
      */
     if (await isExtractionDenylistUrl(url)) {
-      logger.warn('🧑‍🍳📖', 'Skipping extraction for URLs in extractionDenylist');
+      logger.warn('🧑‍🍳📖', '[ArticleService]', '[execute]', 'Skipping extraction for URLs in extractionDenylist');
       return {
         isSuccess: false,
         title: null,
@@ -47,11 +40,11 @@ export class ArticleService {
      * YouTube
      */
     if (/^https?:\/\/(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=|embed\/|v\/|shorts\/)?([a-zA-Z0-9_-]{11})/.test(url)) {
-      logger.debug('🧑‍🍳📖', 'Extracting youtube video');
+      logger.debug('🧑‍🍳📖', '[ArticleService]', '[execute]', 'Extracting youtube video');
       try {
         return await extractYoutube(url);
       } catch (error: any) {
-        logger.error('🧑‍🍳📖', 'Failed to extract youtube video:', error);
+        logger.error('🧑‍🍳📖', '[ArticleService]', '[execute]', 'Failed to extract youtube video:', error);
         return {
           isSuccess: false,
           title: null,
@@ -68,10 +61,10 @@ export class ArticleService {
      */
     try {
       /** Extract article */
-      logger.debug('🧑‍🍳📖', 'Extracting normal web page');
+      logger.debug('🧑‍🍳📖', '[ArticleService]', '[execute]', 'Extracting normal web page');
       return await extractReadability(document);
     } catch (error: any) {
-      logger.error('🧑‍🍳📖', 'Failed to extract article:', error);
+      logger.error('🧑‍🍳📖', '[ArticleService]', '[execute]', 'Failed to extract article:', error);
       return {
         isSuccess: false,
         title: null,

@@ -1,18 +1,11 @@
-import '@/styles/globals.css';
-
-import React, {
-  useEffect,
-  useRef,
-} from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import { createRoot } from 'react-dom/client';
 
 import { OptionsMain } from '@/features/options/components/main';
 import { GlobalContextProvider } from '@/stores';
-import {
-  detectTheme,
-  logger,
-} from '@/utils';
+import '@/styles/globals.css';
+import { detectTheme, logger } from '@/utils';
 
 /**
  * The main component for the options page.
@@ -29,7 +22,7 @@ const Options: React.FC = () => {
       if (isInitialized.current) return;
       isInitialized.current = true;
 
-      logger.debug('📄⌥', 'Initializing options document');
+      logger.debug('📄⌥', '[Options]', '[useEffect]', 'Initializing options document');
       await detectTheme();
     };
 
@@ -37,7 +30,7 @@ const Options: React.FC = () => {
 
     return () => {
       isInitialized.current = false;
-      logger.debug('📄⌥', 'Deinitializing options document');
+      logger.debug('📄⌥', '[Options]', '[useEffect]', 'Deinitializing options document');
     };
   }, []);
 

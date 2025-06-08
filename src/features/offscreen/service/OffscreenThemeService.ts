@@ -29,21 +29,21 @@ export class OffscreenThemeService {
   initialize() {
     if (this.isInitialized) return;
 
-    logger.debug('🧑‍🍳🎨', 'Initializing theme detection service');
-    logger.debug('🧑‍🍳🎨', 'Initial media query state:', this.mediaQuery.matches);
+    logger.debug('🧑‍🍳🎨', '[OffscreenThemeService]', '[initialize]', 'Initializing theme detection service');
+    logger.debug('🧑‍🍳🎨', '[OffscreenThemeService]', '[initialize]', 'Initial media query state:', this.mediaQuery.matches);
 
     /** Send the initial theme status after a delay */
     setTimeout(() => {
-      logger.debug('🧑‍🍳🎨', 'Sending initial theme status');
+      logger.debug('🧑‍🍳🎨', '[OffscreenThemeService]', '[initialize]', 'Sending initial theme status');
       this.sendThemeStatus();
     }, 2000);
 
     /** Set up the theme change listener */
     try {
       this.mediaQuery.addEventListener('change', this.handleThemeChange);
-      logger.debug('🧑‍🍳🎨', 'Theme change listener added successfully');
+      logger.debug('🧑‍🍳🎨', '[OffscreenThemeService]', '[initialize]', 'Theme change listener added successfully');
     } catch (error) {
-      logger.error('🧑‍🍳🎨', 'Failed to add theme change listener:', error);
+      logger.error('🧑‍🍳🎨', '[OffscreenThemeService]', '[initialize]', 'Failed to add theme change listener:', error);
     }
 
     this.isInitialized = true;
@@ -57,9 +57,9 @@ export class OffscreenThemeService {
 
     try {
       this.mediaQuery.removeEventListener('change', this.handleThemeChange);
-      logger.debug('🧑‍🍳🎨', 'Theme change listener removed successfully');
+      logger.debug('🧑‍🍳🎨', '[OffscreenThemeService]', '[cleanup]', 'Theme change listener removed successfully');
     } catch (error) {
-      logger.error('🧑‍🍳🎨', 'Failed to remove theme change listener:', error);
+      logger.error('🧑‍🍳🎨', '[OffscreenThemeService]', '[cleanup]', 'Failed to remove theme change listener:', error);
     }
 
     this.isInitialized = false;
@@ -70,20 +70,20 @@ export class OffscreenThemeService {
    */
   private sendThemeStatus = () => {
     const isDarkMode = this.mediaQuery.matches;
-    logger.debug('🧑‍🍳🎨', 'isDarkMode', isDarkMode);
+    logger.debug('🧑‍🍳🎨', '[OffscreenThemeService]', '[sendThemeStatus]', 'isDarkMode', isDarkMode);
 
     try {
       chrome.runtime.sendMessage({ type: MessageAction.COLOR_SCHEME_CHANGED, isDarkMode }, () => {
         if (chrome.runtime.lastError) {
-          logger.error('🧑‍🍳🎨', 'Failed to send theme status:', chrome.runtime.lastError);
+          logger.error('🧑‍🍳🎨', '[OffscreenThemeService]', '[sendThemeStatus]', 'Failed to send theme status:', chrome.runtime.lastError);
           /** If there is a connection error, wait a moment and try again */
           setTimeout(this.sendThemeStatus, 1000);
         } else {
-          logger.debug('🧑‍🍳🎨', 'Theme status sent successfully');
+          logger.debug('🧑‍🍳🎨', '[OffscreenThemeService]', '[sendThemeStatus]', 'Theme status sent successfully');
         }
       });
     } catch (error) {
-      logger.error('🧑‍🍳🎨', 'Failed to send theme status:', error);
+      logger.error('🧑‍🍳🎨', '[OffscreenThemeService]', '[sendThemeStatus]', 'Failed to send theme status:', error);
       /** If there is an error, wait a moment and try again */
       setTimeout(this.sendThemeStatus, 1000);
     }
@@ -94,7 +94,7 @@ export class OffscreenThemeService {
    * @param event - Media query list event
    */
   private handleThemeChange = (event: MediaQueryListEvent) => {
-    logger.debug('🧑‍🍳🎨', 'Theme change detected:', event.matches ? 'dark' : 'light');
+    logger.debug('🧑‍🍳🎨', '[OffscreenThemeService]', '[handleThemeChange]', 'Theme change detected:', event.matches ? 'dark' : 'light');
     this.sendThemeStatus();
   };
 }

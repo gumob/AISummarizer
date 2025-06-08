@@ -1,34 +1,17 @@
-import React, {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-
 import clsx from 'clsx';
+
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+
 import { IoAddOutline } from 'react-icons/io5';
+
+import { offset, useFloating } from '@floating-ui/react';
+import { Popover, PopoverBackdrop, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 
 import { ServiceIcon } from '@/components';
 import { useContentContext } from '@/features/content/contexts';
 import { useWindowSize } from '@/features/content/hooks';
-import {
-  AIService,
-  FloatPanelPosition,
-  getAIServiceLabel,
-  MessageAction,
-} from '@/types';
+import { AIService, FloatPanelPosition, getAIServiceLabel, MessageAction } from '@/types';
 import { logger } from '@/utils';
-import {
-  offset,
-  useFloating,
-} from '@floating-ui/react';
-import {
-  Popover,
-  PopoverBackdrop,
-  PopoverButton,
-  PopoverPanel,
-  Transition,
-} from '@headlessui/react';
 
 /**
  * FloatPanel
@@ -170,9 +153,9 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
                   <button
                     key={index}
                     onClick={async () => {
-                      logger.debug(`Clicked ${name} button`);
+                      logger.debug('🫳💬', '[FloatPanel]', `Clicked ${name} button`);
                       if (tabId === null || tabUrl === null) throw new Error('No active tab found');
-                      logger.debug('🫳💬', 'Sending message to background script', tabId, tabUrl);
+                      logger.debug('🫳💬', '[FloatPanel]', 'Sending message to background script', tabId, tabUrl);
                       try {
                         await chrome.runtime.sendMessage({
                           action: MessageAction.SUMMARIZE_CONTENT_START,
@@ -182,9 +165,9 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
                             url: tabUrl,
                           },
                         });
-                        logger.debug('🫳💬', 'Message sent successfully');
+                        logger.debug('🫳💬', '[FloatPanel]', 'Message sent successfully');
                       } catch (error) {
-                        logger.error('🫳💬', 'Failed to send message:', error);
+                        logger.error('🫳💬', '[FloatPanel]', 'Failed to send message:', error);
                       }
                       setIsHovered(false);
                       close();

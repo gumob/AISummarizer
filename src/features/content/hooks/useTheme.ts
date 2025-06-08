@@ -7,13 +7,13 @@ import { detectTheme, logger } from '@/utils';
  */
 export const useTheme = () => {
   useEffect(() => {
-    logger.debug('🫳🎨', 'useTheme mounted');
+    logger.debug('🫳🎨', '[useTheme]', 'mounted');
     const initialize = async () => {
       await detectTheme();
     };
     initialize();
     return () => {
-      logger.debug('🫳🎨', 'useTheme unmounted');
+      logger.debug('🫳🎨', '[useTheme]', 'unmounted');
     };
   }, []);
 };

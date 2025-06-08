@@ -1,27 +1,10 @@
 import { STORAGE_KEYS } from '@/constants';
 import { db } from '@/db';
-import {
-  BackgroundThemeService,
-  CleanupDBService,
-  ContextMenuService,
-} from '@/features/background/services';
-import {
-  useArticleStore,
-  useSettingsStore,
-} from '@/stores';
+import { BackgroundThemeService, CleanupDBService, ContextMenuService } from '@/features/background/services';
+import { useArticleStore, useSettingsStore } from '@/stores';
 import { DEFAULT_SETTINGS } from '@/stores/SettingsStore';
-import {
-  AIService,
-  ContentExtractionTiming,
-  formatArticleForClipboard,
-  getSummarizeUrl,
-  MessageAction,
-  TabBehavior,
-} from '@/types';
-import {
-  isBrowserSpecificUrl,
-  logger,
-} from '@/utils';
+import { AIService, ContentExtractionTiming, formatArticleForClipboard, getSummarizeUrl, MessageAction, TabBehavior } from '@/types';
+import { isBrowserSpecificUrl, logger } from '@/utils';
 
 /**
  * Initialize the background script
@@ -32,7 +15,7 @@ logger.debug('📄🀫', 'Initializing background script');
  * Initialize the extension
  */
 const initialize = async () => {
-  logger.debug('📄🀫', 'Initializing extension');
+  logger.debug('📄🀫', '[initialize]', 'Initializing extension');
   themeService.initialize();
   cleanupService.startCleanup();
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -44,26 +27,44 @@ const initialize = async () => {
 };
 
 /**
- * Update the article extraction state
+ * Reload timer
+ */
+let reloadTimer: NodeJS.Timeout | null = null;
+
+/**
+ * Reload the article extraction state
+ * @param tabId - The ID of the tab
+ * @param url - The URL of the tab
  */
 const reload = async (tabId: number, url: string) => {
+  logger.debug('📄🀫', '[_reload]', 'tabId:', tabId, 'url:', url);
+  if (reloadTimer) {
+    clearTimeout(reloadTimer);
+  }
+  reloadTimer = setTimeout(() => {
+    _reload(tabId, url);
+  }, 200);
+};
+
+const _reload = async (tabId: number, url: string) => {
+  /** TODO: ここが繰り返し呼ばれてしまうのでsetTimeoutで遅延を設ける */
   try {
-    logger.debug('📄🀫', 'Reloading', 'tabId:', tabId, 'url:', url);
-    // Skip processing for Chrome extension pages
+    logger.debug('📄🀫', '[_reload]', 'tabId:', tabId, 'url:', url);
+    /** Skip processing for Chrome extension pages */
     if (isBrowserSpecificUrl(url)) {
       logger.warn('📄🀫', 'Skipping processing for browser-specific URLs', url);
       contextMenuService.createMenu();
       return;
     }
 
-    logger.debug('📄🀫', 'Updating article extraction state', 'tabId:', tabId, 'url:', url);
+    logger.debug('📄🀫', '[_reload]', 'Updating article extraction state', 'tabId:', tabId, 'url:', url);
 
     /** Check if the article exists */
     const isExist = await useArticleStore.getState().isArticleExtractedForUrl(url);
 
     /** Get the article from the database */
     const article = await useArticleStore.getState().getArticleByUrl(url);
-    logger.debug('📄🀫', 'Article', article?.is_success);
+    logger.debug('📄🀫', '[_reload]', 'Article', article?.is_success);
 
     /** Send the message to the content script */
     await chrome.tabs.sendMessage(tabId, {
@@ -83,12 +84,12 @@ const reload = async (tabId: number, url: string) => {
 
       /** Get the content extraction timing */
       const contentExtractionTiming = await useSettingsStore.getState().getContentExtractionTiming();
-      logger.debug('📄🀫', 'Content extraction timing', contentExtractionTiming);
+      logger.debug('📄🀫', '[_reload]', 'Content extraction timing', contentExtractionTiming);
 
       /** Handle the content extraction timing */
       switch (contentExtractionTiming) {
         case ContentExtractionTiming.AUTOMATIC:
-          logger.debug('📄🀫', 'Injecting content script', tabId, url);
+          logger.debug('📄🀫', '[_reload]', 'Injecting content script', tabId, url);
 
           /** Inject the content script */
           await chrome.scripting.executeScript({
@@ -121,7 +122,7 @@ const reload = async (tabId: number, url: string) => {
  * @param details - The details of the installation
  */
 const handleInstalled = async (_details: chrome.runtime.InstalledDetails) => {
-  logger.debug('📄🀫', 'Extension installed');
+  logger.debug('📄🀫', '[handleInstalled]', 'Extension installed');
   await initialize();
 };
 
@@ -129,7 +130,7 @@ const handleInstalled = async (_details: chrome.runtime.InstalledDetails) => {
  * Event listener for when the extension is started
  */
 const handleStartup = async () => {
-  logger.debug('📄🀫', 'Extension started');
+  logger.debug('📄🀫', '[handleStartup]', 'Extension started');
   await initialize();
 };
 
@@ -140,7 +141,7 @@ const handleStartup = async () => {
 const handleTabActivated = async (activeInfo: chrome.tabs.TabActiveInfo) => {
   const tab = await chrome.tabs.get(activeInfo.tabId);
   if (tab.url) {
-    logger.debug('📄🀫', 'Tab activated', tab.url, tab.status);
+    logger.debug('📄🀫', '[handleTabActivated]', 'Tab activated', tab.url, tab.status);
     if (tab.id) {
       reload(tab.id, tab.url);
     } else {
@@ -150,7 +151,7 @@ const handleTabActivated = async (activeInfo: chrome.tabs.TabActiveInfo) => {
 };
 
 const handleAIService = async (service: AIService, tabId: number, url: string) => {
-  logger.debug('📄🀫', 'handleAIService', service, tabId, url);
+  logger.debug('📄🀫', '[handleAIService]', service, tabId, url);
   const article = await db.getArticleByUrl(url);
   if (article?.is_success) {
     const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
@@ -189,7 +190,8 @@ const handleAIService = async (service: AIService, tabId: number, url: string) =
  */
 const handleTabUpdated = async (tabId: number, changeInfo: chrome.tabs.TabChangeInfo, tab: chrome.tabs.Tab) => {
   if (changeInfo.status === 'complete' && tab.url) {
-    logger.debug('📄🀫', 'Tab updated', tab.url, tab.status);
+    logger.debug('📄🀫', '[handleTabUpdated]', 'Tab updated', tab.url, tab.status);
+    /** TODO: ここが繰り返し呼ばれてしまうのでsetTimeoutで遅延を設ける */
     reload(tabId, tab.url);
   }
 };
@@ -206,7 +208,7 @@ const handleMessage = async (message: any, sender: chrome.runtime.MessageSender,
         logger.warn('📄🀫', 'Ignoring EXTRACT_CONTENT_COMPLETE for different url', sender.tab?.url, message.result.url);
         return;
       }
-      logger.debug('📄🀫', 'Extracting content complete', message.result);
+      logger.debug('📄🀫', '[handleMessage]', 'Extracting content complete', message.result);
       if (message.result.isSuccess) {
         /** Save the article to the database */
         db.addArticle({
@@ -231,12 +233,12 @@ const handleMessage = async (message: any, sender: chrome.runtime.MessageSender,
       break;
 
     case MessageAction.SUMMARIZE_CONTENT_START:
-      logger.debug('📄🀫', 'Summarizing content start', message.payload);
+      logger.debug('📄🀫', '[handleMessage]', 'Summarizing content start', message.payload);
       handleAIService(message.payload.service, message.payload.tabId, message.payload.url);
       break;
 
     case MessageAction.SUMMARIZE_CONTENT_COMPLETE:
-      logger.debug('📄🀫', 'Summarizing content complete', message.result);
+      logger.debug('📄🀫', '[handleMessage]', 'Summarizing content complete', message.result);
       break;
 
     default:

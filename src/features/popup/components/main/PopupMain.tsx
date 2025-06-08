@@ -1,20 +1,10 @@
 import React from 'react';
 
-import {
-  IoReloadOutline,
-  IoSettingsOutline,
-} from 'react-icons/io5';
+import { IoReloadOutline, IoSettingsOutline } from 'react-icons/io5';
 
-import {
-  Divider,
-  ServiceIcon,
-} from '@/components';
+import { Divider, ServiceIcon } from '@/components';
 import { ServiceListMenu } from '@/features/popup/components/main';
-import {
-  AIService,
-  getAIServiceLabel,
-  MessageAction,
-} from '@/types';
+import { AIService, getAIServiceLabel, MessageAction } from '@/types';
 import { logger } from '@/utils';
 
 /**
@@ -34,7 +24,7 @@ export const PopupMain: React.FC = () => {
           <ServiceListMenu
             key={index}
             onClick={async () => {
-              logger.debug('📦🍿', service);
+              logger.debug('📦🍿', '[PopupMain]', '[render]', 'service', service);
               /** Check if the content script is injected */
               const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
               if (!tab.id) throw new Error('No active tab found');
@@ -58,7 +48,7 @@ export const PopupMain: React.FC = () => {
         <Divider />
         {/* <ServiceListMenu
           onClick={() => {
-            logger.debug('📦🍿', 'Copy to clipboard');
+            logger.debug('📦🍿', '[PopupMain]', '[render]', 'Copy to clipboard');
             window.close();
           }}
         >
@@ -67,7 +57,7 @@ export const PopupMain: React.FC = () => {
         </ServiceListMenu> */}
         <ServiceListMenu
           onClick={async () => {
-            logger.debug('📦🍿', 'Extract article again');
+            logger.debug('📦🍿', '[PopupMain]', '[render]', 'Extract article again');
             /** Check if the content script is injected */
             const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
             if (!tab.id) throw new Error('No active tab found');
@@ -94,7 +84,7 @@ export const PopupMain: React.FC = () => {
         <Divider />
         <ServiceListMenu
           onClick={async () => {
-            logger.debug('📦🍿', 'Settings clicked');
+            logger.debug('📦🍿', '[PopupMain]', '[render]', ' Settings clicked');
             const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
             if (tab?.id) {
               chrome.sidePanel.setOptions({ path: 'options.html', enabled: true });

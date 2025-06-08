@@ -60,7 +60,7 @@ export const ContentContextProvider: React.FC<ContentContextProviderProps> = ({ 
     const checkVisibility = async () => {
       const isArticleExtracted = article != null && article.isSuccess;
       const state = isArticleExtracted && settings.floatButtonPosition !== FloatPanelPosition.HIDE;
-      logger.debug('🗣️🎁', 'checkVisibility', 'state', state);
+      logger.debug('🗣️🎁', '[ContentContext]', 'checkVisibility', 'state', state);
       setIsFloatPanelVisible(state);
     };
     checkVisibility();
@@ -68,7 +68,7 @@ export const ContentContextProvider: React.FC<ContentContextProviderProps> = ({ 
 
   useEffect(() => {
     if (article?.isSuccess && settings.isShowMessage) {
-      logger.debug('🗣️🎁', 'Article extracted successfully');
+      logger.debug('🗣️🎁', '[ContentContext]', 'Article extracted successfully');
       toast.success('Article extracted successfully');
     }
   }, [article]);
