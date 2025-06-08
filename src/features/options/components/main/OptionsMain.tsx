@@ -4,7 +4,7 @@ import React, { Fragment, useEffect, useState } from 'react';
 
 import { IoClose } from 'react-icons/io5';
 
-import { Field, Switch, Tab, TabGroup, TabList, TabPanel, TabPanels, Textarea } from '@headlessui/react';
+import { Dialog, Field, Switch, Tab, TabGroup, TabList, TabPanel, TabPanels, Textarea } from '@headlessui/react';
 
 import { OptionCard } from '@/features/options/components/main';
 import { useGlobalContext } from '@/stores';
@@ -58,6 +58,8 @@ export const OptionsMain: React.FC = () => {
   const [enableSaveArticleOnClipboard, setEnableSaveArticleOnClipboard] = useState<boolean | null>(null);
   const [promptValues, setPromptValues] = useState<{ [key in AIService]?: string }>({});
   const [extractionDenylistValue, setExtractionDenylistValue] = useState<string>('');
+  const [isDeleteCacheDialogOpen, setIsDeleteCacheDialogOpen] = useState(false);
+  const [isResetSettingsDialogOpen, setIsResetSettingsDialogOpen] = useState(false);
 
   /*******************************************************
    * Initialize selected indices based on stored values
@@ -356,14 +358,7 @@ export const OptionsMain: React.FC = () => {
               'focus:outline-none',
               'transition-opacity'
             )}
-            onClick={async () => {
-              const result = await resetDatabase();
-              if (result.success) {
-                logger.debug('📦⌥', '[OptionsMain.tsx]', '[render]', 'Database cleanup completed');
-              } else {
-                logger.error('📦⌥', '[OptionsMain.tsx]', '[render]', 'Failed to cleanup database:', result.error);
-              }
-            }}
+            onClick={() => setIsDeleteCacheDialogOpen(true)}
           >
             Delete Cache on Database
           </button>
@@ -375,19 +370,80 @@ export const OptionsMain: React.FC = () => {
               'focus:outline-none',
               'transition-opacity'
             )}
-            onClick={async () => {
-              const result = await resetSettings();
-              if (result.success) {
-                logger.debug('📦⌥', '[OptionsMain.tsx]', '[render]', 'Reset to default settings completed');
-              } else {
-                logger.error('📦⌥', '[OptionsMain.tsx]', '[render]', 'Failed to reset to default settings:', result.error);
-              }
-            }}
+            onClick={() => setIsResetSettingsDialogOpen(true)}
           >
             Reset to Default Settings
           </button>
         </OptionCard>
       </div>
+
+      {/* Delete Cache Dialog */}
+      <Dialog open={isDeleteCacheDialogOpen} onClose={() => setIsDeleteCacheDialogOpen(false)} className="relative z-50">
+        <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <Dialog.Panel className="mx-auto max-w-sm rounded-lg bg-white dark:bg-zinc-800 p-6">
+            <Dialog.Title className="text-lg font-medium text-zinc-900 dark:text-zinc-100 mb-4">
+              Are you sure you want to delete all cached articles from the database?
+            </Dialog.Title>
+            <div className="mt-4 flex justify-end gap-2">
+              <button
+                className="rounded-full px-4 py-2 text-sm font-semibold text-zinc-900 dark:text-zinc-100 bg-zinc-200 dark:bg-zinc-700"
+                onClick={() => setIsDeleteCacheDialogOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="rounded-full px-4 py-2 text-sm font-semibold text-white bg-red-600"
+                onClick={async () => {
+                  const result = await resetDatabase();
+                  if (result.success) {
+                    logger.debug('📦⌥', '[OptionsMain.tsx]', '[render]', 'Database cleanup completed');
+                  } else {
+                    logger.error('📦⌥', '[OptionsMain.tsx]', '[render]', 'Failed to cleanup database:', result.error);
+                  }
+                  setIsDeleteCacheDialogOpen(false);
+                }}
+              >
+                Delete
+              </button>
+            </div>
+          </Dialog.Panel>
+        </div>
+      </Dialog>
+
+      {/* Reset Settings Dialog */}
+      <Dialog open={isResetSettingsDialogOpen} onClose={() => setIsResetSettingsDialogOpen(false)} className="relative z-50">
+        <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <Dialog.Panel className="mx-auto max-w-sm rounded-lg bg-white dark:bg-zinc-800 p-6">
+            <Dialog.Title className="text-lg font-medium text-zinc-900 dark:text-zinc-100 mb-4">
+              Are you sure you want to reset all settings to default?
+            </Dialog.Title>
+            <div className="mt-4 flex justify-end gap-2">
+              <button
+                className="rounded-full px-4 py-2 text-sm font-semibold text-zinc-900 dark:text-zinc-100 bg-zinc-200 dark:bg-zinc-700"
+                onClick={() => setIsResetSettingsDialogOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="rounded-full px-4 py-2 text-sm font-semibold text-white bg-red-600"
+                onClick={async () => {
+                  const result = await resetSettings();
+                  if (result.success) {
+                    logger.debug('📦⌥', '[OptionsMain.tsx]', '[render]', 'Reset to default settings completed');
+                  } else {
+                    logger.error('📦⌥', '[OptionsMain.tsx]', '[render]', 'Failed to reset to default settings:', result.error);
+                  }
+                  setIsResetSettingsDialogOpen(false);
+                }}
+              >
+                Reset
+              </button>
+            </div>
+          </Dialog.Panel>
+        </div>
+      </Dialog>
     </div>
   );
 };
