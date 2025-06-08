@@ -21,9 +21,9 @@
         "./src/*"
       ]
     },
-    "inlineSourceMap": true,
+    "sourceMap": true,
+    "inlineSourceMap": false,
     "downlevelIteration": true,
-    // "sourceMap": true,
   },
   "ts-node": {
     "esm": true,
