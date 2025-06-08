@@ -16,8 +16,8 @@ class Background {
     this.themeService.initialize();
     this.cleanupService.startCleanup();
 
-    // chrome.tabs.onActivated.removeListener(handleTabActivated);
-    // chrome.tabs.onActivated.addListener(handleTabActivated);
+    chrome.tabs.onActivated.removeListener(this.handleTabActivated.bind(this));
+    chrome.tabs.onActivated.addListener(this.handleTabActivated.bind(this));
 
     chrome.tabs.onUpdated.removeListener(this.handleTabUpdated.bind(this));
     chrome.tabs.onUpdated.addListener(this.handleTabUpdated.bind(this));
@@ -29,6 +29,14 @@ class Background {
   /**************************************************
    * Event listeners
    **************************************************/
+
+  /**
+   * Event listener for when the tab is activated
+   * @param activeInfo - The information about the activated tab
+   */
+  async handleTabActivated(activeInfo: chrome.tabs.TabActiveInfo) {
+    // logger.debug('📄🤐', '[Background.ts]', '[handleTabActivated]', 'Tab activated', activeInfo);
+  }
 
   /**
    * Event listener for when the tab is updated
