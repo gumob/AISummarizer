@@ -1,9 +1,21 @@
-import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import { db } from '@/db';
 import { ArticleModel } from '@/models';
 import { useSettingsStore } from '@/stores';
-import { AIService, ContentExtractionTiming, FloatPanelPosition, TabBehavior } from '@/types';
+import {
+  AIService,
+  ContentExtractionTiming,
+  FloatPanelPosition,
+  TabBehavior,
+} from '@/types';
 import { logger } from '@/utils';
 
 /**
@@ -30,8 +42,10 @@ import { logger } from '@/utils';
  * @property setIsShowBadge - The set is show badge function.
  * @property saveArticleOnClipboard - The save article on clipboard.
  * @property setSaveArticleOnClipboard - The set save article on clipboard function.
- * @property resetSettings - The reset settings function.
+ * @property restoreSettings - The reset settings function.
  * @property resetDatabase - The reset database function.
+ * @property exportSettings - The export settings function.
+ * @property importSettings - The import settings function.
  */
 interface GlobalContextValue {
   isArticleExtracted: boolean;
@@ -57,7 +71,9 @@ interface GlobalContextValue {
   setIsShowBadge: (isShowBadge: boolean) => Promise<void>;
   saveArticleOnClipboard: boolean;
   setSaveArticleOnClipboard: (saveArticleOnClipboard: boolean) => Promise<void>;
-  resetSettings: () => Promise<{ success: boolean; error?: Error }>;
+  exportSettings: () => Promise<{ success: boolean; error?: Error }>;
+  importSettings: (file: File) => Promise<{ success: boolean; error?: Error }>;
+  restoreSettings: () => Promise<{ success: boolean; error?: Error }>;
   resetDatabase: () => Promise<{ success: boolean; error?: Error }>;
 }
 

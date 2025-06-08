@@ -10,3 +10,14 @@ export const getContentExtractionTimingLabel = (method: ContentExtractionTiming)
   };
   return labels[method];
 };
+
+export const getContentExtractionTimingTypeFromString = (str: string): ContentExtractionTiming => {
+  switch (str) {
+    case 'AUTOMATIC':
+      return ContentExtractionTiming.AUTOMATIC;
+    case 'MANUAL':
+      return ContentExtractionTiming.MANUAL;
+    default:
+      return ContentExtractionTiming.AUTOMATIC;
+  }
+};

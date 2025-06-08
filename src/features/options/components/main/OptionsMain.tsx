@@ -1,12 +1,16 @@
+import React, {
+  Fragment,
+  useEffect,
+  useState,
+} from 'react';
+
 import clsx from 'clsx';
-
-import React, { Fragment, useEffect, useState } from 'react';
-
 import { IoClose } from 'react-icons/io5';
 
-import { Field, Switch, Tab, TabGroup, TabList, TabPanel, TabPanels, Textarea } from '@headlessui/react';
-
-import { ConfirmDialog, OptionCard } from '@/features/options/components/main';
+import {
+  ConfirmDialog,
+  OptionCard,
+} from '@/features/options/components/main';
 import { useGlobalContext } from '@/stores';
 import {
   AIService,
@@ -18,6 +22,16 @@ import {
   TabBehavior,
 } from '@/types';
 import { logger } from '@/utils';
+import {
+  Field,
+  Switch,
+  Tab,
+  TabGroup,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Textarea,
+} from '@headlessui/react';
 
 /**
  * The main component for the options page.
@@ -45,7 +59,9 @@ export const OptionsMain: React.FC = () => {
     setIsShowBadge,
     saveArticleOnClipboard,
     setSaveArticleOnClipboard,
-    resetSettings,
+    exportSettings,
+    importSettings,
+    restoreSettings,
     resetDatabase,
   } = useGlobalContext();
 
@@ -60,6 +76,8 @@ export const OptionsMain: React.FC = () => {
   const [extractionDenylistValue, setExtractionDenylistValue] = useState<string>('');
   const [isDeleteCacheDialogOpen, setIsDeleteCacheDialogOpen] = useState(false);
   const [isResetSettingsDialogOpen, setIsResetSettingsDialogOpen] = useState(false);
+
+  const [importError, setImportError] = useState<string | null>(null);
 
   /*******************************************************
    * Initialize selected indices based on stored values
@@ -139,6 +157,23 @@ export const OptionsMain: React.FC = () => {
   /*******************************************************
    * Render
    *******************************************************/
+
+  const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    /** Get the file */
+    const file = event.target.files?.[0];
+    logger.debug('📦⌥', '[OptionsMain.tsx]', '[handleImport]', 'File:', file);
+    if (!file) return;
+    setImportError(null);
+
+    /** Import the settings */
+    const result = await importSettings(file);
+    if (result.success) {
+      logger.debug('📦⌥', '[OptionsMain.tsx]', '[handleImport]', 'Settings imported successfully');
+    } else {
+      setImportError(result.error?.message ?? 'Failed to import settings');
+      logger.error('📦⌥', '[OptionsMain.tsx]', '[handleImport]', 'Failed to import settings:', result.error);
+    }
+  };
 
   return (
     <div className="min-h-screen p-4 bg-white dark:bg-zinc-900">
@@ -356,20 +391,25 @@ export const OptionsMain: React.FC = () => {
               'font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors',
               'focus:outline-none whitespace-nowrap'
             )}
-            onClick={() => setIsResetSettingsDialogOpen(true)}
+            onClick={exportSettings}
           >
             Export Settings
           </button>
-          <button
-            className={clsx(
-              'rounded-full max-w-60 px-6 py-4 text-lg',
-              'font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors',
-              'focus:outline-none whitespace-nowrap'
-            )}
-            onClick={() => setIsResetSettingsDialogOpen(true)}
-          >
-            Import Settings
-          </button>
+          <div className="relative">
+            <input type="file" accept=".json" onChange={handleImport} className="hidden" id="import-settings" />
+            <label
+              htmlFor="import-settings"
+              className={clsx(
+                'rounded-full max-w-60 px-6 py-4 text-lg',
+                'font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors',
+                'focus:outline-none whitespace-nowrap',
+                'cursor-pointer block text-center'
+              )}
+            >
+              Import Settings
+            </label>
+            {importError && <div className="mt-2 text-sm text-red-600 dark:text-red-400">{importError}</div>}
+          </div>
           <button
             className={clsx(
               'rounded-full max-w-60 px-6 py-4 text-lg',
@@ -421,10 +461,10 @@ export const OptionsMain: React.FC = () => {
         description="Are you sure you want to restore default settings?"
         confirmText="Restore"
         onConfirm={async () => {
-          const result = await resetSettings();
+          const result = await restoreSettings();
           if (result.success) {
             logger.debug('📦⌥', '[OptionsMain.tsx]', '[render]', 'Reset to default settings completed');
-            window.location.reload();
+            // window.location.reload();
           } else {
             logger.error('📦⌥', '[OptionsMain.tsx]', '[render]', 'Failed to reset to default settings:', result.error);
           }

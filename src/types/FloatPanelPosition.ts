@@ -24,3 +24,28 @@ export const getFloatButtonPositionLabel = (position: FloatPanelPosition): strin
   };
   return labels[position];
 };
+
+export const getFloatButtonPositionTypeFromString = (str: string): FloatPanelPosition => {
+  switch (str) {
+    case 'HIDE':
+      return FloatPanelPosition.HIDE;
+    case 'TOP_LEFT':
+      return FloatPanelPosition.TOP_LEFT;
+    case 'TOP_CENTER':
+      return FloatPanelPosition.TOP_CENTER;
+    case 'TOP_RIGHT':
+      return FloatPanelPosition.TOP_RIGHT;
+    case 'MIDDLE_LEFT':
+      return FloatPanelPosition.MIDDLE_LEFT;
+    case 'MIDDLE_RIGHT':
+      return FloatPanelPosition.MIDDLE_RIGHT;
+    case 'BOTTOM_LEFT':
+      return FloatPanelPosition.BOTTOM_LEFT;
+    case 'BOTTOM_CENTER':
+      return FloatPanelPosition.BOTTOM_CENTER;
+    case 'BOTTOM_RIGHT':
+      return FloatPanelPosition.BOTTOM_RIGHT;
+    default:
+      return FloatPanelPosition.HIDE;
+  }
+};

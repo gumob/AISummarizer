@@ -14,3 +14,16 @@ export const getTabBehaviorLabel = (behavior: TabBehavior): string => {
   };
   return labels[behavior];
 };
+
+export const getTabBehaviorTypeFromString = (str: string): TabBehavior => {
+  switch (str) {
+    case 'CURRENT_TAB':
+      return TabBehavior.CURRENT_TAB;
+    case 'NEW_TAB':
+      return TabBehavior.NEW_TAB;
+    case 'NEW_PRIVATE_TAB':
+      return TabBehavior.NEW_PRIVATE_TAB;
+    default:
+      return TabBehavior.CURRENT_TAB;
+  }
+};

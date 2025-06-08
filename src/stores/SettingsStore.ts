@@ -2,7 +2,13 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 import { STORAGE_KEYS } from '@/constants';
-import { AIService, ContentExtractionTiming, FloatPanelPosition, MessageAction, TabBehavior } from '@/types';
+import {
+  AIService,
+  ContentExtractionTiming,
+  FloatPanelPosition,
+  MessageAction,
+  TabBehavior,
+} from '@/types';
 import { logger } from '@/utils';
 
 export interface SettingsState {
@@ -13,9 +19,9 @@ export interface SettingsState {
   floatButtonPosition: FloatPanelPosition;
   contentExtractionTiming: ContentExtractionTiming;
   extractionDenylist: string[];
+  saveArticleOnClipboard: boolean;
   isShowMessage: boolean;
   isShowBadge: boolean;
-  saveArticleOnClipboard: boolean;
 }
 
 const DEFAULT_PROMPT = `Extract each theme from the following text without omission and summarize the main points in Japanese.
@@ -38,7 +44,7 @@ export const DEFAULT_SETTINGS: SettingsState = {
     [AIService.PERPLEXITY]: DEFAULT_PROMPT,
     [AIService.DEEPSEEK]: DEFAULT_PROMPT,
   },
-  tabBehavior: TabBehavior.CURRENT_TAB,
+  tabBehavior: TabBehavior.NEW_TAB,
   floatButtonPosition: FloatPanelPosition.BOTTOM_RIGHT,
   contentExtractionTiming: ContentExtractionTiming.AUTOMATIC,
   extractionDenylist: [
@@ -49,9 +55,9 @@ export const DEFAULT_SETTINGS: SettingsState = {
     /** E-commerce sites */
     '(https?)\\:\\/\\/(www\\.)?(amazon|shop|etsy|ebay|walmart|bestbuy|shopify|target|costoco|apple|flipkart|wix|rakuten|mercari|alibaba|aliexpress|shein|taobao|qoo10|)\\.(co\\.[a-z]{2}|[a-z]{2,3})',
   ],
+  saveArticleOnClipboard: false,
   isShowMessage: false,
   isShowBadge: true,
-  saveArticleOnClipboard: false,
 };
 
 interface SettingsStore extends SettingsState {
@@ -69,7 +75,9 @@ interface SettingsStore extends SettingsState {
   getExtractionDenylist: () => Promise<string[]>;
   getSaveArticleOnClipboard: () => Promise<boolean>;
   getFloatButtonPosition: () => Promise<FloatPanelPosition>;
-  resetSettings: () => Promise<{ success: boolean; error?: Error }>;
+  exportSettings: () => Promise<{ success: boolean; error?: Error }>;
+  importSettings: (file: File) => Promise<{ success: boolean; error?: Error }>;
+  restoreSettings: () => Promise<{ success: boolean; error?: Error }>;
 }
 
 export const useSettingsStore = create<SettingsStore>()(
@@ -137,13 +145,116 @@ export const useSettingsStore = create<SettingsStore>()(
         const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
         return settings[STORAGE_KEYS.SETTINGS]?.state?.floatButtonPosition ?? DEFAULT_SETTINGS.floatButtonPosition;
       },
-      resetSettings: async (): Promise<{ success: boolean; error?: Error }> => {
+      exportSettings: async (): Promise<{ success: boolean; error?: Error }> => {
         try {
-          set(() => DEFAULT_SETTINGS);
-          await sendSettingsUpdate();
+          /** Get the extension version */
+          const manifestData = chrome.runtime.getManifest();
+          const extensionVersion = manifestData.version;
+
+          /** Get the settings */
+          const settings = get();
+
+          /** Create the backup data */
+          const backupData = {
+            version: extensionVersion,
+            settings: {
+              prompt: settings.prompts || {},
+              tabBehavior: settings.tabBehavior || '',
+              floatButtonPosition: settings.floatButtonPosition || '',
+              contentExtractionTiming: settings.contentExtractionTiming || '',
+              extractionDenylist: settings.extractionDenylist || [],
+              saveArticleOnClipboard: settings.saveArticleOnClipboard || false,
+              isShowMessage: settings.isShowMessage || false,
+              isShowBadge: settings.isShowBadge || false,
+            },
+          };
+
+          /** Create the backup file */
+          const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+
+          /** Create the download file name */
+          const now = new Date();
+          const dateStr =
+            now.getFullYear().toString() +
+            (now.getMonth() + 1).toString().padStart(2, '0') +
+            now.getDate().toString().padStart(2, '0') +
+            '-' +
+            now.getHours().toString().padStart(2, '0') +
+            now.getMinutes().toString().padStart(2, '0') +
+            now.getSeconds().toString().padStart(2, '0');
+          a.download = `ai-summarizer-settings-${dateStr}.json`;
+
+          /** Download the backup file */
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+
           return { success: true };
         } catch (error) {
-          logger.error('🏪⚙️', '[SettingsStore.ts]', '[resetSettings]', 'Failed to reset settings:', error);
+          logger.error('🏪⚙️', '[SettingsStore.ts]', '[exportSettings]', 'Failed to export settings:', error);
+          return { success: false, error: error as Error };
+        }
+      },
+      importSettings: async (file: File): Promise<{ success: boolean; error?: Error }> => {
+        try {
+          /** Read the backup file */
+          const text = await file.text();
+          const backupData = JSON.parse(text);
+
+          /** Check if the backup file is valid */
+          if (!backupData || typeof backupData !== 'object' || !backupData.settings) {
+            throw new Error('Invalid backup file format');
+          }
+
+          /** Check if the backup file is compatible with the current version */
+          // const manifestData = chrome.runtime.getManifest();
+          // const currentVersion = manifestData.version;
+
+          /** Import settings */
+          for (const [service, prompt] of Object.entries(backupData.settings.prompt)) {
+            await get().setPrompt(service as AIService, prompt as string);
+          }
+          await get().setTabBehavior(backupData.settings.tabBehavior as TabBehavior);
+          await get().setFloatButtonPosition(backupData.settings.floatButtonPosition as FloatPanelPosition);
+          await get().setContentExtractionTiming(backupData.settings.contentExtractionTiming as ContentExtractionTiming);
+          await get().setExtractionDenylist(backupData.settings.extractionDenylist);
+          await get().setSaveArticleOnClipboard(backupData.settings.saveArticleOnClipboard);
+          await get().setIsShowMessage(backupData.settings.isShowMessage);
+          await get().setIsShowBadge(backupData.settings.isShowBadge);
+
+          /** Send settings update to content script */
+          await sendSettingsUpdate();
+
+          return { success: true };
+        } catch (error) {
+          logger.error('🏪⚙️', '[SettingsStore.ts]', '[importSettings]', 'Failed to import settings:', error);
+          return { success: false, error: error as Error };
+        }
+      },
+      restoreSettings: async (): Promise<{ success: boolean; error?: Error }> => {
+        try {
+          /** Restore settings */
+          for (const [service, prompt] of Object.entries(DEFAULT_SETTINGS.prompts)) {
+            await get().setPrompt(service as AIService, prompt as string);
+          }
+          await get().setTabBehavior(DEFAULT_SETTINGS.tabBehavior);
+          await get().setFloatButtonPosition(DEFAULT_SETTINGS.floatButtonPosition);
+          await get().setContentExtractionTiming(DEFAULT_SETTINGS.contentExtractionTiming);
+          await get().setExtractionDenylist(DEFAULT_SETTINGS.extractionDenylist);
+          await get().setSaveArticleOnClipboard(DEFAULT_SETTINGS.saveArticleOnClipboard);
+          await get().setIsShowMessage(DEFAULT_SETTINGS.isShowMessage);
+          await get().setIsShowBadge(DEFAULT_SETTINGS.isShowBadge);
+
+          /** Send settings update to content script */
+          await sendSettingsUpdate();
+
+          return { success: true };
+        } catch (error) {
+          logger.error('🏪⚙️', '[SettingsStore.ts]', '[restoreSettings]', 'Failed to reset settings:', error);
           return { success: false, error: error as Error };
         }
       },
@@ -190,8 +301,9 @@ const sendSettingsUpdate = async () => {
       return;
     }
 
+    logger.debug('🏪⚙️', '[SettingsStore.ts]', '[sendSettingsUpdate]', 'Sending settings update message to content script');
     const settings = useSettingsStore.getState();
-    await chrome.tabs.sendMessage(tab.id, {
+    await chrome.runtime.sendMessage({
       action: MessageAction.SETTINGS_UPDATED,
       payload: {
         prompts: settings.prompts,
@@ -199,12 +311,11 @@ const sendSettingsUpdate = async () => {
         floatButtonPosition: settings.floatButtonPosition,
         contentExtractionTiming: settings.contentExtractionTiming,
         extractionDenylist: settings.extractionDenylist,
+        saveArticleOnClipboard: settings.saveArticleOnClipboard,
         isShowMessage: settings.isShowMessage,
         isShowBadge: settings.isShowBadge,
-        saveArticleOnClipboard: settings.saveArticleOnClipboard,
       },
     });
-    logger.debug('🏪⚙️', '[SettingsStore.ts]', '[sendSettingsUpdate]', 'Settings update message sent to content script');
   } catch (error) {
     logger.error('🏪⚙️', '[SettingsStore.ts]', '[sendSettingsUpdate]', 'Failed to send settings update message:', error);
   }

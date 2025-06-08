@@ -24,8 +24,8 @@ export const getSummarizeUrl = (service: AIService, summarizeId: string) => {
   }
 };
 
-export const getAIServiceFromId = (id: string): AIService => {
-  switch (id) {
+export const getAIServiceFromString = (id: string): AIService => {
+  switch (id.toLowerCase()) {
     case 'chatgpt':
       return AIService.CHATGPT;
     case 'gemini':

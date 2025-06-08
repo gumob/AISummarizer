@@ -1,6 +1,14 @@
 import { MENU_ITEMS } from '@/models';
-import { AIService, getAIServiceFromId, MessageAction } from '@/types';
-import { isBrowserSpecificUrl, isExtractionDenylistUrl, logger } from '@/utils';
+import {
+  AIService,
+  getAIServiceFromString,
+  MessageAction,
+} from '@/types';
+import {
+  isBrowserSpecificUrl,
+  isExtractionDenylistUrl,
+  logger,
+} from '@/utils';
 
 export class ContextMenuService {
   private aiServiceCallback: (service: AIService, tabId: number, url: string) => void;
@@ -128,7 +136,7 @@ export class ContextMenuService {
             logger.debug('🧑‍🍳📃', '[ContextMenuService.tsx]', '[setupClickHandler]', 'Tab:', tab);
             if (tab.id === undefined || tab.id === null || tab.url === undefined || tab.url === null) throw new Error('No active tab found');
 
-            this.aiServiceCallback(getAIServiceFromId(info.menuItemId), tab.id, tab.url);
+            this.aiServiceCallback(getAIServiceFromString(info.menuItemId), tab.id, tab.url);
           } catch (error) {
             logger.error('🧑‍🍳📃', '[ContextMenuService.tsx]', '[setupClickHandler]', 'Failed to send message:', error);
           }
