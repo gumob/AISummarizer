@@ -82,14 +82,8 @@ class Background {
   }
 
   /**************************************************
-   * Event listeners
+   * Functions
    **************************************************/
-
-  async toggleContextMenu(tabId: number, isArticleExist: boolean) {
-    if (isArticleExist) {
-    } else {
-    }
-  }
 
   async toggleBadge(tabId: number, isArticleExist: boolean) {
     const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
@@ -161,7 +155,6 @@ class Background {
    */
 
   async updateStateAndLoadArticle(tabId: number, url: string) {
-    /** TODO: ここが繰り返し呼ばれてしまうのでsetTimeoutで遅延を設ける */
     try {
       logger.debug('📄🤐', '[Background.ts]', '[updateStateAndLoadArticle]', 'tabId:', tabId, 'url:', url);
 
