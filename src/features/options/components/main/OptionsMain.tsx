@@ -4,9 +4,9 @@ import React, { Fragment, useEffect, useState } from 'react';
 
 import { IoClose } from 'react-icons/io5';
 
-import { Dialog, Field, Switch, Tab, TabGroup, TabList, TabPanel, TabPanels, Textarea } from '@headlessui/react';
+import { Field, Switch, Tab, TabGroup, TabList, TabPanel, TabPanels, Textarea } from '@headlessui/react';
 
-import { OptionCard } from '@/features/options/components/main';
+import { ConfirmDialog, OptionCard } from '@/features/options/components/main';
 import { useGlobalContext } from '@/stores';
 import {
   AIService,
@@ -349,101 +349,66 @@ export const OptionsMain: React.FC = () => {
             )}
           </Switch>
         </OptionCard>
-        <OptionCard title="Cache">
+        <OptionCard title="Data Management" className="flex flex-col xs:flex-row sm:flex-row md:flex-row gap-2">
           <button
-            className={clsx(
-              'rounded-full px-6 py-4 text-lg font-semibold',
-              'text-zinc-900 dark:text-zinc-50',
-              'bg-zinc-300 dark:bg-zinc-700',
-              'focus:outline-none',
-              'transition-opacity'
-            )}
+            className={`
+              rounded-full px-6 py-4 text-lg
+              font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors
+              focus:outline-none whitespace-nowrap
+            `}
             onClick={() => setIsDeleteCacheDialogOpen(true)}
           >
-            Delete Cache on Database
+            Clear Article Cache
           </button>
           <button
             className={clsx(
-              'rounded-full px-6 py-4 text-lg font-semibold',
-              'text-zinc-900 dark:text-zinc-50',
-              'bg-zinc-300 dark:bg-zinc-700',
-              'focus:outline-none',
-              'transition-opacity'
+              'rounded-full px-6 py-4 text-lg',
+              'font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors',
+              'focus:outline-none whitespace-nowrap'
             )}
             onClick={() => setIsResetSettingsDialogOpen(true)}
           >
-            Reset to Default Settings
+            Restore Default Settings
           </button>
         </OptionCard>
       </div>
 
       {/* Delete Cache Dialog */}
-      <Dialog open={isDeleteCacheDialogOpen} onClose={() => setIsDeleteCacheDialogOpen(false)} className="relative z-50">
-        <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
-        <div className="fixed inset-0 flex items-center justify-center p-4">
-          <Dialog.Panel className="mx-auto max-w-sm rounded-lg bg-white dark:bg-zinc-800 p-6">
-            <Dialog.Title className="text-lg font-medium text-zinc-900 dark:text-zinc-100 mb-4">
-              Are you sure you want to delete all cached articles from the database?
-            </Dialog.Title>
-            <div className="mt-4 flex justify-end gap-2">
-              <button
-                className="rounded-full px-4 py-2 text-sm font-semibold text-zinc-900 dark:text-zinc-100 bg-zinc-200 dark:bg-zinc-700"
-                onClick={() => setIsDeleteCacheDialogOpen(false)}
-              >
-                Cancel
-              </button>
-              <button
-                className="rounded-full px-4 py-2 text-sm font-semibold text-white bg-red-600"
-                onClick={async () => {
-                  const result = await resetDatabase();
-                  if (result.success) {
-                    logger.debug('📦⌥', '[OptionsMain.tsx]', '[render]', 'Database cleanup completed');
-                  } else {
-                    logger.error('📦⌥', '[OptionsMain.tsx]', '[render]', 'Failed to cleanup database:', result.error);
-                  }
-                  setIsDeleteCacheDialogOpen(false);
-                }}
-              >
-                Delete
-              </button>
-            </div>
-          </Dialog.Panel>
-        </div>
-      </Dialog>
+      <ConfirmDialog
+        isOpen={isDeleteCacheDialogOpen}
+        onClose={() => setIsDeleteCacheDialogOpen(false)}
+        title="Clear Article Cache"
+        description="Are you sure you want to clear all cached articles?"
+        confirmText="Clear"
+        onConfirm={async () => {
+          const result = await resetDatabase();
+          if (result.success) {
+            logger.debug('📦⌥', '[OptionsMain.tsx]', '[render]', 'Database cleanup completed');
+          } else {
+            logger.error('📦⌥', '[OptionsMain.tsx]', '[render]', 'Failed to cleanup database:', result.error);
+          }
+          setIsDeleteCacheDialogOpen(false);
+        }}
+      />
 
       {/* Reset Settings Dialog */}
-      <Dialog open={isResetSettingsDialogOpen} onClose={() => setIsResetSettingsDialogOpen(false)} className="relative z-50">
-        <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
-        <div className="fixed inset-0 flex items-center justify-center p-4">
-          <Dialog.Panel className="mx-auto max-w-sm rounded-lg bg-white dark:bg-zinc-800 p-6">
-            <Dialog.Title className="text-lg font-medium text-zinc-900 dark:text-zinc-100 mb-4">
-              Are you sure you want to reset all settings to default?
-            </Dialog.Title>
-            <div className="mt-4 flex justify-end gap-2">
-              <button
-                className="rounded-full px-4 py-2 text-sm font-semibold text-zinc-900 dark:text-zinc-100 bg-zinc-200 dark:bg-zinc-700"
-                onClick={() => setIsResetSettingsDialogOpen(false)}
-              >
-                Cancel
-              </button>
-              <button
-                className="rounded-full px-4 py-2 text-sm font-semibold text-white bg-red-600"
-                onClick={async () => {
-                  const result = await resetSettings();
-                  if (result.success) {
-                    logger.debug('📦⌥', '[OptionsMain.tsx]', '[render]', 'Reset to default settings completed');
-                  } else {
-                    logger.error('📦⌥', '[OptionsMain.tsx]', '[render]', 'Failed to reset to default settings:', result.error);
-                  }
-                  setIsResetSettingsDialogOpen(false);
-                }}
-              >
-                Reset
-              </button>
-            </div>
-          </Dialog.Panel>
-        </div>
-      </Dialog>
+      <ConfirmDialog
+        isOpen={isResetSettingsDialogOpen}
+        onClose={() => setIsResetSettingsDialogOpen(false)}
+        title="Restore Default Settings"
+        description="Are you sure you want to restore default settings?"
+        confirmText="Restore"
+        onConfirm={async () => {
+          const result = await resetSettings();
+          if (result.success) {
+            logger.debug('📦⌥', '[OptionsMain.tsx]', '[render]', 'Reset to default settings completed');
+            window.location.reload();
+          } else {
+            logger.error('📦⌥', '[OptionsMain.tsx]', '[render]', 'Failed to reset to default settings:', result.error);
+          }
+          setIsResetSettingsDialogOpen(false);
+        }}
+      />
     </div>
   );
 };
