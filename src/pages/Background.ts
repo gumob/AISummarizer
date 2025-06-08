@@ -102,10 +102,10 @@ class Background {
     const contentExtractionTiming = await useSettingsStore.getState().getContentExtractionTiming();
     if (contentExtractionTiming === ContentExtractionTiming.AUTOMATIC) {
       /** Inject the content script */
-      await chrome.scripting.executeScript({
-        target: { tabId: tabId },
-        files: ['content.js'],
-      });
+      // await chrome.scripting.executeScript({
+      //   target: { tabId: tabId },
+      //   files: ['content.js'],
+      // });
 
       /** Send the message to the content script */
       await chrome.tabs.sendMessage(tabId, {

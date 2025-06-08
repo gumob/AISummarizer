@@ -142,10 +142,10 @@ export class ContextMenuService {
             if (tab.id === undefined || tab.id === null) throw new Error('No active tab found');
 
             /** Inject the content script */
-            await chrome.scripting.executeScript({
-              target: { tabId: tab.id },
-              files: ['content.js'],
-            });
+            // await chrome.scripting.executeScript({
+            //   target: { tabId: tab.id },
+            //   files: ['content.js'],
+            // });
 
             /** Send the message to the content script */
             await chrome.tabs.sendMessage(tab.id, {
