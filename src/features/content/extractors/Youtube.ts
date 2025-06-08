@@ -162,7 +162,7 @@ export async function extractYoutube(urls: string): Promise<ArticleExtractionRes
   if (!videoId) {
     throw new Error('Could not extract video ID from URL');
   }
-  logger.debug('🎥', '[extractYoutube]', 'Extracting YouTube transcript', videoId);
+  logger.debug('🎥', '[Youtube.tsx]', '[extractYoutube]', 'Extracting YouTube transcript', videoId);
 
   /** Get the HTML of the YouTube video. */
   const html = await getHtmlByVideoID(videoId);
@@ -181,7 +181,7 @@ export async function extractYoutube(urls: string): Promise<ArticleExtractionRes
       const defaultAudioTrackIndex = json.captions?.playerCaptionsTracklistRenderer?.defaultAudioTrackIndex;
 
       if (!captionTracks || captionTracks.length === 0) {
-        logger.error('🎥', '[extractYoutube]', 'no captions', videoId);
+        logger.error('🎥', '[Youtube.tsx]', '[extractYoutube]', 'no captions', videoId);
         return {
           title: videoTitle,
           lang: null,
@@ -194,7 +194,7 @@ export async function extractYoutube(urls: string): Promise<ArticleExtractionRes
       /** Select the caption track based on the language priority. */
       const selectedTrack = selectCaptionTrack(captionTracks, defaultAudioTrackIndex);
       if (!selectedTrack) {
-        logger.error('🎥', '[extractYoutube]', 'no suitable caption track found', videoId);
+        logger.error('🎥', '[Youtube.tsx]', '[extractYoutube]', 'no suitable caption track found', videoId);
         return {
           title: videoTitle,
           lang: null,
@@ -206,7 +206,7 @@ export async function extractYoutube(urls: string): Promise<ArticleExtractionRes
 
       /** Generate the caption URL (XML format). */
       const captionUrl = selectedTrack.baseUrl;
-      logger.debug('🎥', '[extractYoutube]', 'captionUrl', captionUrl);
+      logger.debug('🎥', '[Youtube.tsx]', '[extractYoutube]', 'captionUrl', captionUrl);
 
       /** Fetch the caption XML. */
       const response = await fetch(captionUrl, {
@@ -228,7 +228,7 @@ export async function extractYoutube(urls: string): Promise<ArticleExtractionRes
       });
 
       if (!response.ok) {
-        logger.error('🎥', '[extractYoutube]', 'Failed to fetch captions XML', videoId);
+        logger.error('🎥', '[Youtube.tsx]', '[extractYoutube]', 'Failed to fetch captions XML', videoId);
         return {
           title: videoTitle,
           lang: selectedTrack.languageCode,
@@ -241,7 +241,7 @@ export async function extractYoutube(urls: string): Promise<ArticleExtractionRes
       const responseText = await response.text();
 
       if (!responseText.trim()) {
-        logger.error('🎥', '[extractYoutube]', 'Empty response received', videoId);
+        logger.error('🎥', '[Youtube.tsx]', '[extractYoutube]', 'Empty response received', videoId);
         return {
           title: videoTitle,
           lang: selectedTrack.languageCode,
@@ -261,7 +261,7 @@ export async function extractYoutube(urls: string): Promise<ArticleExtractionRes
       const transcript = normalizeContent(rawTranscript);
 
       if (!transcript) {
-        logger.error('🎥', '[extractYoutube]', 'Empty transcript', videoId);
+        logger.error('🎥', '[Youtube.tsx]', '[extractYoutube]', 'Empty transcript', videoId);
         return {
           title: videoTitle,
           lang: selectedTrack.languageCode,
@@ -290,7 +290,7 @@ export async function extractYoutube(urls: string): Promise<ArticleExtractionRes
       };
     }
   } else {
-    logger.debug('🎥', '[extractYoutube]', 'no captions', videoId);
+    logger.debug('🎥', '[Youtube.tsx]', '[extractYoutube]', 'no captions', videoId);
     return {
       title: null,
       lang: null,

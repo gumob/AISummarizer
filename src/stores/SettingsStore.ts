@@ -175,7 +175,7 @@ const sendSettingsUpdate = async () => {
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (!tab.id) {
-      logger.warn('🏪⚙️', '[sendSettingsUpdate]', 'No active tab found');
+      logger.warn('🏪⚙️', '[SettingsStore.ts]', '[sendSettingsUpdate]', 'No active tab found');
       return;
     }
 
@@ -193,8 +193,8 @@ const sendSettingsUpdate = async () => {
         saveArticleOnClipboard: settings.saveArticleOnClipboard,
       },
     });
-    logger.debug('🏪⚙️', '[sendSettingsUpdate]', 'Settings update message sent to content script');
+    logger.debug('🏪⚙️', '[SettingsStore.ts]', '[sendSettingsUpdate]', 'Settings update message sent to content script');
   } catch (error) {
-    logger.error('🏪⚙️', '[sendSettingsUpdate]', 'Failed to send settings update message:', error);
+    logger.error('🏪⚙️', '[SettingsStore.ts]', '[sendSettingsUpdate]', 'Failed to send settings update message:', error);
   }
 };

@@ -23,12 +23,12 @@ const isBackgroundScriptReady = async (): Promise<boolean> => {
  */
 export const detectTheme = async () => {
   const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  logger.debug('🎨', '[detectTheme]', 'Theme detected', isDarkMode ? 'dark' : 'light');
+  logger.debug('🎨', '[ThemeUtils.ts]', '[detectTheme]', 'Theme detected', isDarkMode ? 'dark' : 'light');
 
   /** Check if the background script is ready */
   const isReady = await isBackgroundScriptReady();
   if (!isReady) {
-    logger.warn('🎨', '[detectTheme]', 'Background script is not ready, skipping theme detection');
+    logger.warn('🎨', '[ThemeUtils.ts]', '[detectTheme]', 'Background script is not ready, skipping theme detection');
     return;
   }
 
@@ -39,7 +39,7 @@ export const detectTheme = async () => {
       isDarkMode: isDarkMode,
     });
   } catch (error) {
-    logger.error('🎨', '[detectTheme]', 'Failed to send theme detection message', error);
+    logger.error('🎨', '[ThemeUtils.ts]', '[detectTheme]', 'Failed to send theme detection message', error);
   }
 };
 
@@ -48,7 +48,7 @@ export const detectTheme = async () => {
  * @param isDarkMode - Whether the color scheme is dark
  */
 export const updateExtensionIcon = async (isDarkMode: boolean) => {
-  logger.debug('🎨', '[updateExtensionIcon]', 'Updating extension icon');
+  logger.debug('🎨', '[ThemeUtils.ts]', '[updateExtensionIcon]', 'Updating extension icon');
 
   try {
     const iconPath = isDarkMode ? '/icons/dark/' : '/icons/light/';
@@ -59,8 +59,8 @@ export const updateExtensionIcon = async (isDarkMode: boolean) => {
         128: `${iconPath}icon128.png`,
       },
     });
-    logger.debug('🎨', '[updateExtensionIcon]', 'Icon updated');
+    logger.debug('🎨', '[ThemeUtils.ts]', '[updateExtensionIcon]', 'Icon updated');
   } catch (error) {
-    logger.error('🎨', '[updateExtensionIcon]', 'Failed to update extension icon', error);
+    logger.error('🎨', '[ThemeUtils.ts]', '[updateExtensionIcon]', 'Failed to update extension icon', error);
   }
 };

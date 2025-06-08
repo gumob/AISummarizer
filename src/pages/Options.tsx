@@ -22,7 +22,7 @@ const Options: React.FC = () => {
       if (isInitialized.current) return;
       isInitialized.current = true;
 
-      logger.debug('📄⌥', '[Options]', '[useEffect]', 'Initializing options document');
+      logger.debug('📄⌥', '[Options.tsx]', '[useEffect]', 'Initializing options document');
       await detectTheme();
     };
 
@@ -30,7 +30,7 @@ const Options: React.FC = () => {
 
     return () => {
       isInitialized.current = false;
-      logger.debug('📄⌥', '[Options]', '[useEffect]', 'Deinitializing options document');
+      logger.debug('📄⌥', '[Options.tsx]', '[useEffect]', 'Deinitializing options document');
     };
   }, []);
 

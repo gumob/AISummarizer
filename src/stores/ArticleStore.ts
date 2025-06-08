@@ -19,43 +19,43 @@ export const useArticleStore = create<ArticleStore>((set, get) => ({
     set({ activeArticle: article });
   },
   isArticleExtractedForUrl: async (url: string): Promise<boolean> => {
-    // logger.debug('🏪🖼️', '[useArticleStore]', '[isArticleExtractedForUrl]', 'Checking if article is extracted for url:', url);
+    // logger.debug('🏪🖼️', '[useArticleStore.ts]', '[isArticleExtractedForUrl]', 'Checking if article is extracted for url:', url);
     const article = await get().getArticleByUrl(url);
     const result = article?.is_success ?? false;
     return result;
   },
   addArticle: async (article: Omit<ArticleRecord, 'id'>) => {
     try {
-      // logger.debug('🏪🖼️', '[useArticleStore]', '[addArticle]', 'Adding article:', article);
+      // logger.debug('🏪🖼️', '[useArticleStore.ts]', '[addArticle]', 'Adding article:', article);
       const id = await db.addArticle(article);
       return id;
     } catch (error) {
-      logger.error('🏪🖼️', '[useArticleStore]', '[addArticle]', 'Failed to add article:', error);
+      logger.error('🏪🖼️', '[useArticleStore.ts]', '[addArticle]', 'Failed to add article:', error);
       throw error;
     }
   },
   getArticleByUrl: async (url: string): Promise<ArticleRecord | undefined> => {
     try {
-      // logger.debug('🏪🖼️', '[useArticleStore]', '[getArticleByUrl]', 'Getting article by url:', url);
+      // logger.debug('🏪🖼️', '[useArticleStore.ts]', '[getArticleByUrl]', 'Getting article by url:', url);
       return await db.getArticleByUrl(url);
     } catch (error) {
-      logger.error('🏪🖼️', '[useArticleStore]', '[getArticleByUrl]', 'Failed to get article:', error);
+      logger.error('🏪🖼️', '[useArticleStore.ts]', '[getArticleByUrl]', 'Failed to get article:', error);
       throw error;
     }
   },
   cleanup: async () => {
     try {
-      // logger.debug('🏪🖼️', '[useArticleStore]', '[cleanup]', 'Cleaning up database');
+      // logger.debug('🏪🖼️', '[useArticleStore.ts]', '[cleanup]', 'Cleaning up database');
       await db.cleanup();
-      // logger.debug('🏪🖼️', '[useArticleStore]', '[cleanup]', 'Database cleaned up');
+      // logger.debug('🏪🖼️', '[useArticleStore.ts]', '[cleanup]', 'Database cleaned up');
     } catch (error) {
-      logger.error('🏪🖼️', '[useArticleStore]', '[cleanup]', 'Failed to cleanup:', error);
+      logger.error('🏪🖼️', '[useArticleStore.ts]', '[cleanup]', 'Failed to cleanup:', error);
       throw error;
     }
   },
   getLastCleanupDate: async () => {
     try {
-      // logger.debug('🏪🖼️', '[useArticleStore]', '[getLastCleanupDate]', 'Getting last cleanup date');
+      // logger.debug('🏪🖼️', '[useArticleStore.ts]', '[getLastCleanupDate]', 'Getting last cleanup date');
       return await db.getLastCleanupDate();
     } catch (error) {
       throw error;

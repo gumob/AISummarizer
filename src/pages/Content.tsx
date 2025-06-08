@@ -6,7 +6,7 @@ import { ContentMain } from '@/features/content/components/main';
 import { ContentContextProvider } from '@/features/content/contexts/ContentContext';
 import { logger } from '@/utils';
 
-logger.debug('📄🥡', '[Content]', 'Content script loaded');
+logger.debug('📄🥡', '[Content.tsx]', 'Content script loaded');
 
 /**
  * The main component for the content script.

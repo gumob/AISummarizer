@@ -21,7 +21,7 @@ const Popup: React.FC = () => {
       if (isInitialized.current) return;
       isInitialized.current = true;
 
-      logger.debug('📄🍿', '[Popup]', '[useEffect]', 'Initializing popup document');
+      logger.debug('📄🍿', '[Popup.tsx]', '[useEffect]', 'Initializing popup document');
       await detectTheme();
     };
 
@@ -29,7 +29,7 @@ const Popup: React.FC = () => {
 
     return () => {
       isInitialized.current = false;
-      logger.debug('📄🍿', '[Popup]', '[useEffect]', 'Deinitializing popup document');
+      logger.debug('📄🍿', '[Popup.tsx]', '[useEffect]', 'Deinitializing popup document');
     };
   }, []);
 

@@ -30,15 +30,15 @@ export const useChromeMessage = () => {
    *******************************************************/
 
   useEffect(() => {
-    logger.debug('🫳💬', '[useChromeMessage]', 'useChromeMessage mounted');
+    logger.debug('🫳💬', '[useChromeMessage.tsx]', '[useEffect]', 'useChromeMessage mounted');
 
     if (isListenerRegistered.current) {
-      logger.debug('🫳💬', '[useChromeMessage]', 'useChromeMessage: Listener already registered');
+      logger.warn('🫳💬', '[useChromeMessage.tsx]', '[useEffect]', 'useChromeMessage: Listener already registered');
       return;
     }
 
     const handleMessage = async (message: any, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void) => {
-      logger.debug('🫳💬', '[useChromeMessage]', '[handleMessage]:', message);
+      logger.debug('🫳💬', '[useChromeMessage.tsx]', '[handleMessage]:', message);
 
       try {
         switch (message.action) {
@@ -70,7 +70,7 @@ export const useChromeMessage = () => {
               setArticle(result);
               return true;
             } catch (error: any) {
-              logger.error('🫳💬', '[useChromeMessage]', 'Error in content script:', error);
+              logger.error('🫳💬', '[useChromeMessage.tsx]', '[handleMessage]', 'Error in content script:', error);
               sendResponse({ error: error.message });
               setArticle(null);
               return false;
@@ -85,11 +85,11 @@ export const useChromeMessage = () => {
             return true;
 
           default:
-            logger.debug('🫳💬', '[useChromeMessage]', 'Unknown message action:', message.action);
+            logger.debug('🫳💬', '[useChromeMessage.tsx]', '[handleMessage]', 'Unknown message action:', message.action);
             return false;
         }
       } catch (error) {
-        logger.error('🫳💬', '[useChromeMessage]', 'Error handling message:', error);
+        logger.error('🫳💬', '[useChromeMessage.tsx]', '[handleMessage]', 'Error handling message:', error);
         return false;
       }
     };
@@ -99,7 +99,7 @@ export const useChromeMessage = () => {
     return () => {
       chrome.runtime.onMessage.removeListener(handleMessage);
       isListenerRegistered.current = false;
-      logger.debug('🫳💬', '[useChromeMessage]', 'useChromeMessage unmounted');
+      logger.debug('🫳💬', '[useChromeMessage.tsx]', '[useEffect]', 'useChromeMessage unmounted');
     };
   }, []);
 

@@ -104,34 +104,34 @@ export const OptionsMain: React.FC = () => {
   /** Set ShowMessage index */
   useEffect(() => {
     if (enableShowMessage !== null) setIsShowMessage(enableShowMessage);
-    logger.debug('📦⌥', '[OptionsMain]', '[useEffect]', 'enableShowMessage', enableShowMessage);
+    logger.debug('📦⌥', '[OptionsMain.tsx]', '[useEffect]', 'enableShowMessage', enableShowMessage);
   }, [enableShowMessage]);
 
   useEffect(() => {
     if (enableShowMessage === null) setEnableShowMessage(isShowMessage);
-    logger.debug('📦⌥', '[OptionsMain]', '[useEffect]', 'isShowMessage', isShowMessage);
+    logger.debug('📦⌥', '[OptionsMain.tsx]', '[useEffect]', 'isShowMessage', isShowMessage);
   }, [isShowMessage]);
 
   /** Set ShowBadge index */
   useEffect(() => {
     if (enableShowBadge !== null) setIsShowBadge(enableShowBadge);
-    logger.debug('📦⌥', '[OptionsMain]', '[useEffect]', 'enableShowBadge', enableShowBadge);
+    logger.debug('📦⌥', '[OptionsMain.tsx]', '[useEffect]', 'enableShowBadge', enableShowBadge);
   }, [enableShowBadge]);
 
   useEffect(() => {
     if (enableShowBadge === null) setEnableShowBadge(isShowBadge);
-    logger.debug('📦⌥', '[OptionsMain]', '[useEffect]', 'isShowBadge', isShowBadge);
+    logger.debug('📦⌥', '[OptionsMain.tsx]', '[useEffect]', 'isShowBadge', isShowBadge);
   }, [isShowBadge]);
 
   /** Set SaveArticleOnClipboard index */
   useEffect(() => {
     if (enableSaveArticleOnClipboard !== null) setSaveArticleOnClipboard(enableSaveArticleOnClipboard);
-    logger.debug('📦⌥', '[OptionsMain]', '[useEffect]', 'enableSaveArticleOnClipboard', enableSaveArticleOnClipboard);
+    logger.debug('📦⌥', '[OptionsMain.tsx]', '[useEffect]', 'enableSaveArticleOnClipboard', enableSaveArticleOnClipboard);
   }, [enableSaveArticleOnClipboard]);
 
   useEffect(() => {
     if (enableSaveArticleOnClipboard === null) setEnableSaveArticleOnClipboard(saveArticleOnClipboard);
-    logger.debug('📦⌥', '[OptionsMain]', '[useEffect]', 'saveArticleOnClipboard', saveArticleOnClipboard);
+    logger.debug('📦⌥', '[OptionsMain.tsx]', '[useEffect]', 'saveArticleOnClipboard', saveArticleOnClipboard);
   }, [saveArticleOnClipboard]);
 
   /*******************************************************
@@ -148,7 +148,7 @@ export const OptionsMain: React.FC = () => {
               try {
                 await chrome.sidePanel.setOptions({ enabled: false });
               } catch (error) {
-                logger.error('📦⌥', '[OptionsMain]', '[render]', 'Failed to close side panel', error);
+                logger.error('📦⌥', '[OptionsMain.tsx]', '[render]', 'Failed to close side panel', error);
               }
             }}
             className="rounded-full p-2 text-lg text-zinc-600 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:bg-zinc-800"
@@ -359,9 +359,9 @@ export const OptionsMain: React.FC = () => {
             onClick={async () => {
               try {
                 await cleanupDatabase();
-                logger.debug('📦⌥', '[OptionsMain]', '[render]', 'Database cleanup completed');
+                logger.debug('📦⌥', '[OptionsMain.tsx]', '[render]', 'Database cleanup completed');
               } catch (error) {
-                logger.error('📦⌥', '[OptionsMain]', '[render]', 'Failed to cleanup database:', error);
+                logger.error('📦⌥', '[OptionsMain.tsx]', '[render]', 'Failed to cleanup database:', error);
               }
             }}
           >

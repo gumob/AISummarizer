@@ -9,13 +9,13 @@ import { isBrowserSpecificUrl, logger } from '@/utils';
 /**
  * Initialize the background script
  */
-logger.debug('📄🀫', 'Initializing background script');
+logger.debug('📄🀫', '[Background.ts]', 'Initializing background script');
 
 /**
  * Initialize the extension
  */
 const initialize = async () => {
-  logger.debug('📄🀫', '[initialize]', 'Initializing extension');
+  logger.debug('📄🀫', '[Background.ts]', '[initialize]', 'Initializing extension');
   themeService.initialize();
   cleanupService.startCleanup();
 };
@@ -31,7 +31,7 @@ let reloadTimer: NodeJS.Timeout | null = null;
  * @param url - The URL of the tab
  */
 const reload = async (tabId: number, url: string) => {
-  logger.debug('📄🀫', '[reload]', 'tabId:', tabId, 'url:', url);
+  logger.debug('📄🀫', '[Background.ts]', '[reload]', 'tabId:', tabId, 'url:', url);
   if (reloadTimer) {
     clearTimeout(reloadTimer);
   }
@@ -43,7 +43,7 @@ const reload = async (tabId: number, url: string) => {
 const _reload = async (tabId: number, url: string) => {
   /** TODO: ここが繰り返し呼ばれてしまうのでsetTimeoutで遅延を設ける */
   try {
-    logger.debug('📄🀫', '[_reload]', 'tabId:', tabId, 'url:', url);
+    logger.debug('📄🀫', '[Background.ts]', '[_reload]', 'tabId:', tabId, 'url:', url);
     /** Skip processing for Chrome extension pages */
     if (isBrowserSpecificUrl(url)) {
       logger.warn('📄🀫', 'Skipping processing for browser-specific URLs', url);
@@ -51,14 +51,14 @@ const _reload = async (tabId: number, url: string) => {
       return;
     }
 
-    logger.debug('📄🀫', '[_reload]', 'Updating article extraction state', 'tabId:', tabId, 'url:', url);
+    logger.debug('📄🀫', '[Background.ts]', '[_reload]', 'Updating article extraction state', 'tabId:', tabId, 'url:', url);
 
     /** Check if the article exists */
     const isExist = await useArticleStore.getState().isArticleExtractedForUrl(url);
 
     /** Get the article from the database */
     const article = await useArticleStore.getState().getArticleByUrl(url);
-    logger.debug('📄🀫', '[_reload]', 'Article', article?.is_success);
+    logger.debug('📄🀫', '[Background.ts]', '[_reload]', 'Article', article?.is_success);
 
     /** Send the message to the content script */
     await chrome.tabs.sendMessage(tabId, {
@@ -80,14 +80,14 @@ const _reload = async (tabId: number, url: string) => {
       const contentExtractionTiming = await useSettingsStore.getState().getContentExtractionTiming();
       if (contentExtractionTiming === ContentExtractionTiming.AUTOMATIC) {
         /** Inject the content script */
-        logger.debug('📄🀫', '[_reload]', 'Injecting content script', tabId, url);
+        logger.debug('📄🀫', '[Background.ts]', '[_reload]', 'Injecting content script', tabId, url);
         await chrome.scripting.executeScript({
           target: { tabId: tabId },
           files: ['content.js'],
         });
 
         /** Send the message to the content script */
-        logger.debug('📄🀫', '[_reload]', 'sending message to content script', tabId, url);
+        logger.debug('📄🀫', '[Background.ts]', '[_reload]', 'sending message to content script', tabId, url);
         await chrome.tabs.sendMessage(tabId, {
           action: MessageAction.EXTRACT_CONTENT_START,
           url: url,
@@ -96,7 +96,7 @@ const _reload = async (tabId: number, url: string) => {
     }
     contextMenuService.createMenu();
   } catch (error: any) {
-    logger.error('📄🀫', 'Failed to update article extraction state', error);
+    logger.error('📄🀫', '[Background.ts]', 'Failed to update article extraction state', error);
   }
 };
 
@@ -105,7 +105,7 @@ const _reload = async (tabId: number, url: string) => {
  * @param details - The details of the installation
  */
 const handleInstalled = async (_details: chrome.runtime.InstalledDetails) => {
-  logger.debug('📄🀫', '[handleInstalled]', 'Extension installed');
+  logger.debug('📄🀫', '[Background.ts]', '[handleInstalled]', 'Extension installed');
   await initialize();
 };
 
@@ -113,7 +113,7 @@ const handleInstalled = async (_details: chrome.runtime.InstalledDetails) => {
  * Event listener for when the extension is started
  */
 const handleStartup = async () => {
-  logger.debug('📄🀫', '[handleStartup]', 'Extension started');
+  logger.debug('📄🀫', '[Background.ts]', '[handleStartup]', 'Extension started');
   await initialize();
 };
 
@@ -124,17 +124,17 @@ const handleStartup = async () => {
 const handleTabActivated = async (activeInfo: chrome.tabs.TabActiveInfo) => {
   const tab = await chrome.tabs.get(activeInfo.tabId);
   if (tab.url) {
-    logger.debug('📄🀫', '[handleTabActivated]', 'Tab activated', tab.url, tab.status);
+    logger.debug('📄🀫', '[Background.ts]', '[handleTabActivated]', 'Tab activated', tab.url, tab.status);
     if (tab.id) {
       reload(tab.id, tab.url);
     } else {
-      logger.warn('Tab id is undefined', tab.url);
+      logger.warn('📄🀫', '[Background.ts]', '[handleTabActivated]', 'Tab id is undefined', tab.url);
     }
   }
 };
 
 const handleAIService = async (service: AIService, tabId: number, url: string) => {
-  logger.debug('📄🀫', '[handleAIService]', service, tabId, url);
+  logger.debug('📄🀫', '[Background.ts]', '[handleAIService]', service, tabId, url);
   const article = await db.getArticleByUrl(url);
   if (article?.is_success) {
     const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
@@ -160,7 +160,7 @@ const handleAIService = async (service: AIService, tabId: number, url: string) =
         break;
     }
   } else {
-    logger.warn('📄🀫', 'Article not found', url);
+    logger.warn('📄🀫', '[Background.ts]', '[handleAIService]', 'Article not found', url);
   }
 };
 
@@ -173,7 +173,7 @@ const handleAIService = async (service: AIService, tabId: number, url: string) =
  */
 const handleTabUpdated = async (tabId: number, changeInfo: chrome.tabs.TabChangeInfo, tab: chrome.tabs.Tab) => {
   if (changeInfo.status === 'complete' && tab.url) {
-    logger.debug('📄🀫', '[handleTabUpdated]', 'Tab updated', tab.url, tab.status);
+    logger.debug('📄🀫', '[Background.ts]', '[handleTabUpdated]', 'Tab updated', tab.url, tab.status);
     /** TODO: ここが繰り返し呼ばれてしまうのでsetTimeoutで遅延を設ける */
     reload(tabId, tab.url);
   }
@@ -184,14 +184,14 @@ const handleMessage = async (message: any, sender: chrome.runtime.MessageSender,
     case MessageAction.EXTRACT_CONTENT_COMPLETE:
       // Only process messages from content scripts
       if (!sender.tab?.id) {
-        logger.warn('📄🀫', 'Ignoring EXTRACT_CONTENT_COMPLETE from non-content script');
+        logger.warn('📄🀫', '[Background.ts]', '[handleMessage]', 'Ignoring EXTRACT_CONTENT_COMPLETE from non-content script');
         return;
       }
       if (sender.tab?.url !== message.result.url) {
-        logger.warn('📄🀫', 'Ignoring EXTRACT_CONTENT_COMPLETE for different url', sender.tab?.url, message.result.url);
+        logger.warn('📄🀫', '[Background.ts]', '[handleMessage]', 'Ignoring EXTRACT_CONTENT_COMPLETE for different url', sender.tab?.url, message.result.url);
         return;
       }
-      logger.debug('📄🀫', '[handleMessage]', 'Extracting content complete', message.result);
+      logger.debug('📄🀫', '[Background.ts]', '[handleMessage]', 'Extracting content complete', message.result);
       if (message.result.isSuccess) {
         /** Save the article to the database */
         db.addArticle({
@@ -216,12 +216,12 @@ const handleMessage = async (message: any, sender: chrome.runtime.MessageSender,
       break;
 
     case MessageAction.SUMMARIZE_CONTENT_START:
-      logger.debug('📄🀫', '[handleMessage]', 'Summarizing content start', message.payload);
+      logger.debug('📄🀫', '[Background.ts]', '[handleMessage]', 'Summarizing content start', message.payload);
       handleAIService(message.payload.service, message.payload.tabId, message.payload.url);
       break;
 
     case MessageAction.SUMMARIZE_CONTENT_COMPLETE:
-      logger.debug('📄🀫', '[handleMessage]', 'Summarizing content complete', message.result);
+      logger.debug('📄🀫', '[Background.ts]', '[handleMessage]', 'Summarizing content complete', message.result);
       break;
 
     default:

@@ -7,8 +7,8 @@ export async function extractReadability(document: Document): Promise<ArticleExt
   try {
     const clonedDoc = document.cloneNode(true) as Document;
     const article = new Readability(clonedDoc).parse();
-    logger.debug('📕', '[extractReadability]', 'extractReadability url:', document.URL);
-    // logger.debug('📕', '[extractReadability]', 'extractReadability article:', article);
+    logger.debug('📕', '[Readability.tsx]', '[extractReadability]', 'extractReadability url:', document.URL);
+    // logger.debug('📕', '[Readability.tsx]', '[extractReadability]', 'extractReadability article:', article);
     const title = article?.title || null;
     const lang = article?.lang || null;
     const url = document.URL;
@@ -23,7 +23,7 @@ export async function extractReadability(document: Document): Promise<ArticleExt
       isSuccess: isSuccess,
     };
   } catch (error: unknown) {
-    logger.error('📕', '[extractReadability]', 'Failed to extract article:', error);
+    logger.error('📕', '[Readability.tsx]', '[extractReadability]', 'Failed to extract article:', error);
     return {
       title: null,
       lang: null,

@@ -21,13 +21,13 @@ export class BackgroundThemeService {
           reasons: ['MATCH_MEDIA' as chrome.offscreen.Reason],
           justification: 'Detect system color scheme changes',
         });
-        logger.debug('🧑‍🍳🎨', '[initialize]', 'Offscreen document created successfully');
+        logger.debug('🧑‍🍳🎨', '[BackgroundThemeService.tsx]', '[initialize]', 'Offscreen document created successfully');
       } catch (createError) {
-        logger.error('🧑‍🍳🎨', '[initialize]', 'Failed to create offscreen document', createError);
+        logger.error('🧑‍🍳🎨', '[BackgroundThemeService.tsx]', '[initialize]', 'Failed to create offscreen document', createError);
         // Continue execution even if offscreen document creation fails
       }
     } catch (error) {
-      logger.error('🧑‍🍳🎨', '[initialize]', 'Error in theme service initialization', error);
+      logger.error('🧑‍🍳🎨', '[BackgroundThemeService.tsx]', '[initialize]', 'Error in theme service initialization', error);
       // Continue execution even if initialization fails
     }
   }
@@ -36,11 +36,11 @@ export class BackgroundThemeService {
     chrome.runtime.onMessage.addListener((message: Message, sender: chrome.runtime.MessageSender, sendResponse: (response: MessageResponse) => void) => {
       switch (message.action) {
         case MessageAction.PING:
-          logger.debug('🧑‍🍳🎨', '[setupMessageListener]', 'Received PING');
+          logger.debug('🧑‍🍳🎨', '[BackgroundThemeService.tsx]', '[setupMessageListener]', 'Received PING');
           sendResponse({ success: true });
           return true;
         case MessageAction.COLOR_SCHEME_CHANGED:
-          logger.debug('🧑‍🍳🎨', '[setupMessageListener]', 'Color scheme changed');
+          logger.debug('🧑‍🍳🎨', '[BackgroundThemeService.tsx]', '[setupMessageListener]', 'Color scheme changed');
           if (message.payload?.isDarkMode !== undefined) {
             useThemeStore.getState().setDarkMode(message.payload.isDarkMode);
           }

@@ -153,9 +153,9 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
                   <button
                     key={index}
                     onClick={async () => {
-                      logger.debug('🫳💬', '[FloatPanel]', `Clicked ${name} button`);
+                      logger.debug('🫳💬', '[FloatPanel.tsx]', `Clicked ${name} button`);
                       if (tabId === null || tabUrl === null) throw new Error('No active tab found');
-                      logger.debug('🫳💬', '[FloatPanel]', 'Sending message to background script', tabId, tabUrl);
+                      logger.debug('🫳💬', '[FloatPanel.tsx]', 'Sending message to background script', tabId, tabUrl);
                       try {
                         await chrome.runtime.sendMessage({
                           action: MessageAction.SUMMARIZE_CONTENT_START,
@@ -165,9 +165,9 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
                             url: tabUrl,
                           },
                         });
-                        logger.debug('🫳💬', '[FloatPanel]', 'Message sent successfully');
+                        logger.debug('🫳💬', '[FloatPanel.tsx]', 'Message sent successfully');
                       } catch (error) {
-                        logger.error('🫳💬', '[FloatPanel]', 'Failed to send message:', error);
+                        logger.error('🫳💬', '[FloatPanel.tsx]', 'Failed to send message:', error);
                       }
                       setIsHovered(false);
                       close();

@@ -115,25 +115,25 @@ export const GlobalContextProvider: React.FC<GlobalContextProviderProps> = ({ ch
   useEffect(() => {
     /** Initialize extensions */
     const initialize = async () => {
-      logger.debug('🗣️🌏', '[GlobalContextProvider]', '[useEffect]', 'Initializing GlobalContextProvider');
+      logger.debug('🗣️🌏', '[GlobalContextProvider.tsx]', '[useEffect]', 'Initializing GlobalContextProvider');
       try {
         /* Initialize stores in sequence */
         isInitialized.current = true;
       } catch (error) {
-        logger.error('🗣️🌏', '[GlobalContextProvider]', '[useEffect]', 'Failed to initialize extensions', error);
+        logger.error('🗣️🌏', '[GlobalContextProvider.tsx]', '[useEffect]', 'Failed to initialize extensions', error);
       }
     };
     if (!isInitialized.current) initialize();
 
     /** Subscribe listeners */
     if (!isSubscribed.current) {
-      logger.debug('🗣️🌏', '[GlobalContextProvider]', '[useEffect]', 'Subscribing listeners');
+      logger.debug('🗣️🌏', '[GlobalContextProvider.tsx]', '[useEffect]', 'Subscribing listeners');
       isSubscribed.current = true;
     }
 
     /** Unsubscribe listeners */
     return () => {
-      logger.debug('🗣️🌏', '[GlobalContextProvider]', '[useEffect]', 'Deinitializing GlobalContextProvider');
+      logger.debug('🗣️🌏', '[GlobalContextProvider.tsx]', '[useEffect]', 'Deinitializing GlobalContextProvider');
       isSubscribed.current = false;
     };
   }, []);
