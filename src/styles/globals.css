@@ -8,7 +8,7 @@
 :root {
   --foreground-color: oklch(27.4% 0.006 286.033);
   --background-color: #fff;
-  --scrollbar-track-color: transparent;
+  --scrollbar-track-color: #fff;
   --scrollbar-thumb-color: oklch(55.2% 0.016 285.938);
   --scrollbar-thumb-hover-color: oklch(70.5% 0.015 286.067);
 }
@@ -16,8 +16,8 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --foreground-color: oklch(96.7% 0.001 286.375);
-    --background-color: #fff;
-    --scrollbar-track-color: transparent;
+    --background-color: #18181b;
+    --scrollbar-track-color: #18181b;
     --scrollbar-thumb-color: oklch(55.2% 0.016 285.938);
     --scrollbar-thumb-hover-color: oklch(70.5% 0.015 286.067);
   }
