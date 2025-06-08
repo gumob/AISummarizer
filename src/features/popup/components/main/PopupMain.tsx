@@ -71,7 +71,7 @@ export const PopupMain: React.FC = () => {
             /** Send the message to the content script */
             await chrome.tabs.sendMessage(tab.id, {
               action: MessageAction.EXTRACT_CONTENT_START,
-              url: tab.url!,
+              payload: { tabId: tab.id, url: tab.url },
             });
 
             /** Close the popup */

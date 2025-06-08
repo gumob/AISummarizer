@@ -3,7 +3,7 @@ import { db } from '@/db';
 import { BackgroundThemeService, CleanupDBService, ContextMenuService } from '@/features/background/services';
 import { useArticleStore, useSettingsStore } from '@/stores';
 import { DEFAULT_SETTINGS } from '@/stores/SettingsStore';
-import { AIService, ContentExtractionTiming, formatArticleForClipboard, getSummarizeUrl, MessageAction, TabBehavior } from '@/types';
+import { AIService, ContentExtractionTiming, formatArticleForClipboard, getSummarizeUrl, Message, MessageAction, TabBehavior } from '@/types';
 import { logger } from '@/utils';
 
 class Background {
@@ -12,7 +12,7 @@ class Background {
   cleanupService = new CleanupDBService();
 
   constructor() {
-    logger.debug('📄🀫', '[Background.ts]', '[constructor]', 'Background initialized');
+    logger.debug('📄🤐', '[Background.ts]', '[constructor]', 'Background initialized');
     this.themeService.initialize();
     this.cleanupService.startCleanup();
 
@@ -39,7 +39,7 @@ class Background {
    */
   async handleTabUpdated(tabId: number, changeInfo: chrome.tabs.TabChangeInfo, tab: chrome.tabs.Tab) {
     if (changeInfo.status !== 'complete' || !tab.url) return;
-    logger.debug('📄🀫', '[Background.ts]', '[handleTabUpdated]', 'Tab updated', tab.url, tab.status);
+    logger.debug('📄🤐', '[Background.ts]', '[handleTabUpdated]', 'Tab updated', tab.url, tab.status);
     await this.updateStateAndLoadArticle(tabId, tab.url);
   }
 
@@ -49,11 +49,11 @@ class Background {
    * @param sender - The sender of the message
    * @param sendResponse - The response to the message
    */
-  async handleChromeMessage(message: any, sender: chrome.runtime.MessageSender, sendResponse: (response: any) => void) {
-    logger.debug('📄🀫', '[Background.ts]', '[handleChromeMessage]', 'message', message.action);
+  async handleChromeMessage(message: Message, sender: chrome.runtime.MessageSender, sendResponse: (response: any) => void) {
+    logger.debug('📄🤐', '[Background.ts]', '[handleChromeMessage]', 'message', message.action);
     switch (message.action) {
       case MessageAction.EXTRACT_CONTENT_COMPLETE:
-        this.updateArticle(sender.tab?.id, sender.tab?.url, message.result);
+        this.updateArticle(sender.tab?.id, sender.tab?.url, message.payload.result);
         break;
 
       case MessageAction.SUMMARIZE_CONTENT_START:
@@ -69,6 +69,7 @@ class Background {
   }
 
   async onContextMenuClicked(service: AIService, tabId: number, url: string) {
+    logger.debug('📄🤐', '[Background.ts]', '[onContextMenuClicked]', service, tabId, url);
     await this.executeSummarization(service, tabId, url);
   }
 
@@ -109,13 +110,13 @@ class Background {
       /** Send the message to the content script */
       await chrome.tabs.sendMessage(tabId, {
         action: MessageAction.EXTRACT_CONTENT_START,
-        url: url,
+        payload: { tabId: tabId, url: url },
       });
     }
   }
 
   async executeSummarization(service: AIService, tabId: number, url: string) {
-    logger.debug('📄🀫', '[Background.ts]', '[executeSummarization]', service, tabId, url);
+    logger.debug('📄🤐', '[Background.ts]', '[executeSummarization]', service, tabId, url);
     const article = await db.getArticleByUrl(url);
     if (article?.is_success) {
       const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
@@ -141,7 +142,7 @@ class Background {
           break;
       }
     } else {
-      logger.warn('📄🀫', '[Background.ts]', '[onContextMenuClicked]', 'Article not found', url);
+      logger.warn('📄🤐', '[Background.ts]', '[onContextMenuClicked]', 'Article not found', url);
     }
   }
 
@@ -154,7 +155,7 @@ class Background {
   async updateStateAndLoadArticle(tabId: number, url: string) {
     /** TODO: ここが繰り返し呼ばれてしまうのでsetTimeoutで遅延を設ける */
     try {
-      logger.debug('📄🀫', '[Background.ts]', '[updateStateAndLoadArticle]', 'tabId:', tabId, 'url:', url);
+      logger.debug('📄🤐', '[Background.ts]', '[updateStateAndLoadArticle]', 'tabId:', tabId, 'url:', url);
 
       /** Get the article from the database */
       const article = await useArticleStore.getState().getArticleByUrl(url);
@@ -175,21 +176,21 @@ class Background {
         payload: { tabId: tabId, url: url, article: article },
       });
     } catch (error: any) {
-      logger.error('📄🀫', '[Background.ts]', 'Failed to update article extraction state', error);
+      logger.error('📄🤐', '[Background.ts]', 'Failed to update article extraction state', error);
     }
   }
 
   async updateArticle(tabId?: number, tabUrl?: string, result?: any) {
     // Only process messages from content scripts
     if (!tabId) {
-      logger.warn('📄🀫', '[Background.ts]', '[updateArticle]', 'Ignoring EXTRACT_CONTENT_COMPLETE from non-content script');
+      logger.warn('📄🤐', '[Background.ts]', '[updateArticle]', 'Ignoring EXTRACT_CONTENT_COMPLETE from non-content script');
       return;
     }
     if (tabUrl !== result.url) {
-      logger.warn('📄🀫', '[Background.ts]', '[updateArticle]', 'Ignoring EXTRACT_CONTENT_COMPLETE for different url', tabUrl, result.url);
+      logger.warn('📄🤐', '[Background.ts]', '[updateArticle]', 'Ignoring EXTRACT_CONTENT_COMPLETE for different url', tabUrl, result.url);
       return;
     }
-    logger.debug('📄🀫', '[Background.ts]', '[updateArticle]', 'Extracting article complete', result);
+    logger.debug('📄🤐', '[Background.ts]', '[updateArticle]', 'Extracting article complete', result);
     if (result.isSuccess) {
       /** Save the article to the database */
       db.addArticle({
@@ -204,7 +205,7 @@ class Background {
       if (saveArticleOnClipboard) {
         const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
         if (tab.id) {
-          chrome.tabs.sendMessage(tab.id, {
+          await chrome.tabs.sendMessage(tab.id, {
             action: MessageAction.COPY_ARTICLE_TO_CLIPBOARD,
             payload: { text: formatArticleForClipboard(result) },
           });

@@ -3,8 +3,8 @@ import { ArticleExtractionResult } from '@/types';
 import { isBrowserSpecificUrl, isExtractionDenylistUrl, logger } from '@/utils';
 
 export class ArticleService {
-  async execute(url: string, message: any = {}): Promise<ArticleExtractionResult> {
-    logger.debug('🧑‍🍳📖', '[ArticleService.tsx]', '[execute]', 'extracting', '\nurl:', url, '\nmessage:', message);
+  async execute(url: string): Promise<ArticleExtractionResult> {
+    logger.debug('🧑‍🍳📖', '[ArticleService.tsx]', '[execute]', 'extracting', '\nurl:', url);
 
     /**
      * Skip processing for browser-specific URLs

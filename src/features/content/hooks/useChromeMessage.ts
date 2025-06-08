@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { ArticleService } from '@/features/content/services';
 import { useSettingsStore } from '@/stores';
-import { ArticleExtractionResult, MessageAction } from '@/types';
+import { ArticleExtractionResult, Message, MessageAction } from '@/types';
 import { logger } from '@/utils';
 
 /**
@@ -37,8 +37,17 @@ export const useChromeMessage = () => {
       return;
     }
 
-    const handleMessage = async (message: any, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void) => {
+    const handleMessage = async (message: Message, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void) => {
       logger.debug('🫳💬', '[useChromeMessage.tsx]', '[handleMessage]:', message);
+      if (message.payload.tabId === null || message.payload.tabId === undefined) {
+        logger.warn('🫳💬', '[useChromeMessage.tsx]', '[handleMessage]', 'Ignoring message: tabId is', message.payload.tabId);
+        return false;
+      }
+
+      if (message.payload.url === null || message.payload.url === undefined) {
+        logger.warn('🫳💬', '[useChromeMessage.tsx]', '[handleMessage]', 'Ignoring message: url is', message.payload.url);
+        return false;
+      }
 
       try {
         switch (message.action) {
@@ -59,11 +68,11 @@ export const useChromeMessage = () => {
 
           case MessageAction.EXTRACT_CONTENT_START:
             try {
-              const result: ArticleExtractionResult = await extractionService.current.execute(message.url, message);
+              const result: ArticleExtractionResult = await extractionService.current.execute(message.payload.url);
               sendResponse(result);
               chrome.runtime.sendMessage({
                 action: MessageAction.EXTRACT_CONTENT_COMPLETE,
-                result: result,
+                payload: { result: result },
               });
               setTabId(message.payload.tabId);
               setTabUrl(message.payload.url);

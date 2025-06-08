@@ -150,7 +150,7 @@ export class ContextMenuService {
             /** Send the message to the content script */
             await chrome.tabs.sendMessage(tab.id, {
               action: MessageAction.EXTRACT_CONTENT_START,
-              url: tab.url!,
+              payload: { tabId: tab.id, url: tab.url },
             });
           } catch (error: any) {
             logger.error('🧑‍🍳📃', '[ContextMenuService.tsx]', '[setupClickHandler]', 'Failed to send message to content script:', error);

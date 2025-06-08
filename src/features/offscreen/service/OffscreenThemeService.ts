@@ -73,7 +73,7 @@ export class OffscreenThemeService {
     logger.debug('🧑‍🍳🎨', '[OffscreenThemeService.ts]', '[sendThemeStatus]', 'isDarkMode', isDarkMode);
 
     try {
-      chrome.runtime.sendMessage({ action: MessageAction.COLOR_SCHEME_CHANGED, isDarkMode }, () => {
+      chrome.runtime.sendMessage({ action: MessageAction.COLOR_SCHEME_CHANGED, payload: { isDarkMode } }, () => {
         if (chrome.runtime.lastError) {
           logger.error('🧑‍🍳🎨', '[OffscreenThemeService.ts]', '[sendThemeStatus]', 'Failed to send theme status:', chrome.runtime.lastError);
           /** If there is a connection error, wait a moment and try again */

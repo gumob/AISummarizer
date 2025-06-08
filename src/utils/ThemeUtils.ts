@@ -35,8 +35,8 @@ export const detectTheme = async () => {
   /** Send the message to the offscreen document */
   try {
     chrome.runtime.sendMessage({
-      type: MessageAction.COLOR_SCHEME_CHANGED,
-      isDarkMode: isDarkMode,
+      action: MessageAction.COLOR_SCHEME_CHANGED,
+      payload: { isDarkMode },
     });
   } catch (error) {
     logger.error('🎨', '[ThemeUtils.ts]', '[detectTheme]', 'Failed to send theme detection message', error);
