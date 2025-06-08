@@ -7,7 +7,7 @@ import { IoClose } from 'react-icons/io5';
 import { Field, Switch, Tab, TabGroup, TabList, TabPanel, TabPanels, Textarea } from '@headlessui/react';
 
 import { OptionCard } from '@/features/options/components/main';
-import { useArticleStore, useGlobalContext } from '@/stores';
+import { useGlobalContext } from '@/stores';
 import {
   AIService,
   ContentExtractionTiming,
@@ -45,9 +45,9 @@ export const OptionsMain: React.FC = () => {
     setIsShowBadge,
     saveArticleOnClipboard,
     setSaveArticleOnClipboard,
+    resetSettings,
+    resetDatabase,
   } = useGlobalContext();
-
-  const { cleanup: cleanupDatabase } = useArticleStore();
 
   const [selectedPromptIndex, setSelectedPromptIndex] = useState(0);
   const [selectedTabBehaviorIndex, setSelectedTabBehaviorIndex] = useState(-1);
@@ -357,15 +357,34 @@ export const OptionsMain: React.FC = () => {
               'transition-opacity'
             )}
             onClick={async () => {
-              try {
-                await cleanupDatabase();
+              const result = await resetDatabase();
+              if (result.success) {
                 logger.debug('📦⌥', '[OptionsMain.tsx]', '[render]', 'Database cleanup completed');
-              } catch (error) {
-                logger.error('📦⌥', '[OptionsMain.tsx]', '[render]', 'Failed to cleanup database:', error);
+              } else {
+                logger.error('📦⌥', '[OptionsMain.tsx]', '[render]', 'Failed to cleanup database:', result.error);
               }
             }}
           >
             Delete Cache on Database
+          </button>
+          <button
+            className={clsx(
+              'rounded-full px-6 py-4 text-lg font-semibold',
+              'text-zinc-900 dark:text-zinc-50',
+              'bg-zinc-300 dark:bg-zinc-700',
+              'focus:outline-none',
+              'transition-opacity'
+            )}
+            onClick={async () => {
+              const result = await resetSettings();
+              if (result.success) {
+                logger.debug('📦⌥', '[OptionsMain.tsx]', '[render]', 'Reset to default settings completed');
+              } else {
+                logger.error('📦⌥', '[OptionsMain.tsx]', '[render]', 'Failed to reset to default settings:', result.error);
+              }
+            }}
+          >
+            Reset to Default Settings
           </button>
         </OptionCard>
       </div>

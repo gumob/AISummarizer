@@ -1,3 +1,4 @@
+import { db } from '@/db/Database';
 import { useArticleStore } from '@/stores/ArticleStore';
 import { logger } from '@/utils';
 
@@ -34,7 +35,7 @@ export class CleanupDBService {
     const lastCleanup = await useArticleStore.getState().getLastCleanupDate();
     if (!lastCleanup || Date.now() - lastCleanup.getTime() > CLEANUP_INTERVAL * 60 * 1000) {
       logger.debug('🧑‍🍳💾', '[CleanupDBService.tsx]', '[checkAndCleanup]', 'Starting cleanup');
-      await useArticleStore.getState().cleanup();
+      await db.cleanupOldArticles();
       logger.debug('🧑‍🍳💾', '[CleanupDBService.tsx]', '[checkAndCleanup]', 'Cleanup completed');
     }
   }

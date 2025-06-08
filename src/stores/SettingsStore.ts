@@ -69,6 +69,7 @@ interface SettingsStore extends SettingsState {
   getExtractionDenylist: () => Promise<string[]>;
   getSaveArticleOnClipboard: () => Promise<boolean>;
   getFloatButtonPosition: () => Promise<FloatPanelPosition>;
+  resetSettings: () => Promise<{ success: boolean; error?: Error }>;
 }
 
 export const useSettingsStore = create<SettingsStore>()(
@@ -135,6 +136,16 @@ export const useSettingsStore = create<SettingsStore>()(
       getFloatButtonPosition: async () => {
         const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
         return settings[STORAGE_KEYS.SETTINGS]?.state?.floatButtonPosition ?? DEFAULT_SETTINGS.floatButtonPosition;
+      },
+      resetSettings: async (): Promise<{ success: boolean; error?: Error }> => {
+        try {
+          set(() => DEFAULT_SETTINGS);
+          await sendSettingsUpdate();
+          return { success: true };
+        } catch (error) {
+          logger.error('🏪⚙️', '[SettingsStore.ts]', '[resetSettings]', 'Failed to reset settings:', error);
+          return { success: false, error: error as Error };
+        }
       },
     }),
     {

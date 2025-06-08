@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
+import { db } from '@/db';
 import { ArticleModel } from '@/models';
 import { useSettingsStore } from '@/stores';
 import { AIService, ContentExtractionTiming, FloatPanelPosition, TabBehavior } from '@/types';
@@ -12,7 +13,6 @@ import { logger } from '@/utils';
  * @property setIsArticleExtracted - The set is article extracted function.
  * @property article - The article data.
  * @property setArticle - The set article data function.
- * @property isLoading - The is loading.
  * @property prompts - The prompts data.
  * @property prompt - The get prompt function.
  * @property tabBehavior - The tab behavior.
@@ -30,13 +30,14 @@ import { logger } from '@/utils';
  * @property setIsShowBadge - The set is show badge function.
  * @property saveArticleOnClipboard - The save article on clipboard.
  * @property setSaveArticleOnClipboard - The set save article on clipboard function.
+ * @property resetSettings - The reset settings function.
+ * @property resetDatabase - The reset database function.
  */
 interface GlobalContextValue {
   isArticleExtracted: boolean;
   setIsArticleExtracted: (isArticleExtracted: boolean) => void;
   article: ArticleModel | null;
   setArticle: (article: ArticleModel | null) => void;
-  isLoading: boolean;
   prompts: {
     [key in AIService]: string;
   };
@@ -56,6 +57,8 @@ interface GlobalContextValue {
   setIsShowBadge: (isShowBadge: boolean) => Promise<void>;
   saveArticleOnClipboard: boolean;
   setSaveArticleOnClipboard: (saveArticleOnClipboard: boolean) => Promise<void>;
+  resetSettings: () => Promise<{ success: boolean; error?: Error }>;
+  resetDatabase: () => Promise<{ success: boolean; error?: Error }>;
 }
 
 /**
@@ -86,11 +89,7 @@ export const GlobalContextProvider: React.FC<GlobalContextProviderProps> = ({ ch
 
   const [isArticleExtracted, setIsArticleExtracted] = useState(false);
   const [article, setArticle] = useState<ArticleModel | null>(null);
-
-  /**
-   * The is loading.
-   */
-  const [isLoading, setIsLoading] = useState(false);
+  const settings = useSettingsStore();
 
   /**
    * Refs for managing component lifecycle and preventing stale closures
@@ -102,7 +101,9 @@ export const GlobalContextProvider: React.FC<GlobalContextProviderProps> = ({ ch
    * Core Function
    *******************************************************/
 
-  const settings = useSettingsStore();
+  const resetDatabase = async (): Promise<{ success: boolean; error?: Error }> => {
+    return await db.clearArticles();
+  };
 
   /*******************************************************
    * Lifecycle
@@ -148,10 +149,10 @@ export const GlobalContextProvider: React.FC<GlobalContextProviderProps> = ({ ch
       setIsArticleExtracted,
       article,
       setArticle,
-      isLoading,
+      resetDatabase,
       ...settings,
     }),
-    [isArticleExtracted, setIsArticleExtracted, article, setArticle, isLoading, settings]
+    [isArticleExtracted, setIsArticleExtracted, article, setArticle, settings]
   );
 
   return <GlobalContext.Provider value={value}>{children}</GlobalContext.Provider>;

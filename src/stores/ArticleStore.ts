@@ -9,7 +9,6 @@ interface ArticleStore {
   isArticleExtractedForUrl: (url: string) => Promise<boolean>;
   addArticle: (article: Omit<ArticleRecord, 'id'>) => Promise<string>;
   getArticleByUrl: (url: string) => Promise<ArticleRecord | undefined>;
-  cleanup: () => Promise<void>;
   getLastCleanupDate: () => Promise<Date | null>;
 }
 
@@ -40,16 +39,6 @@ export const useArticleStore = create<ArticleStore>((set, get) => ({
       return await db.getArticleByUrl(url);
     } catch (error) {
       logger.error('🏪🖼️', '[useArticleStore.ts]', '[getArticleByUrl]', 'Failed to get article:', error);
-      throw error;
-    }
-  },
-  cleanup: async () => {
-    try {
-      // logger.debug('🏪🖼️', '[useArticleStore.ts]', '[cleanup]', 'Cleaning up database');
-      await db.cleanup();
-      // logger.debug('🏪🖼️', '[useArticleStore.ts]', '[cleanup]', 'Database cleaned up');
-    } catch (error) {
-      logger.error('🏪🖼️', '[useArticleStore.ts]', '[cleanup]', 'Failed to cleanup:', error);
       throw error;
     }
   },

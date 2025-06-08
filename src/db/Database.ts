@@ -171,41 +171,63 @@ export class Database {
   }
 
   /**
+   * Clear only article records from the database
+   */
+  async clearArticles(): Promise<{ success: boolean; error?: Error }> {
+    try {
+      if (!this.db) await this.init();
+      logger.debug('💾', '[Database.tsx]', '[clearArticles]', 'Clearing article records');
+      await this.db!.clear('articles');
+      logger.debug('💾', '[Database.tsx]', '[clearArticles]', 'Article records cleared successfully');
+      return { success: true };
+    } catch (error) {
+      logger.error('💾', '[Database.tsx]', '[clearArticles]', 'Failed to clear article records:', error);
+      return { success: false, error: error as Error };
+    }
+  }
+
+  /**
    * Clean up the database
    */
-  async cleanup() {
-    if (!this.db) await this.init();
-    logger.debug('💾', '[Database.tsx]', '[cleanup]', 'Cleaning up database');
-    const tx = this.db!.transaction('articles', 'readwrite');
-    const store = tx.store;
-    const index = store.index('by-date');
+  async cleanupOldArticles(): Promise<{ success: boolean; error?: Error }> {
+    try {
+      if (!this.db) await this.init();
+      logger.debug('💾', '[Database.tsx]', '[cleanupOldArticles]', 'Cleaning up database');
+      const tx = this.db!.transaction('articles', 'readwrite');
+      const store = tx.store;
+      const index = store.index('by-date');
 
-    /** Delete records older than 24 hours. */
-    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    let cursor = await index.openCursor();
-    while (cursor) {
-      if (cursor.value.date < oneDayAgo) {
-        await cursor.delete();
-      }
-      cursor = await cursor.continue();
-    }
-
-    /** Delete records if the number of records exceeds 200. */
-    const count = await store.count();
-    if (count > MAX_RECORDS) {
-      const deleteCount = count - MAX_RECORDS;
-      cursor = await index.openCursor();
-      let deleted = 0;
-      while (cursor && deleted < deleteCount) {
-        await cursor.delete();
-        deleted++;
+      /** Delete records older than 24 hours. */
+      const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      let cursor = await index.openCursor();
+      while (cursor) {
+        if (cursor.value.date < oneDayAgo) {
+          await cursor.delete();
+        }
         cursor = await cursor.continue();
       }
-    }
 
-    /** Update the last cleanup date. */
-    const metadataTx = this.db!.transaction('metadata', 'readwrite');
-    await metadataTx.store.put({ key: 'lastCleanup', lastCleanup: new Date() });
+      /** Delete records if the number of records exceeds 200. */
+      const count = await store.count();
+      if (count > MAX_RECORDS) {
+        const deleteCount = count - MAX_RECORDS;
+        cursor = await index.openCursor();
+        let deleted = 0;
+        while (cursor && deleted < deleteCount) {
+          await cursor.delete();
+          deleted++;
+          cursor = await cursor.continue();
+        }
+      }
+
+      /** Update the last cleanup date. */
+      const metadataTx = this.db!.transaction('metadata', 'readwrite');
+      await metadataTx.store.put({ key: 'lastCleanup', lastCleanup: new Date() });
+      return { success: true };
+    } catch (error) {
+      logger.error('💾', '[Database.tsx]', '[cleanupOldArticles]', 'Failed to cleanup old articles:', error);
+      return { success: false, error: error as Error };
+    }
   }
 
   /**
