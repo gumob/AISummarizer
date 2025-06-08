@@ -349,26 +349,48 @@ export const OptionsMain: React.FC = () => {
             )}
           </Switch>
         </OptionCard>
-        <OptionCard title="Data Management" className="flex flex-col xs:flex-row sm:flex-row md:flex-row gap-2">
+        <OptionCard title="Manage Settings" className="flex flex-col gap-2">
           <button
-            className={`
-              rounded-full px-6 py-4 text-lg
-              font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors
-              focus:outline-none whitespace-nowrap
-            `}
-            onClick={() => setIsDeleteCacheDialogOpen(true)}
+            className={clsx(
+              'rounded-full max-w-60 px-6 py-4 text-lg',
+              'font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors',
+              'focus:outline-none whitespace-nowrap'
+            )}
+            onClick={() => setIsResetSettingsDialogOpen(true)}
           >
-            Clear Article Cache
+            Export Settings
           </button>
           <button
             className={clsx(
-              'rounded-full px-6 py-4 text-lg',
+              'rounded-full max-w-60 px-6 py-4 text-lg',
+              'font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors',
+              'focus:outline-none whitespace-nowrap'
+            )}
+            onClick={() => setIsResetSettingsDialogOpen(true)}
+          >
+            Import Settings
+          </button>
+          <button
+            className={clsx(
+              'rounded-full max-w-60 px-6 py-4 text-lg',
               'font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors',
               'focus:outline-none whitespace-nowrap'
             )}
             onClick={() => setIsResetSettingsDialogOpen(true)}
           >
             Restore Default Settings
+          </button>
+        </OptionCard>
+        <OptionCard title="Manage Cache" className="flex flex-col gap-2">
+          <button
+            className={`
+              rounded-full max-w-60 px-6 py-4 text-lg
+              font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors
+              focus:outline-none whitespace-nowrap
+            `}
+            onClick={() => setIsDeleteCacheDialogOpen(true)}
+          >
+            Clear Article Cache
           </button>
         </OptionCard>
       </div>
