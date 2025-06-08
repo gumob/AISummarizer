@@ -11,7 +11,6 @@ export class ContextMenuService {
 
   async createMenu() {
     try {
-      logger.debug('🧑‍🍳📃', '[ContextMenuService.tsx]', '[createMenu]', 'Creating context menu');
       await chrome.contextMenus.removeAll();
 
       this.removeMenu();
@@ -21,11 +20,6 @@ export class ContextMenuService {
       } else {
         this.createBasicMenu();
       }
-      // if (await useArticleStore.getState().isArticleExtractedForUrl(tab.url)) {
-      // this.createBasicMenu();
-      // } else {
-      //   this.createFullMenu();
-      // }
     } catch (error) {
       logger.error('🧑‍🍳📃', '[ContextMenuService.tsx]', '[createMenu]', 'Failed to create context menu:', error);
     }
