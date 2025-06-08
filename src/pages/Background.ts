@@ -18,12 +18,6 @@ const initialize = async () => {
   logger.debug('📄🀫', '[initialize]', 'Initializing extension');
   themeService.initialize();
   cleanupService.startCleanup();
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  if (tab.id && tab.url) {
-    reload(tab.id, tab.url);
-  } else {
-    logger.warn('Tab id or url is undefined');
-  }
 };
 
 /**
@@ -37,7 +31,7 @@ let reloadTimer: NodeJS.Timeout | null = null;
  * @param url - The URL of the tab
  */
 const reload = async (tabId: number, url: string) => {
-  logger.debug('📄🀫', '[_reload]', 'tabId:', tabId, 'url:', url);
+  logger.debug('📄🀫', '[reload]', 'tabId:', tabId, 'url:', url);
   if (reloadTimer) {
     clearTimeout(reloadTimer);
   }
@@ -82,33 +76,22 @@ const _reload = async (tabId: number, url: string) => {
       /** Set the badge text */
       chrome.action.setBadgeText({ text: '', tabId });
 
-      /** Get the content extraction timing */
-      const contentExtractionTiming = await useSettingsStore.getState().getContentExtractionTiming();
-      logger.debug('📄🀫', '[_reload]', 'Content extraction timing', contentExtractionTiming);
-
       /** Handle the content extraction timing */
-      switch (contentExtractionTiming) {
-        case ContentExtractionTiming.AUTOMATIC:
-          logger.debug('📄🀫', '[_reload]', 'Injecting content script', tabId, url);
+      const contentExtractionTiming = await useSettingsStore.getState().getContentExtractionTiming();
+      if (contentExtractionTiming === ContentExtractionTiming.AUTOMATIC) {
+        /** Inject the content script */
+        logger.debug('📄🀫', '[_reload]', 'Injecting content script', tabId, url);
+        await chrome.scripting.executeScript({
+          target: { tabId: tabId },
+          files: ['content.js'],
+        });
 
-          /** Inject the content script */
-          await chrome.scripting.executeScript({
-            target: { tabId: tabId },
-            files: ['content.js'],
-          });
-
-          /** Send the message to the content script */
-          await chrome.tabs.sendMessage(tabId, {
-            action: MessageAction.EXTRACT_CONTENT_START,
-            url: url,
-          });
-          break;
-
-        case ContentExtractionTiming.MANUAL:
-          break;
-
-        default:
-          break;
+        /** Send the message to the content script */
+        logger.debug('📄🀫', '[_reload]', 'sending message to content script', tabId, url);
+        await chrome.tabs.sendMessage(tabId, {
+          action: MessageAction.EXTRACT_CONTENT_START,
+          url: url,
+        });
       }
     }
     contextMenuService.createMenu();

@@ -57,21 +57,21 @@ export const ContentContextProvider: React.FC<ContentContextProviderProps> = ({ 
    *******************************************************/
 
   useEffect(() => {
-    const checkVisibility = async () => {
+    const toggleFloatPanelVisibility = async () => {
       const isArticleExtracted = article != null && article.isSuccess;
       const state = isArticleExtracted && settings.floatButtonPosition !== FloatPanelPosition.HIDE;
-      logger.debug('🗣️🎁', '[ContentContext]', 'checkVisibility', 'state', state);
+      logger.debug('🗣️🎁', '[ContentContext.tsx]', '[toggleFloatPanelVisibility]', 'state', state);
       setIsFloatPanelVisible(state);
     };
-    checkVisibility();
+    const toggleShowMessage = async () => {
+      if (article?.isSuccess && settings.isShowMessage) {
+        logger.debug('🗣️🎁', '[ContentContext.tsx]', '[toggleShowMessage]');
+        toast.success('Article extracted successfully');
+      }
+    };
+    toggleFloatPanelVisibility();
+    toggleShowMessage();
   }, [tabId, tabUrl, article, settings]);
-
-  useEffect(() => {
-    if (article?.isSuccess && settings.isShowMessage) {
-      logger.debug('🗣️🎁', '[ContentContext]', 'Article extracted successfully');
-      toast.success('Article extracted successfully');
-    }
-  }, [article]);
 
   /*******************************************************
    * Exported Value
