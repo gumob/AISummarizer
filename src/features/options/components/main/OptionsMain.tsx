@@ -281,7 +281,7 @@ export const OptionsMain: React.FC = () => {
                       'bg-zinc-300 dark:bg-zinc-700',
                       'opacity-30 dark:opacity-30',
                       'hover:opacity-100',
-                      inputPromptsIndex === index && '!opacity-100',
+                      inputPromptsIndex === index && '!bg-blue-600 !opacity-100',
                       'focus:outline-none',
                       'transition-opacity'
                     )}
@@ -340,7 +340,7 @@ export const OptionsMain: React.FC = () => {
                       'bg-zinc-300 dark:bg-zinc-700',
                       'opacity-30 dark:opacity-30',
                       'hover:opacity-100',
-                      inputTabBehavior === index && '!opacity-100',
+                      inputTabBehavior === index && '!bg-blue-600 !opacity-100',
                       'focus:outline-none',
                       'transition-opacity'
                     )}
@@ -366,7 +366,7 @@ export const OptionsMain: React.FC = () => {
                       'bg-zinc-300 dark:bg-zinc-700',
                       'opacity-30 dark:opacity-30',
                       'hover:opacity-100',
-                      inputFloatPanel === index && '!opacity-100',
+                      inputFloatPanel === index && '!bg-blue-600 !opacity-100',
                       'focus:outline-none',
                       'transition-opacity'
                     )}
@@ -392,7 +392,7 @@ export const OptionsMain: React.FC = () => {
                       'bg-zinc-300 dark:bg-zinc-700',
                       'opacity-30 dark:opacity-30',
                       'hover:opacity-100',
-                      inputContentExtractionTiming === index && '!opacity-100',
+                      inputContentExtractionTiming === index && '!bg-blue-600 !opacity-100',
                       'focus:outline-none',
                       'transition-opacity'
                     )}
