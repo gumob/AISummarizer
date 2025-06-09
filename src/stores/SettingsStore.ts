@@ -2,7 +2,13 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 import { STORAGE_KEYS } from '@/constants';
-import { AIService, ContentExtractionTiming, FloatPanelPosition, MessageAction, TabBehavior } from '@/types';
+import {
+  AIService,
+  ContentExtractionTiming,
+  FloatPanelPosition,
+  MessageAction,
+  TabBehavior,
+} from '@/types';
 import { logger } from '@/utils';
 
 export interface SettingsState {
@@ -55,20 +61,23 @@ export const DEFAULT_SETTINGS: SettingsState = {
 };
 
 interface SettingsStore extends SettingsState {
-  promptFor: (service: AIService) => Promise<string>;
+  updateSettings: (settings: Partial<SettingsState>) => Promise<void>;
   setPromptFor: (service: AIService, prompt: string) => Promise<void>;
+  getPromptFor: (service: AIService) => Promise<string>;
   setTabBehavior: (tabBehavior: TabBehavior) => Promise<void>;
-  setFloatPanelPosition: (floatPanelPosition: FloatPanelPosition) => Promise<void>;
-  setContentExtractionTiming: (contentExtractionTiming: ContentExtractionTiming) => Promise<void>;
-  setExtractionDenylist: (extractionDenylist: string[]) => Promise<void>;
-  setIsShowMessage: (isShowMessage: boolean) => Promise<void>;
-  setIsShowBadge: (isShowBadge: boolean) => Promise<void>;
-  setSaveArticleOnClipboard: (saveArticleOnClipboard: boolean) => Promise<void>;
   getTabBehavior: () => Promise<TabBehavior>;
-  getContentExtractionTiming: () => Promise<ContentExtractionTiming>;
-  getExtractionDenylist: () => Promise<string[]>;
-  getSaveArticleOnClipboard: () => Promise<boolean>;
+  setFloatPanelPosition: (floatPanelPosition: FloatPanelPosition) => Promise<void>;
   getFloatPanelPosition: () => Promise<FloatPanelPosition>;
+  setContentExtractionTiming: (contentExtractionTiming: ContentExtractionTiming) => Promise<void>;
+  getContentExtractionTiming: () => Promise<ContentExtractionTiming>;
+  setExtractionDenylist: (extractionDenylist: string[]) => Promise<void>;
+  getExtractionDenylist: () => Promise<string[]>;
+  setIsShowMessage: (isShowMessage: boolean) => Promise<void>;
+  getIsShowMessage: () => Promise<boolean>;
+  setIsShowBadge: (isShowBadge: boolean) => Promise<void>;
+  getIsShowBadge: () => Promise<boolean>;
+  setSaveArticleOnClipboard: (saveArticleOnClipboard: boolean) => Promise<void>;
+  getSaveArticleOnClipboard: () => Promise<boolean>;
   exportSettings: () => Promise<{ success: boolean; error?: Error }>;
   importSettings: (file: File) => Promise<{ success: boolean; error?: Error }>;
   restoreSettings: () => Promise<{ success: boolean; error?: Error }>;
@@ -78,66 +87,73 @@ export const useSettingsStore = create<SettingsStore>()(
   persist(
     (set, get) => ({
       ...DEFAULT_SETTINGS,
-      promptFor: async (service: AIService) => {
-        const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
-        return settings[STORAGE_KEYS.SETTINGS]?.state?.prompts?.[service] ?? DEFAULT_SETTINGS.prompts[service];
-      },
-      setPromptFor: async (service: AIService, prompt: string) => {
-        set(state => ({
-          prompts: {
-            ...state.prompts,
-            [service]: prompt,
-          },
+      updateSettings: async (settings: Partial<SettingsState>) => {
+        set((state: SettingsState) => ({
+          ...state,
+          ...settings,
         }));
         await sendSettingsUpdate();
       },
+      setPromptFor: async (service: AIService, prompt: string) => {
+        await get().updateSettings({
+          prompts: {
+            ...get().prompts,
+            [service]: prompt,
+          },
+        });
+      },
+      getPromptFor: async (service: AIService) => {
+        const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
+        return settings[STORAGE_KEYS.SETTINGS]?.state?.prompts?.[service] ?? DEFAULT_SETTINGS.prompts[service];
+      },
       setTabBehavior: async (tabBehavior: TabBehavior) => {
-        set(() => ({ tabBehavior }));
-        await sendSettingsUpdate();
-      },
-      setFloatPanelPosition: async (floatPanelPosition: FloatPanelPosition) => {
-        set(() => ({ floatPanelPosition }));
-        await sendSettingsUpdate();
-      },
-      setContentExtractionTiming: async (contentExtractionTiming: ContentExtractionTiming) => {
-        set(() => ({ contentExtractionTiming }));
-        await sendSettingsUpdate();
-      },
-      setExtractionDenylist: async (extractionDenylist: string[]) => {
-        set(() => ({ extractionDenylist }));
-        await sendSettingsUpdate();
-      },
-      setIsShowMessage: async (isShowMessage: boolean) => {
-        set(() => ({ isShowMessage }));
-        await sendSettingsUpdate();
-      },
-      setIsShowBadge: async (isShowBadge: boolean) => {
-        set(() => ({ isShowBadge }));
-        await sendSettingsUpdate();
-      },
-      setSaveArticleOnClipboard: async (saveArticleOnClipboard: boolean) => {
-        set(() => ({ saveArticleOnClipboard }));
-        await sendSettingsUpdate();
+        await get().updateSettings({ tabBehavior });
       },
       getTabBehavior: async () => {
         const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
         return settings[STORAGE_KEYS.SETTINGS]?.state?.tabBehavior ?? DEFAULT_SETTINGS.tabBehavior;
       },
+      setFloatPanelPosition: async (floatPanelPosition: FloatPanelPosition) => {
+        await get().updateSettings({ floatPanelPosition });
+      },
+      getFloatPanelPosition: async () => {
+        const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
+        return settings[STORAGE_KEYS.SETTINGS]?.state?.floatPanelPosition ?? DEFAULT_SETTINGS.floatPanelPosition;
+      },
+      setContentExtractionTiming: async (contentExtractionTiming: ContentExtractionTiming) => {
+        await get().updateSettings({ contentExtractionTiming });
+      },
       getContentExtractionTiming: async () => {
         const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
         return settings[STORAGE_KEYS.SETTINGS]?.state?.contentExtractionTiming ?? DEFAULT_SETTINGS.contentExtractionTiming;
+      },
+      setExtractionDenylist: async (extractionDenylist: string[]) => {
+        await get().updateSettings({ extractionDenylist });
       },
       getExtractionDenylist: async () => {
         const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
         return settings[STORAGE_KEYS.SETTINGS]?.state?.extractionDenylist ?? DEFAULT_SETTINGS.extractionDenylist;
       },
+      setSaveArticleOnClipboard: async (saveArticleOnClipboard: boolean) => {
+        await get().updateSettings({ saveArticleOnClipboard });
+      },
       getSaveArticleOnClipboard: async () => {
         const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
         return settings[STORAGE_KEYS.SETTINGS]?.state?.saveArticleOnClipboard ?? DEFAULT_SETTINGS.saveArticleOnClipboard;
       },
-      getFloatPanelPosition: async () => {
+      setIsShowMessage: async (isShowMessage: boolean) => {
+        await get().updateSettings({ isShowMessage });
+      },
+      getIsShowMessage: async () => {
         const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
-        return settings[STORAGE_KEYS.SETTINGS]?.state?.floatPanelPosition ?? DEFAULT_SETTINGS.floatPanelPosition;
+        return settings[STORAGE_KEYS.SETTINGS]?.state?.isShowMessage ?? DEFAULT_SETTINGS.isShowMessage;
+      },
+      setIsShowBadge: async (isShowBadge: boolean) => {
+        await get().updateSettings({ isShowBadge });
+      },
+      getIsShowBadge: async () => {
+        const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
+        return settings[STORAGE_KEYS.SETTINGS]?.state?.isShowBadge ?? DEFAULT_SETTINGS.isShowBadge;
       },
       exportSettings: async (): Promise<{ success: boolean; error?: Error }> => {
         try {
@@ -204,24 +220,17 @@ export const useSettingsStore = create<SettingsStore>()(
             throw new Error('Invalid backup file format');
           }
 
-          /** Check if the backup file is compatible with the current version */
-          // const manifestData = chrome.runtime.getManifest();
-          // const currentVersion = manifestData.version;
-
           /** Import settings */
-          for (const [service, prompt] of Object.entries(backupData.settings.prompt)) {
-            await get().setPromptFor(service as AIService, prompt as string);
-          }
-          await get().setTabBehavior(backupData.settings.tabBehavior as TabBehavior);
-          await get().setFloatPanelPosition(backupData.settings.floatPanelPosition as FloatPanelPosition);
-          await get().setContentExtractionTiming(backupData.settings.contentExtractionTiming as ContentExtractionTiming);
-          await get().setExtractionDenylist(backupData.settings.extractionDenylist);
-          await get().setSaveArticleOnClipboard(backupData.settings.saveArticleOnClipboard);
-          await get().setIsShowMessage(backupData.settings.isShowMessage);
-          await get().setIsShowBadge(backupData.settings.isShowBadge);
-
-          /** Send settings update to content script */
-          await sendSettingsUpdate();
+          await get().updateSettings({
+            prompts: backupData.settings.prompt,
+            tabBehavior: backupData.settings.tabBehavior as TabBehavior,
+            floatPanelPosition: backupData.settings.floatPanelPosition as FloatPanelPosition,
+            contentExtractionTiming: backupData.settings.contentExtractionTiming as ContentExtractionTiming,
+            extractionDenylist: backupData.settings.extractionDenylist,
+            saveArticleOnClipboard: backupData.settings.saveArticleOnClipboard,
+            isShowMessage: backupData.settings.isShowMessage,
+            isShowBadge: backupData.settings.isShowBadge,
+          });
 
           return { success: true };
         } catch (error) {
@@ -232,19 +241,16 @@ export const useSettingsStore = create<SettingsStore>()(
       restoreSettings: async (): Promise<{ success: boolean; error?: Error }> => {
         try {
           /** Restore settings */
-          for (const [service, prompt] of Object.entries(DEFAULT_SETTINGS.prompts)) {
-            await get().setPromptFor(service as AIService, prompt as string);
-          }
-          await get().setTabBehavior(DEFAULT_SETTINGS.tabBehavior);
-          await get().setFloatPanelPosition(DEFAULT_SETTINGS.floatPanelPosition);
-          await get().setContentExtractionTiming(DEFAULT_SETTINGS.contentExtractionTiming);
-          await get().setExtractionDenylist(DEFAULT_SETTINGS.extractionDenylist);
-          await get().setSaveArticleOnClipboard(DEFAULT_SETTINGS.saveArticleOnClipboard);
-          await get().setIsShowMessage(DEFAULT_SETTINGS.isShowMessage);
-          await get().setIsShowBadge(DEFAULT_SETTINGS.isShowBadge);
-
-          /** Send settings update to content script */
-          await sendSettingsUpdate();
+          await get().updateSettings({
+            prompts: DEFAULT_SETTINGS.prompts,
+            tabBehavior: DEFAULT_SETTINGS.tabBehavior,
+            floatPanelPosition: DEFAULT_SETTINGS.floatPanelPosition,
+            contentExtractionTiming: DEFAULT_SETTINGS.contentExtractionTiming,
+            extractionDenylist: DEFAULT_SETTINGS.extractionDenylist,
+            saveArticleOnClipboard: DEFAULT_SETTINGS.saveArticleOnClipboard,
+            isShowMessage: DEFAULT_SETTINGS.isShowMessage,
+            isShowBadge: DEFAULT_SETTINGS.isShowBadge,
+          });
 
           return { success: true };
         } catch (error) {
@@ -295,7 +301,7 @@ const sendSettingsUpdate = async () => {
       return;
     }
 
-    logger.debug('🏪⚙️', '[SettingsStore.ts]', '[sendSettingsUpdate]', 'Sending settings update message to content script');
+    // logger.debug('🏪⚙️', '[SettingsStore.ts]', '[sendSettingsUpdate]', 'Sending settings update message to content script');
     const settings = useSettingsStore.getState();
     await chrome.runtime.sendMessage({
       action: MessageAction.SETTINGS_UPDATED,
