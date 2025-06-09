@@ -1,13 +1,21 @@
+import React, {
+  Fragment,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
+
 import clsx from 'clsx';
-
-import React, { Fragment, useCallback, useEffect, useState } from 'react';
-
 import { IoClose } from 'react-icons/io5';
 
-import { Field, Switch, Tab, TabGroup, TabList, TabPanel, TabPanels, Textarea } from '@headlessui/react';
-
-import { toast, Toaster } from '@/features/content/components/main/Toaster';
-import { ConfirmDialog, OptionCard } from '@/features/options/components/main';
+import {
+  toast,
+  Toaster,
+} from '@/features/content/components/main/Toaster';
+import {
+  ConfirmDialog,
+  OptionCard,
+} from '@/features/options/components/main';
 import { useGlobalContext } from '@/stores';
 import {
   AIService,
@@ -25,6 +33,16 @@ import {
   TabBehavior,
 } from '@/types';
 import { logger } from '@/utils';
+import {
+  Field,
+  Switch,
+  Tab,
+  TabGroup,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Textarea,
+} from '@headlessui/react';
 
 /**
  * The main component for the options page.
@@ -184,13 +202,8 @@ export const OptionsMain: React.FC = () => {
    */
   const handleExport = useCallback(async () => {
     const result = await exportSettings();
-    if (result.success) {
-      logger.debug('📦⌥', '[OptionsMain.tsx]', '[handleExport]', 'Settings exported successfully');
-      toast.success('Settings exported successfully');
-    } else {
-      logger.error('📦⌥', '[OptionsMain.tsx]', '[handleExport]', 'Failed to export settings:', result.error);
-      toast.error(result.error?.message ?? 'Failed to export settings');
-    }
+    if (result.success) toast.success('Settings exported successfully');
+    else toast.error(result.error?.message ?? 'Failed to export settings');
   }, [exportSettings]);
 
   /**
@@ -200,7 +213,6 @@ export const OptionsMain: React.FC = () => {
     async (event: React.ChangeEvent<HTMLInputElement>) => {
       /** Get the file */
       const file = event.target.files?.[0];
-      logger.debug('📦⌥', '[OptionsMain.tsx]', '[handleImport]', 'File:', file);
       if (!file) return;
 
       /** Unset local settings */
@@ -208,13 +220,8 @@ export const OptionsMain: React.FC = () => {
 
       /** Import the settings */
       const result = await importSettings(file);
-      if (result.success) {
-        logger.debug('📦⌥', '[OptionsMain.tsx]', '[handleImport]', 'Settings imported successfully');
-        toast.success('Settings imported successfully');
-      } else {
-        toast.error(result.error?.message ?? 'Failed to import settings');
-        logger.error('📦⌥', '[OptionsMain.tsx]', '[handleImport]', 'Failed to import settings:', result.error);
-      }
+      if (result.success) toast.success('Settings imported successfully');
+      else toast.error(result.error?.message ?? 'Failed to import settings');
     },
     [importSettings, unsetLocalSettings]
   );
@@ -228,13 +235,8 @@ export const OptionsMain: React.FC = () => {
 
     /** Restore settings */
     const result = await restoreSettings();
-    if (result.success) {
-      logger.debug('📦⌥', '[OptionsMain.tsx]', '[handleResetSettings]', 'Settings restored successfully');
-      toast.success('Settings restored successfully');
-    } else {
-      logger.error('📦⌥', '[OptionsMain.tsx]', '[handleResetSettings]', 'Failed to restore settings:', result.error);
-      toast.error(result.error?.message ?? 'Failed to restore settings');
-    }
+    if (result.success) toast.success('Settings restored successfully');
+    else toast.error(result.error?.message ?? 'Failed to restore settings');
   }, [restoreSettings, unsetLocalSettings]);
 
   /**
@@ -246,13 +248,8 @@ export const OptionsMain: React.FC = () => {
 
     /** Reset database */
     const result = await resetDatabase();
-    if (result.success) {
-      logger.debug('📦⌥', '[OptionsMain.tsx]', '[handleDeleteCache]', 'Database cleanup completed');
-      toast.success('Database cleanup completed');
-    } else {
-      logger.error('📦⌥', '[OptionsMain.tsx]', '[handleDeleteCache]', 'Failed to cleanup database:', result.error);
-      toast.error(result.error?.message ?? 'Failed to cleanup database');
-    }
+    if (result.success) toast.success('Database cleanup completed');
+    else toast.error(result.error?.message ?? 'Failed to cleanup database');
   }, [resetDatabase, unsetLocalSettings]);
 
   /*******************************************************
