@@ -59,7 +59,7 @@ export const ContentContextProvider: React.FC<ContentContextProviderProps> = ({ 
   useEffect(() => {
     const toggleFloatPanelVisibility = async () => {
       const isArticleExtracted = article != null && article.isSuccess;
-      const state = isArticleExtracted && settings.floatButtonPosition !== FloatPanelPosition.HIDE;
+      const state = isArticleExtracted && settings.floatPanelPosition !== FloatPanelPosition.HIDE;
       logger.debug('🗣️🎁', '[ContentContext.tsx]', '[toggleFloatPanelVisibility]', 'state', state);
       setIsFloatPanelVisible(state);
     };

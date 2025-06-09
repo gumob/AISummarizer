@@ -11,6 +11,14 @@ export const getContentExtractionTimingLabel = (method: ContentExtractionTiming)
   return labels[method];
 };
 
+export const getContentExtractionTimingIndex = (method: ContentExtractionTiming): number => {
+  return Object.values(ContentExtractionTiming).findIndex(value => value === method);
+};
+
+export const getContentExtractionTimingFromIndex = (index: number): ContentExtractionTiming => {
+  return Object.values(ContentExtractionTiming)[index];
+};
+
 export const getContentExtractionTimingTypeFromString = (str: string): ContentExtractionTiming => {
   switch (str) {
     case 'AUTOMATIC':

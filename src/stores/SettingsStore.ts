@@ -2,13 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 import { STORAGE_KEYS } from '@/constants';
-import {
-  AIService,
-  ContentExtractionTiming,
-  FloatPanelPosition,
-  MessageAction,
-  TabBehavior,
-} from '@/types';
+import { AIService, ContentExtractionTiming, FloatPanelPosition, MessageAction, TabBehavior } from '@/types';
 import { logger } from '@/utils';
 
 export interface SettingsState {
@@ -16,7 +10,7 @@ export interface SettingsState {
     [key in AIService]: string;
   };
   tabBehavior: TabBehavior;
-  floatButtonPosition: FloatPanelPosition;
+  floatPanelPosition: FloatPanelPosition;
   contentExtractionTiming: ContentExtractionTiming;
   extractionDenylist: string[];
   saveArticleOnClipboard: boolean;
@@ -45,7 +39,7 @@ export const DEFAULT_SETTINGS: SettingsState = {
     [AIService.DEEPSEEK]: DEFAULT_PROMPT,
   },
   tabBehavior: TabBehavior.NEW_TAB,
-  floatButtonPosition: FloatPanelPosition.BOTTOM_RIGHT,
+  floatPanelPosition: FloatPanelPosition.BOTTOM_RIGHT,
   contentExtractionTiming: ContentExtractionTiming.AUTOMATIC,
   extractionDenylist: [
     /** AI services */
@@ -61,10 +55,10 @@ export const DEFAULT_SETTINGS: SettingsState = {
 };
 
 interface SettingsStore extends SettingsState {
-  prompt: (service: AIService) => Promise<string>;
-  setPrompt: (service: AIService, prompt: string) => Promise<void>;
+  promptFor: (service: AIService) => Promise<string>;
+  setPromptFor: (service: AIService, prompt: string) => Promise<void>;
   setTabBehavior: (tabBehavior: TabBehavior) => Promise<void>;
-  setFloatButtonPosition: (floatButtonPosition: FloatPanelPosition) => Promise<void>;
+  setFloatPanelPosition: (floatPanelPosition: FloatPanelPosition) => Promise<void>;
   setContentExtractionTiming: (contentExtractionTiming: ContentExtractionTiming) => Promise<void>;
   setExtractionDenylist: (extractionDenylist: string[]) => Promise<void>;
   setIsShowMessage: (isShowMessage: boolean) => Promise<void>;
@@ -74,7 +68,7 @@ interface SettingsStore extends SettingsState {
   getContentExtractionTiming: () => Promise<ContentExtractionTiming>;
   getExtractionDenylist: () => Promise<string[]>;
   getSaveArticleOnClipboard: () => Promise<boolean>;
-  getFloatButtonPosition: () => Promise<FloatPanelPosition>;
+  getFloatPanelPosition: () => Promise<FloatPanelPosition>;
   exportSettings: () => Promise<{ success: boolean; error?: Error }>;
   importSettings: (file: File) => Promise<{ success: boolean; error?: Error }>;
   restoreSettings: () => Promise<{ success: boolean; error?: Error }>;
@@ -84,11 +78,11 @@ export const useSettingsStore = create<SettingsStore>()(
   persist(
     (set, get) => ({
       ...DEFAULT_SETTINGS,
-      prompt: async (service: AIService) => {
+      promptFor: async (service: AIService) => {
         const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
         return settings[STORAGE_KEYS.SETTINGS]?.state?.prompts?.[service] ?? DEFAULT_SETTINGS.prompts[service];
       },
-      setPrompt: async (service: AIService, prompt: string) => {
+      setPromptFor: async (service: AIService, prompt: string) => {
         set(state => ({
           prompts: {
             ...state.prompts,
@@ -101,8 +95,8 @@ export const useSettingsStore = create<SettingsStore>()(
         set(() => ({ tabBehavior }));
         await sendSettingsUpdate();
       },
-      setFloatButtonPosition: async (floatButtonPosition: FloatPanelPosition) => {
-        set(() => ({ floatButtonPosition }));
+      setFloatPanelPosition: async (floatPanelPosition: FloatPanelPosition) => {
+        set(() => ({ floatPanelPosition }));
         await sendSettingsUpdate();
       },
       setContentExtractionTiming: async (contentExtractionTiming: ContentExtractionTiming) => {
@@ -141,9 +135,9 @@ export const useSettingsStore = create<SettingsStore>()(
         const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
         return settings[STORAGE_KEYS.SETTINGS]?.state?.saveArticleOnClipboard ?? DEFAULT_SETTINGS.saveArticleOnClipboard;
       },
-      getFloatButtonPosition: async () => {
+      getFloatPanelPosition: async () => {
         const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
-        return settings[STORAGE_KEYS.SETTINGS]?.state?.floatButtonPosition ?? DEFAULT_SETTINGS.floatButtonPosition;
+        return settings[STORAGE_KEYS.SETTINGS]?.state?.floatPanelPosition ?? DEFAULT_SETTINGS.floatPanelPosition;
       },
       exportSettings: async (): Promise<{ success: boolean; error?: Error }> => {
         try {
@@ -160,7 +154,7 @@ export const useSettingsStore = create<SettingsStore>()(
             settings: {
               prompt: settings.prompts || {},
               tabBehavior: settings.tabBehavior || '',
-              floatButtonPosition: settings.floatButtonPosition || '',
+              floatPanelPosition: settings.floatPanelPosition || '',
               contentExtractionTiming: settings.contentExtractionTiming || '',
               extractionDenylist: settings.extractionDenylist || [],
               saveArticleOnClipboard: settings.saveArticleOnClipboard || false,
@@ -216,10 +210,10 @@ export const useSettingsStore = create<SettingsStore>()(
 
           /** Import settings */
           for (const [service, prompt] of Object.entries(backupData.settings.prompt)) {
-            await get().setPrompt(service as AIService, prompt as string);
+            await get().setPromptFor(service as AIService, prompt as string);
           }
           await get().setTabBehavior(backupData.settings.tabBehavior as TabBehavior);
-          await get().setFloatButtonPosition(backupData.settings.floatButtonPosition as FloatPanelPosition);
+          await get().setFloatPanelPosition(backupData.settings.floatPanelPosition as FloatPanelPosition);
           await get().setContentExtractionTiming(backupData.settings.contentExtractionTiming as ContentExtractionTiming);
           await get().setExtractionDenylist(backupData.settings.extractionDenylist);
           await get().setSaveArticleOnClipboard(backupData.settings.saveArticleOnClipboard);
@@ -239,10 +233,10 @@ export const useSettingsStore = create<SettingsStore>()(
         try {
           /** Restore settings */
           for (const [service, prompt] of Object.entries(DEFAULT_SETTINGS.prompts)) {
-            await get().setPrompt(service as AIService, prompt as string);
+            await get().setPromptFor(service as AIService, prompt as string);
           }
           await get().setTabBehavior(DEFAULT_SETTINGS.tabBehavior);
-          await get().setFloatButtonPosition(DEFAULT_SETTINGS.floatButtonPosition);
+          await get().setFloatPanelPosition(DEFAULT_SETTINGS.floatPanelPosition);
           await get().setContentExtractionTiming(DEFAULT_SETTINGS.contentExtractionTiming);
           await get().setExtractionDenylist(DEFAULT_SETTINGS.extractionDenylist);
           await get().setSaveArticleOnClipboard(DEFAULT_SETTINGS.saveArticleOnClipboard);
@@ -308,7 +302,7 @@ const sendSettingsUpdate = async () => {
       payload: {
         prompts: settings.prompts,
         tabBehavior: settings.tabBehavior,
-        floatButtonPosition: settings.floatButtonPosition,
+        floatPanelPosition: settings.floatPanelPosition,
         contentExtractionTiming: settings.contentExtractionTiming,
         extractionDenylist: settings.extractionDenylist,
         saveArticleOnClipboard: settings.saveArticleOnClipboard,

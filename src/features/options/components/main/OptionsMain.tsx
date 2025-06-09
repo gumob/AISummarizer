@@ -1,37 +1,29 @@
-import React, {
-  Fragment,
-  useEffect,
-  useState,
-} from 'react';
-
 import clsx from 'clsx';
+
+import React, { Fragment, useCallback, useEffect, useState } from 'react';
+
 import { IoClose } from 'react-icons/io5';
 
-import {
-  ConfirmDialog,
-  OptionCard,
-} from '@/features/options/components/main';
+import { Field, Switch, Tab, TabGroup, TabList, TabPanel, TabPanels, Textarea } from '@headlessui/react';
+
+import { ConfirmDialog, OptionCard } from '@/features/options/components/main';
 import { useGlobalContext } from '@/stores';
 import {
   AIService,
   ContentExtractionTiming,
   FloatPanelPosition,
+  getContentExtractionTimingFromIndex,
+  getContentExtractionTimingIndex,
   getContentExtractionTimingLabel,
-  getFloatButtonPositionLabel,
+  getFloatPanelPositionFromIndex,
+  getFloatPanelPositionIndex,
+  getFloatPanelPositionLabel,
+  getTabBehaviorFromIndex,
+  getTabBehaviorIndex,
   getTabBehaviorLabel,
   TabBehavior,
 } from '@/types';
 import { logger } from '@/utils';
-import {
-  Field,
-  Switch,
-  Tab,
-  TabGroup,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Textarea,
-} from '@headlessui/react';
 
 /**
  * The main component for the options page.
@@ -43,148 +35,232 @@ export const OptionsMain: React.FC = () => {
    *******************************************************/
 
   const {
-    prompt,
-    setPrompt,
-    tabBehavior,
-    setTabBehavior,
-    floatButtonPosition,
-    setFloatButtonPosition,
-    contentExtractionTiming,
-    setContentExtractionTiming,
-    extractionDenylist,
-    setExtractionDenylist,
-    isShowMessage,
-    setIsShowMessage,
-    isShowBadge,
-    setIsShowBadge,
-    saveArticleOnClipboard,
-    setSaveArticleOnClipboard,
+    promptFor: storedPromptFor,
+    setPromptFor: setStoredPromptFor,
+    tabBehavior: storedTabBehavior,
+    setTabBehavior: setStoredTabBehavior,
+    floatPanelPosition: storedFloatPanelPosition,
+    setFloatPanelPosition: setStoredFloatPanelPosition,
+    contentExtractionTiming: storedContentExtractionTiming,
+    setContentExtractionTiming: setStoredContentExtractionTiming,
+    extractionDenylist: storedExtractionDenylist,
+    setExtractionDenylist: setStoredExtractionDenylist,
+    saveArticleOnClipboard: storedSaveArticleOnClipboard,
+    setSaveArticleOnClipboard: setStoredSaveArticleOnClipboard,
+    isShowMessage: storedIsShowMessage,
+    setIsShowMessage: setStoredIsShowMessage,
+    isShowBadge: storedIsShowBadge,
+    setIsShowBadge: setStoredIsShowBadge,
     exportSettings,
     importSettings,
     restoreSettings,
     resetDatabase,
   } = useGlobalContext();
 
-  const [selectedPromptIndex, setSelectedPromptIndex] = useState(0);
-  const [selectedTabBehaviorIndex, setSelectedTabBehaviorIndex] = useState(-1);
-  const [selectedFloatButtonIndex, setSelectedFloatButtonIndex] = useState(-1);
-  const [selectedContentExtractionTimingIndex, setSelectedContentExtractionTimingIndex] = useState(-1);
-  const [enableShowMessage, setEnableShowMessage] = useState<boolean | null>(null);
-  const [enableShowBadge, setEnableShowBadge] = useState<boolean | null>(null);
-  const [enableSaveArticleOnClipboard, setEnableSaveArticleOnClipboard] = useState<boolean | null>(null);
-  const [promptValues, setPromptValues] = useState<{ [key in AIService]?: string }>({});
-  const [extractionDenylistValue, setExtractionDenylistValue] = useState<string>('');
-  const [isDeleteCacheDialogOpen, setIsDeleteCacheDialogOpen] = useState(false);
-  const [isResetSettingsDialogOpen, setIsResetSettingsDialogOpen] = useState(false);
+  const [localPromptIndex, setLocalPromptIndex] = useState<number>(0);
+  const [localPrompt, setLocalPrompt] = useState<{ [key in AIService]?: string } | undefined>(undefined);
 
-  const [importError, setImportError] = useState<string | null>(null);
+  const [localTabBehavior, setLocalTabBehavior] = useState<number | undefined>(undefined);
+  const [localFloatPanel, setLocalFloatPanel] = useState<number | undefined>(undefined);
+  const [localContentExtractionTiming, setLocalContentExtractionTiming] = useState<number | undefined>(undefined);
+  const [localIsSaveArticleOnClipboard, setLocalIsSaveArticleOnClipboard] = useState<boolean | undefined>(undefined);
+  const [localIsShowMessage, setLocalIsShowMessage] = useState<boolean | undefined>(undefined);
+  const [localIsShowBadge, setLocalIsShowBadge] = useState<boolean | undefined>(undefined);
+
+  const [localExtractionDenylist, setLocalExtractionDenylist] = useState<string | undefined>(undefined);
+
+  const [isDeleteCacheDialogOpen, setIsDeleteCacheDialogOpen] = useState<boolean>(false);
+  const [isResetSettingsDialogOpen, setIsResetSettingsDialogOpen] = useState<boolean>(false);
+
+  const [importError, setImportError] = useState<string | undefined>(undefined);
 
   /*******************************************************
    * Initialize selected indices based on stored values
    *******************************************************/
 
-  /** Load prompts */
-  useEffect(() => {
-    const loadPrompts = async () => {
-      const values = await Promise.all(Object.values(AIService).map(async service => [service, await prompt(service)] as const));
-      setPromptValues(Object.fromEntries(values));
-    };
-    loadPrompts();
-  }, [prompt]);
-
-  /** Set TabBehavior index */
-  useEffect(() => {
-    const tabBehaviorIndex = Object.values(TabBehavior).findIndex(value => value === tabBehavior);
-    if (tabBehaviorIndex !== -1) {
-      setSelectedTabBehaviorIndex(tabBehaviorIndex);
-    }
-  }, [tabBehavior]);
-
-  /** Set FloatPanelPosition index */
-  useEffect(() => {
-    const floatButtonIndex = Object.values(FloatPanelPosition).findIndex(value => value === floatButtonPosition);
-    if (floatButtonIndex !== -1) {
-      setSelectedFloatButtonIndex(floatButtonIndex);
-    }
-  }, [floatButtonPosition]);
-
-  /** Set PageExtractionMethod index */
-  useEffect(() => {
-    const contentExtractionTimingIndex = Object.values(ContentExtractionTiming).findIndex(value => value === contentExtractionTiming);
-    if (contentExtractionTimingIndex !== -1) {
-      setSelectedContentExtractionTimingIndex(contentExtractionTimingIndex);
-    }
-  }, [contentExtractionTiming]);
-
-  /** Set ExtractionDenylist */
-  useEffect(() => {
-    if (extractionDenylist !== null) setExtractionDenylistValue(extractionDenylist.join('\n'));
-  }, [extractionDenylist]);
-
-  /** Set ShowMessage index */
-  useEffect(() => {
-    if (enableShowMessage !== null) setIsShowMessage(enableShowMessage);
-    logger.debug('📦⌥', '[OptionsMain.tsx]', '[useEffect]', 'enableShowMessage', enableShowMessage);
-  }, [enableShowMessage]);
-
-  useEffect(() => {
-    if (enableShowMessage === null) setEnableShowMessage(isShowMessage);
-    logger.debug('📦⌥', '[OptionsMain.tsx]', '[useEffect]', 'isShowMessage', isShowMessage);
-  }, [isShowMessage]);
-
-  /** Set ShowBadge index */
-  useEffect(() => {
-    if (enableShowBadge !== null) setIsShowBadge(enableShowBadge);
-    logger.debug('📦⌥', '[OptionsMain.tsx]', '[useEffect]', 'enableShowBadge', enableShowBadge);
-  }, [enableShowBadge]);
-
   /**
    * TODO: 設定の読み込み、レストアをしてもUIに反映されない。
-   * TODO: `enableShowBadge === null`のように、nullの場合のみ更新しているのが原因。
+   * TODO: `localIsShowBadge === null`のように、nullの場合のみ更新しているのが原因。
    * TODO: ユーザーインプットとデータの更新が競合しないようにuseEffectの使用方法を見直す。
    */
   useEffect(() => {
-    if (enableShowBadge === null) setEnableShowBadge(isShowBadge);
-    logger.debug('📦⌥', '[OptionsMain.tsx]', '[useEffect]', 'isShowBadge', isShowBadge);
-  }, [isShowBadge]);
+    const loadPrompts = async () => {
+      const values: [AIService, string][] = await Promise.all(
+        Object.values(AIService).map(async service => [service, await storedPromptFor(service)] as const)
+      );
+      setLocalPrompt(Object.fromEntries(values));
+    };
+    if (localPrompt === undefined && storedPromptFor !== undefined) loadPrompts();
+  }, [storedPromptFor]);
 
-  /** Set SaveArticleOnClipboard index */
   useEffect(() => {
-    if (enableSaveArticleOnClipboard !== null) setSaveArticleOnClipboard(enableSaveArticleOnClipboard);
-    logger.debug('📦⌥', '[OptionsMain.tsx]', '[useEffect]', 'enableSaveArticleOnClipboard', enableSaveArticleOnClipboard);
-  }, [enableSaveArticleOnClipboard]);
+    if (localTabBehavior === undefined) setLocalTabBehavior(getTabBehaviorIndex(storedTabBehavior));
+  }, [storedTabBehavior]);
 
   useEffect(() => {
-    if (enableSaveArticleOnClipboard === null) setEnableSaveArticleOnClipboard(saveArticleOnClipboard);
-    logger.debug('📦⌥', '[OptionsMain.tsx]', '[useEffect]', 'saveArticleOnClipboard', saveArticleOnClipboard);
-  }, [saveArticleOnClipboard]);
+    if (localFloatPanel === undefined) setLocalFloatPanel(getFloatPanelPositionIndex(storedFloatPanelPosition));
+  }, [storedFloatPanelPosition]);
+
+  useEffect(() => {
+    if (localContentExtractionTiming === undefined) setLocalContentExtractionTiming(getContentExtractionTimingIndex(storedContentExtractionTiming));
+  }, [storedContentExtractionTiming]);
+
+  useEffect(() => {
+    if (localExtractionDenylist === undefined) setLocalExtractionDenylist(storedExtractionDenylist?.join('\n'));
+  }, [storedExtractionDenylist]);
+
+  /**
+   * IsSaveArticleOnClipboard
+   */
+  useEffect(() => {
+    logger.debug('📦⌥', '[OptionsMain.tsx]', '[useEffect]', 'storedSaveArticleOnClipboard:', storedSaveArticleOnClipboard);
+    if (localIsSaveArticleOnClipboard === undefined) setLocalIsSaveArticleOnClipboard(storedSaveArticleOnClipboard);
+  }, [storedSaveArticleOnClipboard]);
+
+  // useEffect(() => {
+  //   logger.debug('📦⌥', '[OptionsMain.tsx]', '[useEffect]', 'localIsSaveArticleOnClipboard:', localIsSaveArticleOnClipboard);
+  //   setStoredSaveArticleOnClipboard(localIsSaveArticleOnClipboard ?? false);
+  // }, [localIsSaveArticleOnClipboard]);
+
+  /**
+   * IsShowMessage
+   */
+  useEffect(() => {
+    logger.debug('📦⌥', '[OptionsMain.tsx]', '[useEffect]', 'storedIsShowMessage:', storedIsShowMessage);
+    if (localIsShowMessage === undefined) setLocalIsShowMessage(storedIsShowMessage);
+  }, [storedIsShowMessage]);
+
+  // useEffect(() => {
+  //   logger.debug('📦⌥', '[OptionsMain.tsx]', '[useEffect]', 'localIsShowMessage:', localIsShowMessage);
+  //   setStoredIsShowMessage(localIsShowMessage ?? false);
+  // }, [localIsShowMessage]);
+
+  /**
+   * IsShowBadge
+   */
+  useEffect(() => {
+    logger.debug('📦⌥', '[OptionsMain.tsx]', '[useEffect]', 'storedIsShowBadge:', storedIsShowBadge);
+    if (localIsShowBadge === undefined) setLocalIsShowBadge(storedIsShowBadge);
+  }, [storedIsShowBadge]);
+
+  // useEffect(() => {
+  //   logger.debug('📦⌥', '[OptionsMain.tsx]', '[useEffect]', 'localIsShowBadge:', localIsShowBadge);
+  //   setStoredIsShowBadge(localIsShowBadge ?? false);
+  // }, [localIsShowBadge]);
+
+  /*******************************************************
+   * Handlers
+   *******************************************************/
+
+  /**
+   * Save Settings
+   */
+  const saveStoredSettings = useCallback(async () => {
+    Object.entries(AIService).forEach(async ([name, service]) => {
+      await setStoredPromptFor(service, localPrompt?.[service] ?? '');
+    });
+    await setStoredTabBehavior(getTabBehaviorFromIndex(localTabBehavior ?? 0));
+    await setStoredFloatPanelPosition(getFloatPanelPositionFromIndex(localFloatPanel ?? 0));
+    await setStoredContentExtractionTiming(getContentExtractionTimingFromIndex(localContentExtractionTiming ?? 0));
+    await setStoredSaveArticleOnClipboard(localIsSaveArticleOnClipboard ?? false);
+    await setStoredIsShowMessage(localIsShowMessage ?? false);
+    await setStoredIsShowBadge(localIsShowBadge ?? false);
+    await setStoredExtractionDenylist(localExtractionDenylist?.split('\n') ?? []);
+  }, [localPrompt, localTabBehavior, localFloatPanel, localContentExtractionTiming, localIsSaveArticleOnClipboard]);
+
+  const unsetLocalSettings = useCallback(() => {
+    setLocalPromptIndex(0);
+    setLocalPrompt(undefined);
+    setLocalTabBehavior(undefined);
+    setLocalFloatPanel(undefined);
+    setLocalContentExtractionTiming(undefined);
+    setLocalExtractionDenylist(undefined);
+    setLocalIsSaveArticleOnClipboard(undefined);
+    setLocalIsShowMessage(undefined);
+    setLocalIsShowBadge(undefined);
+    setImportError(undefined);
+  }, []);
+
+  /**
+   * Export Settings
+   */
+  const handleExport = useCallback(async () => {
+    const result = await exportSettings();
+    if (result.success) {
+      logger.debug('📦⌥', '[OptionsMain.tsx]', '[handleExport]', 'Settings exported successfully');
+    } else {
+      logger.error('📦⌥', '[OptionsMain.tsx]', '[handleExport]', 'Failed to export settings:', result.error);
+    }
+  }, [exportSettings]);
+
+  /**
+   * Import Settings
+   */
+  const handleImport = useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      /** Unset local settings */
+      unsetLocalSettings();
+
+      /** Get the file */
+      const file = event.target.files?.[0];
+      logger.debug('📦⌥', '[OptionsMain.tsx]', '[handleImport]', 'File:', file);
+      if (!file) return;
+      setImportError(undefined);
+
+      /** Import the settings */
+      const result = await importSettings(file);
+      if (result.success) {
+        logger.debug('📦⌥', '[OptionsMain.tsx]', '[handleImport]', 'Settings imported successfully');
+      } else {
+        setImportError(result.error?.message ?? 'Failed to import settings');
+        logger.error('📦⌥', '[OptionsMain.tsx]', '[handleImport]', 'Failed to import settings:', result.error);
+      }
+    },
+    [importSettings, unsetLocalSettings]
+  );
+
+  /**
+   * Restore Default Settings
+   */
+  const handleResetSettings = useCallback(async () => {
+    /** Unset local settings */
+    unsetLocalSettings();
+
+    /** Restore settings */
+    const result = await restoreSettings();
+    if (result.success) {
+      logger.debug('📦⌥', '[OptionsMain.tsx]', '[handleResetSettings]', 'Settings restored successfully');
+    } else {
+      logger.error('📦⌥', '[OptionsMain.tsx]', '[handleResetSettings]', 'Failed to restore settings:', result.error);
+    }
+  }, [restoreSettings, unsetLocalSettings]);
+
+  /**
+   * Clear Article Cache
+   */
+  const handleDeleteCache = useCallback(async () => {
+    /** Unset local settings */
+    unsetLocalSettings();
+
+    /** Reset database */
+    const result = await resetDatabase();
+    if (result.success) {
+      logger.debug('📦⌥', '[OptionsMain.tsx]', '[handleDeleteCache]', 'Database cleanup completed');
+    } else {
+      logger.error('📦⌥', '[OptionsMain.tsx]', '[handleDeleteCache]', 'Failed to cleanup database:', result.error);
+    }
+  }, [resetDatabase, unsetLocalSettings]);
 
   /*******************************************************
    * Render
    *******************************************************/
 
-  const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    /** Get the file */
-    const file = event.target.files?.[0];
-    logger.debug('📦⌥', '[OptionsMain.tsx]', '[handleImport]', 'File:', file);
-    if (!file) return;
-    setImportError(null);
-
-    /** Import the settings */
-    const result = await importSettings(file);
-    if (result.success) {
-      logger.debug('📦⌥', '[OptionsMain.tsx]', '[handleImport]', 'Settings imported successfully');
-    } else {
-      setImportError(result.error?.message ?? 'Failed to import settings');
-      logger.error('📦⌥', '[OptionsMain.tsx]', '[handleImport]', 'Failed to import settings:', result.error);
-    }
-  };
-
   return (
     <div className="min-h-screen p-4 bg-white dark:bg-zinc-900">
       <div className="mx-auto max-w-3xl">
-        <div className="flex items-center justify-between gap-2">
-          <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">Settings</h1>
+        {/* Header */}
+        <div className="flex items-center justify-between gap-2 ps-2">
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">Settings</h1>
           <button
             onClick={async () => {
               try {
@@ -198,8 +274,10 @@ export const OptionsMain: React.FC = () => {
             <IoClose className="h-6 w-6" />
           </button>
         </div>
+
+        {/* Prompt */}
         <OptionCard title="Prompt">
-          <TabGroup selectedIndex={selectedPromptIndex} onChange={setSelectedPromptIndex}>
+          <TabGroup selectedIndex={localPromptIndex} onChange={setLocalPromptIndex}>
             <TabList className="flex flex-wrap gap-2">
               {Object.entries(AIService).map(([name, service]: [string, AIService], index) => (
                 <Tab
@@ -210,7 +288,7 @@ export const OptionsMain: React.FC = () => {
                     'bg-zinc-300 dark:bg-zinc-700',
                     'opacity-30 dark:opacity-30',
                     'hover:opacity-100',
-                    selectedPromptIndex === index && '!opacity-100',
+                    localPromptIndex === index && '!opacity-100',
                     'focus:outline-none',
                     'transition-opacity'
                   )}
@@ -235,8 +313,8 @@ export const OptionsMain: React.FC = () => {
                         'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-300 dark:focus-visible:ring-zinc-700'
                       )}
                       rows={12}
-                      value={promptValues[service] ?? ''}
-                      onChange={e => setPrompt(service, e.target.value)}
+                      value={localPrompt?.[service] ?? ''}
+                      onChange={async e => await setStoredPromptFor(service, e.target.value)}
                     />
                   </Field>
                 </TabPanel>
@@ -244,8 +322,10 @@ export const OptionsMain: React.FC = () => {
             </TabPanels>
           </TabGroup>
         </OptionCard>
+
+        {/* Open AI Service in */}
         <OptionCard title="Open AI Service in">
-          <TabGroup selectedIndex={selectedTabBehaviorIndex} onChange={setSelectedTabBehaviorIndex}>
+          <TabGroup selectedIndex={localTabBehavior} onChange={setLocalTabBehavior}>
             <TabList className="flex flex-wrap gap-2">
               {Object.entries(TabBehavior).map(([name, behavior]: [string, TabBehavior], index) => (
                 <Tab
@@ -256,11 +336,11 @@ export const OptionsMain: React.FC = () => {
                     'bg-zinc-300 dark:bg-zinc-700',
                     'opacity-30 dark:opacity-30',
                     'hover:opacity-100',
-                    selectedTabBehaviorIndex === index && '!opacity-100',
+                    localTabBehavior === index && '!opacity-100',
                     'focus:outline-none',
                     'transition-opacity'
                   )}
-                  onClick={() => setTabBehavior(behavior)}
+                  onClick={async () => await setStoredTabBehavior(behavior)}
                 >
                   {getTabBehaviorLabel(behavior)}
                 </Tab>
@@ -268,8 +348,10 @@ export const OptionsMain: React.FC = () => {
             </TabList>
           </TabGroup>
         </OptionCard>
-        <OptionCard title="Float Button">
-          <TabGroup selectedIndex={selectedFloatButtonIndex} onChange={setSelectedFloatButtonIndex}>
+
+        {/* Float Panel */}
+        <OptionCard title="Float Button Position">
+          <TabGroup selectedIndex={localFloatPanel} onChange={setLocalFloatPanel}>
             <TabList className="flex flex-wrap gap-2">
               {Object.entries(FloatPanelPosition).map(([name, position]: [string, FloatPanelPosition], index) => (
                 <Tab
@@ -280,20 +362,22 @@ export const OptionsMain: React.FC = () => {
                     'bg-zinc-300 dark:bg-zinc-700',
                     'opacity-30 dark:opacity-30',
                     'hover:opacity-100',
-                    selectedFloatButtonIndex === index && '!opacity-100',
+                    localFloatPanel === index && '!opacity-100',
                     'focus:outline-none',
                     'transition-opacity'
                   )}
-                  onClick={() => setFloatButtonPosition(position)}
+                  onClick={async () => await setStoredFloatPanelPosition(position)}
                 >
-                  {getFloatButtonPositionLabel(position)}
+                  {getFloatPanelPositionLabel(position)}
                 </Tab>
               ))}
             </TabList>
           </TabGroup>
         </OptionCard>
+
+        {/* Content Extraction */}
         <OptionCard title="Content Extraction">
-          <TabGroup selectedIndex={selectedContentExtractionTimingIndex} onChange={setSelectedContentExtractionTimingIndex}>
+          <TabGroup selectedIndex={localContentExtractionTiming} onChange={setLocalContentExtractionTiming}>
             <TabList className="flex flex-wrap gap-2">
               {Object.entries(ContentExtractionTiming).map(([name, method]: [string, ContentExtractionTiming], index) => (
                 <Tab
@@ -304,11 +388,11 @@ export const OptionsMain: React.FC = () => {
                     'bg-zinc-300 dark:bg-zinc-700',
                     'opacity-30 dark:opacity-30',
                     'hover:opacity-100',
-                    selectedContentExtractionTimingIndex === index && '!opacity-100',
+                    localContentExtractionTiming === index && '!opacity-100',
                     'focus:outline-none',
                     'transition-opacity'
                   )}
-                  onClick={() => setContentExtractionTiming(method)}
+                  onClick={async () => await setStoredContentExtractionTiming(method)}
                 >
                   {getContentExtractionTimingLabel(method)}
                 </Tab>
@@ -316,7 +400,7 @@ export const OptionsMain: React.FC = () => {
             </TabList>
           </TabGroup>
         </OptionCard>
-        {contentExtractionTiming === ContentExtractionTiming.AUTOMATIC && (
+        {storedContentExtractionTiming === ContentExtractionTiming.AUTOMATIC && (
           <div className="p-2">
             <h3 className="mb-4 text-default font-semibold text-zinc-900 dark:text-zinc-100">Denylist</h3>
             <Textarea
@@ -331,18 +415,20 @@ export const OptionsMain: React.FC = () => {
                 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-300 dark:focus-visible:ring-zinc-700
               `}
               rows={12}
-              value={extractionDenylistValue}
+              value={localExtractionDenylist}
               onChange={e => {
                 const newValue = e.target.value;
-                setExtractionDenylistValue(newValue);
+                setLocalExtractionDenylist(newValue);
                 const filteredLines = newValue.split('\n');
-                setExtractionDenylist(filteredLines);
+                setStoredExtractionDenylist(filteredLines);
               }}
             />
           </div>
         )}
+
+        {/* Copy Article on Clipboard */}
         <OptionCard title="Copy Article on Clipboard">
-          <Switch checked={enableSaveArticleOnClipboard ?? false} onChange={setEnableSaveArticleOnClipboard} as={Fragment}>
+          <Switch checked={localIsSaveArticleOnClipboard ?? false} onChange={setLocalIsSaveArticleOnClipboard} as={Fragment}>
             {({ checked, disabled }) => (
               <button
                 className={clsx(
@@ -350,6 +436,7 @@ export const OptionsMain: React.FC = () => {
                   checked ? 'bg-blue-600' : 'bg-zinc-200 dark:bg-zinc-700',
                   disabled && 'cursor-not-allowed opacity-50'
                 )}
+                onClick={async () => await setStoredSaveArticleOnClipboard(!checked)}
               >
                 <span className="sr-only">Copy Article on Clipboard</span>
                 <span className={clsx('size-4 rounded-full transition', 'bg-white', checked ? 'translate-x-6' : 'translate-x-1')} />
@@ -357,8 +444,10 @@ export const OptionsMain: React.FC = () => {
             )}
           </Switch>
         </OptionCard>
+
+        {/* Show Message when Article is Extracted */}
         <OptionCard title="Show Message when Article is Extracted">
-          <Switch checked={enableShowMessage ?? false} onChange={setEnableShowMessage} as={Fragment}>
+          <Switch checked={localIsShowMessage ?? false} onChange={setLocalIsShowMessage} as={Fragment}>
             {({ checked, disabled }) => (
               <button
                 className={clsx(
@@ -366,6 +455,7 @@ export const OptionsMain: React.FC = () => {
                   checked ? 'bg-blue-600' : 'bg-zinc-200 dark:bg-zinc-700',
                   disabled && 'cursor-not-allowed opacity-50'
                 )}
+                onClick={async () => await setStoredIsShowMessage(!checked)}
               >
                 <span className="sr-only">Show Message when Article is Extracted</span>
                 <span className={clsx('size-4 rounded-full transition', 'bg-white', checked ? 'translate-x-6' : 'translate-x-1')} />
@@ -373,8 +463,10 @@ export const OptionsMain: React.FC = () => {
             )}
           </Switch>
         </OptionCard>
+
+        {/* Show Badge when Article is Extracted */}
         <OptionCard title="Show Badge when Article is Extracted">
-          <Switch checked={enableShowBadge ?? false} onChange={setEnableShowBadge} as={Fragment}>
+          <Switch checked={localIsShowBadge ?? false} onChange={setLocalIsShowBadge} as={Fragment}>
             {({ checked, disabled }) => (
               <button
                 className={clsx(
@@ -382,6 +474,7 @@ export const OptionsMain: React.FC = () => {
                   checked ? 'bg-blue-600' : 'bg-zinc-200 dark:bg-zinc-700',
                   disabled && 'cursor-not-allowed opacity-50'
                 )}
+                onClick={async () => await setStoredIsShowBadge(!checked)}
               >
                 <span className="sr-only">Show Message when Article is Extracted</span>
                 <span className={clsx('size-4 rounded-full transition', 'bg-white', checked ? 'translate-x-6' : 'translate-x-1')} />
@@ -389,6 +482,8 @@ export const OptionsMain: React.FC = () => {
             )}
           </Switch>
         </OptionCard>
+
+        {/* Manage Settings */}
         <OptionCard title="Manage Settings" className="flex flex-col gap-2">
           <button
             className={clsx(
@@ -396,7 +491,7 @@ export const OptionsMain: React.FC = () => {
               'font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors',
               'focus:outline-none whitespace-nowrap'
             )}
-            onClick={exportSettings}
+            onClick={handleExport}
           >
             Export Settings
           </button>
@@ -440,24 +535,6 @@ export const OptionsMain: React.FC = () => {
         </OptionCard>
       </div>
 
-      {/* Delete Cache Dialog */}
-      <ConfirmDialog
-        isOpen={isDeleteCacheDialogOpen}
-        onClose={() => setIsDeleteCacheDialogOpen(false)}
-        title="Clear Article Cache"
-        description="Are you sure you want to clear all cached articles?"
-        confirmText="Clear"
-        onConfirm={async () => {
-          const result = await resetDatabase();
-          if (result.success) {
-            logger.debug('📦⌥', '[OptionsMain.tsx]', '[render]', 'Database cleanup completed');
-          } else {
-            logger.error('📦⌥', '[OptionsMain.tsx]', '[render]', 'Failed to cleanup database:', result.error);
-          }
-          setIsDeleteCacheDialogOpen(false);
-        }}
-      />
-
       {/* Reset Settings Dialog */}
       <ConfirmDialog
         isOpen={isResetSettingsDialogOpen}
@@ -466,14 +543,21 @@ export const OptionsMain: React.FC = () => {
         description="Are you sure you want to restore default settings?"
         confirmText="Restore"
         onConfirm={async () => {
-          const result = await restoreSettings();
-          if (result.success) {
-            logger.debug('📦⌥', '[OptionsMain.tsx]', '[render]', 'Reset to default settings completed');
-            // window.location.reload();
-          } else {
-            logger.error('📦⌥', '[OptionsMain.tsx]', '[render]', 'Failed to reset to default settings:', result.error);
-          }
+          await handleResetSettings();
           setIsResetSettingsDialogOpen(false);
+        }}
+      />
+
+      {/* Delete Cache Dialog */}
+      <ConfirmDialog
+        isOpen={isDeleteCacheDialogOpen}
+        onClose={() => setIsDeleteCacheDialogOpen(false)}
+        title="Clear Article Cache"
+        description="Are you sure you want to clear all cached articles?"
+        confirmText="Clear"
+        onConfirm={async () => {
+          await handleDeleteCache();
+          setIsDeleteCacheDialogOpen(false);
         }}
       />
     </div>

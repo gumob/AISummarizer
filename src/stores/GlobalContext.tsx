@@ -1,21 +1,9 @@
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 import { db } from '@/db';
 import { ArticleModel } from '@/models';
 import { useSettingsStore } from '@/stores';
-import {
-  AIService,
-  ContentExtractionTiming,
-  FloatPanelPosition,
-  TabBehavior,
-} from '@/types';
+import { AIService, ContentExtractionTiming, FloatPanelPosition, TabBehavior } from '@/types';
 import { logger } from '@/utils';
 
 /**
@@ -26,16 +14,16 @@ import { logger } from '@/utils';
  * @property article - The article data.
  * @property setArticle - The set article data function.
  * @property prompts - The prompts data.
- * @property prompt - The get prompt function.
+ * @property promptFor - The get prompt function.
  * @property tabBehavior - The tab behavior.
- * @property floatButtonPosition - The float button position.
+ * @property floatPanelPosition - The float button position.
  * @property contentExtractionTiming - The page extraction method.
  * @property setContentExtractionTiming - The set page extraction method function.
  * @property extractionDenylist - The extraction denylist.
  * @property setExtractionDenylist - The set extraction denylist function.
- * @property setPrompt - The set prompt function.
+ * @property setPromptFor - The set prompt function.
  * @property setTabBehavior - The set tab behavior function.
- * @property setFloatButtonPosition - The set float button position function.
+ * @property setFloatPanelPosition - The set float button position function.
  * @property isShowMessage - The is show message.
  * @property setIsShowMessage - The set is show message function.
  * @property isShowBadge - The is show badge.
@@ -55,12 +43,12 @@ interface GlobalContextValue {
   prompts: {
     [key in AIService]: string;
   };
-  prompt: (service: AIService) => Promise<string>;
-  setPrompt: (service: AIService, prompt: string) => Promise<void>;
+  promptFor: (service: AIService) => Promise<string>;
+  setPromptFor: (service: AIService, prompt: string) => Promise<void>;
   tabBehavior: TabBehavior;
   setTabBehavior: (tabBehavior: TabBehavior) => Promise<void>;
-  floatButtonPosition: FloatPanelPosition;
-  setFloatButtonPosition: (floatButtonPosition: FloatPanelPosition) => Promise<void>;
+  floatPanelPosition: FloatPanelPosition;
+  setFloatPanelPosition: (floatPanelPosition: FloatPanelPosition) => Promise<void>;
   contentExtractionTiming: ContentExtractionTiming;
   setContentExtractionTiming: (contentExtractionTiming: ContentExtractionTiming) => Promise<void>;
   extractionDenylist: string[];

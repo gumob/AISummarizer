@@ -10,7 +10,7 @@ export enum FloatPanelPosition {
   BOTTOM_RIGHT = 'BOTTOM_RIGHT',
 }
 
-export const getFloatButtonPositionLabel = (position: FloatPanelPosition): string => {
+export const getFloatPanelPositionLabel = (position: FloatPanelPosition): string => {
   const labels: Record<FloatPanelPosition, string> = {
     [FloatPanelPosition.HIDE]: 'Hide',
     [FloatPanelPosition.TOP_LEFT]: 'Top Left',
@@ -25,7 +25,15 @@ export const getFloatButtonPositionLabel = (position: FloatPanelPosition): strin
   return labels[position];
 };
 
-export const getFloatButtonPositionTypeFromString = (str: string): FloatPanelPosition => {
+export const getFloatPanelPositionIndex = (position: FloatPanelPosition): number => {
+  return Object.values(FloatPanelPosition).findIndex(value => value === position);
+};
+
+export const getFloatPanelPositionFromIndex = (index: number): FloatPanelPosition => {
+  return Object.values(FloatPanelPosition)[index];
+};
+
+export const getFloatPanelPositionTypeFromString = (str: string): FloatPanelPosition => {
   switch (str) {
     case 'HIDE':
       return FloatPanelPosition.HIDE;

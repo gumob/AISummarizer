@@ -47,14 +47,14 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
     if (isHovered) {
       setIsHovered(false);
     }
-  }, [settings.floatButtonPosition]);
+  }, [settings.floatPanelPosition]);
 
   useEffect(() => {
     setIsHovered(false);
   }, [windowWidth, windowHeight]);
 
   const placement = useMemo(() => {
-    switch (settings.floatButtonPosition) {
+    switch (settings.floatPanelPosition) {
       case FloatPanelPosition.TOP_LEFT:
         return `bottom-start`;
       case FloatPanelPosition.TOP_CENTER:
@@ -74,7 +74,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
       default:
         return `bottom`;
     }
-  }, [settings.floatButtonPosition]);
+  }, [settings.floatPanelPosition]);
 
   const { refs, floatingStyles, context } = useFloating({
     placement: placement,
@@ -82,7 +82,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
     middleware: [offset(10)],
   });
 
-  if (!isFloatPanelVisible || settings.floatButtonPosition === FloatPanelPosition.HIDE) return null;
+  if (!isFloatPanelVisible || settings.floatPanelPosition === FloatPanelPosition.HIDE) return null;
 
   return (
     <Popover>
@@ -111,14 +111,14 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
               transition-colors duration-200
               focus:outline-none focus:ring-none
               `,
-              settings.floatButtonPosition === FloatPanelPosition.TOP_LEFT && '!top-4 !left-4',
-              settings.floatButtonPosition === FloatPanelPosition.TOP_CENTER && '!top-4 !left-1/2 -translate-x-1/2',
-              settings.floatButtonPosition === FloatPanelPosition.TOP_RIGHT && '!top-4 !right-4',
-              settings.floatButtonPosition === FloatPanelPosition.MIDDLE_LEFT && '!left-4 !top-1/2 -translate-y-1/2',
-              settings.floatButtonPosition === FloatPanelPosition.MIDDLE_RIGHT && '!right-4 !top-1/2 -translate-y-1/2',
-              settings.floatButtonPosition === FloatPanelPosition.BOTTOM_LEFT && '!bottom-4 !left-4',
-              settings.floatButtonPosition === FloatPanelPosition.BOTTOM_CENTER && '!bottom-4 !left-1/2 -translate-x-1/2',
-              settings.floatButtonPosition === FloatPanelPosition.BOTTOM_RIGHT && '!bottom-4 !right-4'
+              settings.floatPanelPosition === FloatPanelPosition.TOP_LEFT && '!top-4 !left-4',
+              settings.floatPanelPosition === FloatPanelPosition.TOP_CENTER && '!top-4 !left-1/2 -translate-x-1/2',
+              settings.floatPanelPosition === FloatPanelPosition.TOP_RIGHT && '!top-4 !right-4',
+              settings.floatPanelPosition === FloatPanelPosition.MIDDLE_LEFT && '!left-4 !top-1/2 -translate-y-1/2',
+              settings.floatPanelPosition === FloatPanelPosition.MIDDLE_RIGHT && '!right-4 !top-1/2 -translate-y-1/2',
+              settings.floatPanelPosition === FloatPanelPosition.BOTTOM_LEFT && '!bottom-4 !left-4',
+              settings.floatPanelPosition === FloatPanelPosition.BOTTOM_CENTER && '!bottom-4 !left-1/2 -translate-x-1/2',
+              settings.floatPanelPosition === FloatPanelPosition.BOTTOM_RIGHT && '!bottom-4 !right-4'
             )}
           >
             <IoAddOutline className="w-5 h-5" />

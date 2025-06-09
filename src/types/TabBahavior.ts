@@ -15,6 +15,14 @@ export const getTabBehaviorLabel = (behavior: TabBehavior): string => {
   return labels[behavior];
 };
 
+export const getTabBehaviorIndex = (behavior: TabBehavior): number => {
+  return Object.values(TabBehavior).findIndex(value => value === behavior);
+};
+
+export const getTabBehaviorFromIndex = (index: number): TabBehavior => {
+  return Object.values(TabBehavior)[index];
+};
+
 export const getTabBehaviorTypeFromString = (str: string): TabBehavior => {
   switch (str) {
     case 'CURRENT_TAB':
