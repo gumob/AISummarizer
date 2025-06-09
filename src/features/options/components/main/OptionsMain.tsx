@@ -91,8 +91,8 @@ export const OptionsMain: React.FC = () => {
     resetDatabase,
   } = useGlobalContext();
 
-  const [inputPromptIndex, setInputPromptIndex] = useState<number>(0);
-  const [inputPrompt, setInputPrompt] = useState<{ [key in AIService]?: string } | undefined>(undefined);
+  const [inputPromptsIndex, setInputPromptsIndex] = useState<number>(0);
+  const [inputPrompts, setInputPrompts] = useState<{ [key in AIService]?: string } | undefined>(undefined);
 
   const [inputTabBehavior, setInputTabBehavior] = useState<number | undefined>(undefined);
   const [inputFloatPanel, setInputFloatPanel] = useState<number | undefined>(undefined);
@@ -109,17 +109,18 @@ export const OptionsMain: React.FC = () => {
   /*******************************************************
    * Initialize input values based on stored values
    *******************************************************/
+
   useEffect(() => {
-    if (inputPrompt === undefined) {
+    if (inputPrompts === undefined) {
       const loadPrompts = async () => {
         const values: [AIService, string][] = await Promise.all(
-          Object.values(AIService).map(async service => [service, await storedPromptFor(service)] as const)
+          Object.values(AIService).map(async (service: AIService) => [service, await storedPromptFor(service)] as const)
         );
-        setInputPrompt(Object.fromEntries(values));
+        setInputPrompts(Object.fromEntries(values));
       };
       loadPrompts();
     }
-  }, [storedPrompts]);
+  }, [inputPrompts, storedPrompts]);
 
   useEffect(() => {
     if (inputTabBehavior === undefined) setInputTabBehavior(getTabBehaviorIndex(storedTabBehavior));
@@ -158,7 +159,7 @@ export const OptionsMain: React.FC = () => {
    */
   const saveStoredSettings = useCallback(async () => {
     await updateSettings({
-      prompts: Object.fromEntries(Object.values(AIService).map(service => [service, inputPrompt?.[service] ?? DEFAULT_SETTINGS.prompts[service]])) as {
+      prompts: Object.fromEntries(Object.values(AIService).map(service => [service, inputPrompts?.[service] ?? DEFAULT_SETTINGS.prompts[service]])) as {
         [key in AIService]: string;
       },
       tabBehavior: getTabBehaviorFromIndex(inputTabBehavior ?? 0),
@@ -169,14 +170,14 @@ export const OptionsMain: React.FC = () => {
       isShowMessage: inputIsShowMessage ?? false,
       isShowBadge: inputIsShowBadge ?? false,
     });
-  }, [inputPrompt, inputTabBehavior, inputFloatPanel, inputContentExtractionTiming, inputIsSaveArticleOnClipboard]);
+  }, [inputPrompts, inputTabBehavior, inputFloatPanel, inputContentExtractionTiming, inputIsSaveArticleOnClipboard]);
 
   /**
    * Unset Input Settings
    */
   const unsetInputValues = useCallback(async () => {
-    await setInputPromptIndex(0);
-    await setInputPrompt(undefined);
+    await setInputPromptsIndex(0);
+    await setInputPrompts(undefined);
     await setInputTabBehavior(undefined);
     await setInputFloatPanel(undefined);
     await setInputContentExtractionTiming(undefined);
@@ -269,7 +270,7 @@ export const OptionsMain: React.FC = () => {
 
           {/* Prompt */}
           <OptionCard title="Prompt">
-            <TabGroup selectedIndex={inputPromptIndex} onChange={setInputPromptIndex}>
+            <TabGroup selectedIndex={inputPromptsIndex} onChange={setInputPromptsIndex}>
               <TabList className="flex flex-wrap gap-2">
                 {Object.entries(AIService).map(([name, service]: [string, AIService], index) => (
                   <Tab
@@ -280,7 +281,7 @@ export const OptionsMain: React.FC = () => {
                       'bg-zinc-300 dark:bg-zinc-700',
                       'opacity-30 dark:opacity-30',
                       'hover:opacity-100',
-                      inputPromptIndex === index && '!opacity-100',
+                      inputPromptsIndex === index && '!opacity-100',
                       'focus:outline-none',
                       'transition-opacity'
                     )}
@@ -305,13 +306,18 @@ export const OptionsMain: React.FC = () => {
                           'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-300 dark:focus-visible:ring-zinc-700'
                         )}
                         rows={12}
-                        value={inputPrompt?.[service] ?? ''}
+                        value={inputPrompts?.[service] ?? ''}
                         onChange={e => {
                           const newValue = e.target.value;
-                          setInputPrompt(prev => ({
-                            ...(prev ?? {}),
-                            [service]: newValue,
-                          }));
+                          setInputPrompts(prev => {
+                            const newPrompts = { ...(prev ?? {}) };
+                            newPrompts[service] = newValue;
+                            return newPrompts;
+                          });
+                        }}
+                        onBlur={async () => {
+                          logger.debug('📦⌥', '[OptionsMain.tsx]', '[render]', 'onBlur', inputPrompts?.[service]);
+                          await setStoredPromptFor(service, inputPrompts?.[service] ?? '');
                         }}
                       />
                     </Field>
