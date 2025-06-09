@@ -488,10 +488,10 @@ export const OptionsMain: React.FC = () => {
           </OptionCard>
 
           {/* Manage Settings */}
-          <OptionCard title="Manage Settings" className="flex flex-col gap-2">
+          <OptionCard title="Manage Settings" className="flex flex-wrap gap-2">
             <button
               className={clsx(
-                'rounded-full max-w-60 px-6 py-4 text-lg',
+                'rounded-full w-60 px-6 py-4 text-lg',
                 'font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors',
                 'focus:outline-none whitespace-nowrap'
               )}
@@ -504,7 +504,7 @@ export const OptionsMain: React.FC = () => {
               <label
                 htmlFor="import-settings"
                 className={clsx(
-                  'rounded-full max-w-60 px-6 py-4 text-lg',
+                  'rounded-full w-60 px-6 py-4 text-lg',
                   'font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors',
                   'focus:outline-none whitespace-nowrap',
                   'cursor-pointer block text-center'
@@ -515,7 +515,7 @@ export const OptionsMain: React.FC = () => {
             </div>
             <button
               className={clsx(
-                'rounded-full max-w-60 px-6 py-4 text-lg',
+                'rounded-full w-60 px-6 py-4 text-lg',
                 'font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors',
                 'focus:outline-none whitespace-nowrap'
               )}
@@ -527,7 +527,7 @@ export const OptionsMain: React.FC = () => {
           <OptionCard title="Manage Cache" className="flex flex-col gap-2">
             <button
               className={`
-                rounded-full max-w-60 px-6 py-4 text-lg
+                rounded-full w-60 px-6 py-4 text-lg
                 font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors
                 focus:outline-none whitespace-nowrap
               `}
