@@ -1,9 +1,24 @@
 import { STORAGE_KEYS } from '@/constants';
 import { db } from '@/db';
-import { BackgroundThemeService, CleanupDBService, ContextMenuService } from '@/features/background/services';
-import { useArticleStore, useSettingsStore } from '@/stores';
+import {
+  BackgroundThemeService,
+  CleanupDBService,
+  ContextMenuService,
+} from '@/features/background/services';
+import {
+  useArticleStore,
+  useSettingsStore,
+} from '@/stores';
 import { DEFAULT_SETTINGS } from '@/stores/SettingsStore';
-import { AIService, ContentExtractionTiming, formatArticleForClipboard, getSummarizeUrl, Message, MessageAction, TabBehavior } from '@/types';
+import {
+  AIService,
+  ContentExtractionTiming,
+  formatArticleForClipboard,
+  getSummarizeUrl,
+  Message,
+  MessageAction,
+  TabBehavior,
+} from '@/types';
 import { logger } from '@/utils';
 
 class Background {
@@ -60,15 +75,15 @@ class Background {
   async handleChromeMessage(message: Message, sender: chrome.runtime.MessageSender, sendResponse: (response: any) => void) {
     logger.debug('📄🤐', '[Background.ts]', '[handleChromeMessage]', 'message', message.action);
     switch (message.action) {
-      case MessageAction.EXTRACT_CONTENT_COMPLETE:
+      case MessageAction.EXTRACT_ARTICLE_COMPLETE:
         this.updateArticle(sender.tab?.id, sender.tab?.url, message.payload.result);
         break;
 
-      case MessageAction.SUMMARIZE_CONTENT_START:
+      case MessageAction.SUMMARIZE_ARTICLE_START:
         this.executeSummarization(message.payload.service, message.payload.tabId, message.payload.url);
         break;
 
-      case MessageAction.SUMMARIZE_CONTENT_COMPLETE:
+      case MessageAction.SUMMARIZE_ARTICLE_COMPLETE:
         break;
 
       default:
@@ -111,7 +126,7 @@ class Background {
 
       /** Send the message to the content script */
       await chrome.tabs.sendMessage(tabId, {
-        action: MessageAction.EXTRACT_CONTENT_START,
+        action: MessageAction.EXTRACT_ARTICLE_START,
         payload: { tabId: tabId, url: url },
       });
     }
@@ -184,11 +199,11 @@ class Background {
   async updateArticle(tabId?: number, tabUrl?: string, result?: any) {
     // Only process messages from content scripts
     if (!tabId) {
-      logger.warn('📄🤐', '[Background.ts]', '[updateArticle]', 'Ignoring EXTRACT_CONTENT_COMPLETE from non-content script');
+      logger.warn('📄🤐', '[Background.ts]', '[updateArticle]', 'Ignoring EXTRACT_ARTICLE_COMPLETE from non-content script');
       return;
     }
     if (tabUrl !== result.url) {
-      logger.warn('📄🤐', '[Background.ts]', '[updateArticle]', 'Ignoring EXTRACT_CONTENT_COMPLETE for different url', tabUrl, result.url);
+      logger.warn('📄🤐', '[Background.ts]', '[updateArticle]', 'Ignoring EXTRACT_ARTICLE_COMPLETE for different url', tabUrl, result.url);
       return;
     }
     logger.debug('📄🤐', '[Background.ts]', '[updateArticle]', 'Extracting article complete', result);

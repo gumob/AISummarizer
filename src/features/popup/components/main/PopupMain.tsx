@@ -1,10 +1,20 @@
 import React from 'react';
 
-import { IoReloadOutline, IoSettingsOutline } from 'react-icons/io5';
+import {
+  IoReloadOutline,
+  IoSettingsOutline,
+} from 'react-icons/io5';
 
-import { Divider, ServiceIcon } from '@/components';
+import {
+  Divider,
+  ServiceIcon,
+} from '@/components';
 import { ServiceListMenu } from '@/features/popup/components/main';
-import { AIService, getAIServiceLabel, MessageAction } from '@/types';
+import {
+  AIService,
+  getAIServiceLabel,
+  MessageAction,
+} from '@/types';
 import { logger } from '@/utils';
 
 /**
@@ -31,7 +41,7 @@ export const PopupMain: React.FC = () => {
 
               /** Send the message to the content script */
               await chrome.runtime.sendMessage({
-                action: MessageAction.SUMMARIZE_CONTENT_START,
+                action: MessageAction.SUMMARIZE_ARTICLE_START,
                 payload: {
                   service: service,
                   tabId: tab.id,
@@ -70,7 +80,7 @@ export const PopupMain: React.FC = () => {
 
             /** Send the message to the content script */
             await chrome.tabs.sendMessage(tab.id, {
-              action: MessageAction.EXTRACT_CONTENT_START,
+              action: MessageAction.EXTRACT_ARTICLE_START,
               payload: { tabId: tab.id, url: tab.url },
             });
 

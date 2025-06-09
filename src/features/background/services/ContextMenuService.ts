@@ -1,14 +1,6 @@
 import { MENU_ITEMS } from '@/models';
-import {
-  AIService,
-  getAIServiceFromString,
-  MessageAction,
-} from '@/types';
-import {
-  isBrowserSpecificUrl,
-  isExtractionDenylistUrl,
-  logger,
-} from '@/utils';
+import { AIService, getAIServiceFromString, MessageAction } from '@/types';
+import { isBrowserSpecificUrl, isExtractionDenylistUrl, logger } from '@/utils';
 
 export class ContextMenuService {
   private aiServiceCallback: (service: AIService, tabId: number, url: string) => void;
@@ -157,7 +149,7 @@ export class ContextMenuService {
 
             /** Send the message to the content script */
             await chrome.tabs.sendMessage(tab.id, {
-              action: MessageAction.EXTRACT_CONTENT_START,
+              action: MessageAction.EXTRACT_ARTICLE_START,
               payload: { tabId: tab.id, url: tab.url },
             });
           } catch (error: any) {

@@ -1,8 +1,16 @@
-import { useEffect, useRef, useState } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 
 import { ArticleService } from '@/features/content/services';
 import { useSettingsStore } from '@/stores';
-import { ArticleExtractionResult, Message, MessageAction } from '@/types';
+import {
+  ArticleExtractionResult,
+  Message,
+  MessageAction,
+} from '@/types';
 import { logger } from '@/utils';
 
 /**
@@ -66,12 +74,12 @@ export const useChromeMessage = () => {
             }
             return true;
 
-          case MessageAction.EXTRACT_CONTENT_START:
+          case MessageAction.EXTRACT_ARTICLE_START:
             try {
               const result: ArticleExtractionResult = await extractionService.current.execute(message.payload.url);
               sendResponse(result);
               chrome.runtime.sendMessage({
-                action: MessageAction.EXTRACT_CONTENT_COMPLETE,
+                action: MessageAction.EXTRACT_ARTICLE_COMPLETE,
                 payload: { result: result },
               });
               setTabId(message.payload.tabId);

@@ -1,17 +1,34 @@
+import React, {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+
 import clsx from 'clsx';
-
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-
 import { IoAddOutline } from 'react-icons/io5';
-
-import { offset, useFloating } from '@floating-ui/react';
-import { Popover, PopoverBackdrop, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 
 import { ServiceIcon } from '@/components';
 import { useContentContext } from '@/features/content/contexts';
 import { useWindowSize } from '@/features/content/hooks';
-import { AIService, FloatPanelPosition, getAIServiceLabel, MessageAction } from '@/types';
+import {
+  AIService,
+  FloatPanelPosition,
+  getAIServiceLabel,
+  MessageAction,
+} from '@/types';
 import { logger } from '@/utils';
+import {
+  offset,
+  useFloating,
+} from '@floating-ui/react';
+import {
+  Popover,
+  PopoverBackdrop,
+  PopoverButton,
+  PopoverPanel,
+  Transition,
+} from '@headlessui/react';
 
 /**
  * FloatPanel
@@ -158,7 +175,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
                       logger.debug('🫳💬', '[FloatPanel.tsx]', 'Sending message to background script', tabId, tabUrl);
                       try {
                         await chrome.runtime.sendMessage({
-                          action: MessageAction.SUMMARIZE_CONTENT_START,
+                          action: MessageAction.SUMMARIZE_ARTICLE_START,
                           payload: {
                             service: service,
                             tabId: tabId,
