@@ -6,6 +6,7 @@ import { IoClose } from 'react-icons/io5';
 
 import { Field, Switch, Tab, TabGroup, TabList, TabPanel, TabPanels, Textarea } from '@headlessui/react';
 
+import { toast, Toaster } from '@/features/content/components/main/Toaster';
 import { ConfirmDialog, OptionCard } from '@/features/options/components/main';
 import { useGlobalContext } from '@/stores';
 import {
@@ -71,8 +72,6 @@ export const OptionsMain: React.FC = () => {
 
   const [isDeleteCacheDialogOpen, setIsDeleteCacheDialogOpen] = useState<boolean>(false);
   const [isResetSettingsDialogOpen, setIsResetSettingsDialogOpen] = useState<boolean>(false);
-
-  const [importError, setImportError] = useState<string | undefined>(undefined);
 
   /*******************************************************
    * Initialize selected indices based on stored values
@@ -178,7 +177,6 @@ export const OptionsMain: React.FC = () => {
     setLocalIsSaveArticleOnClipboard(undefined);
     setLocalIsShowMessage(undefined);
     setLocalIsShowBadge(undefined);
-    setImportError(undefined);
   }, []);
 
   /**
@@ -188,8 +186,10 @@ export const OptionsMain: React.FC = () => {
     const result = await exportSettings();
     if (result.success) {
       logger.debug('📦⌥', '[OptionsMain.tsx]', '[handleExport]', 'Settings exported successfully');
+      toast.success('Settings exported successfully');
     } else {
       logger.error('📦⌥', '[OptionsMain.tsx]', '[handleExport]', 'Failed to export settings:', result.error);
+      toast.error(result.error?.message ?? 'Failed to export settings');
     }
   }, [exportSettings]);
 
@@ -198,21 +198,21 @@ export const OptionsMain: React.FC = () => {
    */
   const handleImport = useCallback(
     async (event: React.ChangeEvent<HTMLInputElement>) => {
-      /** Unset local settings */
-      unsetLocalSettings();
-
       /** Get the file */
       const file = event.target.files?.[0];
       logger.debug('📦⌥', '[OptionsMain.tsx]', '[handleImport]', 'File:', file);
       if (!file) return;
-      setImportError(undefined);
+
+      /** Unset local settings */
+      unsetLocalSettings();
 
       /** Import the settings */
       const result = await importSettings(file);
       if (result.success) {
         logger.debug('📦⌥', '[OptionsMain.tsx]', '[handleImport]', 'Settings imported successfully');
+        toast.success('Settings imported successfully');
       } else {
-        setImportError(result.error?.message ?? 'Failed to import settings');
+        toast.error(result.error?.message ?? 'Failed to import settings');
         logger.error('📦⌥', '[OptionsMain.tsx]', '[handleImport]', 'Failed to import settings:', result.error);
       }
     },
@@ -230,8 +230,10 @@ export const OptionsMain: React.FC = () => {
     const result = await restoreSettings();
     if (result.success) {
       logger.debug('📦⌥', '[OptionsMain.tsx]', '[handleResetSettings]', 'Settings restored successfully');
+      toast.success('Settings restored successfully');
     } else {
       logger.error('📦⌥', '[OptionsMain.tsx]', '[handleResetSettings]', 'Failed to restore settings:', result.error);
+      toast.error(result.error?.message ?? 'Failed to restore settings');
     }
   }, [restoreSettings, unsetLocalSettings]);
 
@@ -246,8 +248,10 @@ export const OptionsMain: React.FC = () => {
     const result = await resetDatabase();
     if (result.success) {
       logger.debug('📦⌥', '[OptionsMain.tsx]', '[handleDeleteCache]', 'Database cleanup completed');
+      toast.success('Database cleanup completed');
     } else {
       logger.error('📦⌥', '[OptionsMain.tsx]', '[handleDeleteCache]', 'Failed to cleanup database:', result.error);
+      toast.error(result.error?.message ?? 'Failed to cleanup database');
     }
   }, [resetDatabase, unsetLocalSettings]);
 
@@ -256,156 +260,158 @@ export const OptionsMain: React.FC = () => {
    *******************************************************/
 
   return (
-    <div className="min-h-screen p-4 bg-white dark:bg-zinc-900">
-      <div className="mx-auto max-w-3xl">
-        {/* Header */}
-        <div className="flex items-center justify-between gap-2 ps-2">
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">Settings</h1>
-          <button
-            onClick={async () => {
-              try {
-                await chrome.sidePanel.setOptions({ enabled: false });
-              } catch (error) {
-                logger.error('📦⌥', '[OptionsMain.tsx]', '[render]', 'Failed to close side panel', error);
-              }
-            }}
-            className="rounded-full p-2 text-lg text-zinc-600 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:bg-zinc-800"
-          >
-            <IoClose className="h-6 w-6" />
-          </button>
-        </div>
+    <>
+      <Toaster position="top-center" duration={3000} />
+      <div className="min-h-screen p-4 bg-white dark:bg-zinc-900">
+        <div className="mx-auto max-w-3xl">
+          {/* Header */}
+          <div className="flex items-center justify-between gap-2 ps-2">
+            <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">Settings</h1>
+            <button
+              onClick={async () => {
+                try {
+                  await chrome.sidePanel.setOptions({ enabled: false });
+                } catch (error) {
+                  logger.error('📦⌥', '[OptionsMain.tsx]', '[render]', 'Failed to close side panel', error);
+                }
+              }}
+              className="rounded-full p-2 text-lg text-zinc-600 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:bg-zinc-800"
+            >
+              <IoClose className="h-6 w-6" />
+            </button>
+          </div>
 
-        {/* Prompt */}
-        <OptionCard title="Prompt">
-          <TabGroup selectedIndex={localPromptIndex} onChange={setLocalPromptIndex}>
-            <TabList className="flex flex-wrap gap-2">
-              {Object.entries(AIService).map(([name, service]: [string, AIService], index) => (
-                <Tab
-                  key={name}
-                  className={clsx(
-                    'rounded-full px-3 py-1 font-semibold',
-                    'text-zinc-900 dark:text-zinc-50',
-                    'bg-zinc-300 dark:bg-zinc-700',
-                    'opacity-30 dark:opacity-30',
-                    'hover:opacity-100',
-                    localPromptIndex === index && '!opacity-100',
-                    'focus:outline-none',
-                    'transition-opacity'
-                  )}
-                >
-                  {service}
-                </Tab>
-              ))}
-            </TabList>
-            <TabPanels className="mt-3">
-              {Object.entries(AIService).map(([name, service]: [string, AIService]) => (
-                <TabPanel key={name} className="">
-                  <Field>
-                    <Textarea
-                      name="prompt"
-                      className={clsx(
-                        'block w-full rounded-lg',
-                        'px-3 py-1.5 text-base/6',
-                        'text-zinc-700 dark:text-zinc-300',
-                        'bg-zinc-50 dark:bg-zinc-800',
-                        'border border-zinc-300 dark:border-none',
-                        'focus:outline-none focus:ring-1 focus:ring-zinc-300 dark:focus:ring-zinc-700',
-                        'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-300 dark:focus-visible:ring-zinc-700'
-                      )}
-                      rows={12}
-                      value={localPrompt?.[service] ?? ''}
-                      onChange={async e => await setStoredPromptFor(service, e.target.value)}
-                    />
-                  </Field>
-                </TabPanel>
-              ))}
-            </TabPanels>
-          </TabGroup>
-        </OptionCard>
+          {/* Prompt */}
+          <OptionCard title="Prompt">
+            <TabGroup selectedIndex={localPromptIndex} onChange={setLocalPromptIndex}>
+              <TabList className="flex flex-wrap gap-2">
+                {Object.entries(AIService).map(([name, service]: [string, AIService], index) => (
+                  <Tab
+                    key={name}
+                    className={clsx(
+                      'rounded-full px-3 py-1 font-semibold',
+                      'text-zinc-900 dark:text-zinc-50',
+                      'bg-zinc-300 dark:bg-zinc-700',
+                      'opacity-30 dark:opacity-30',
+                      'hover:opacity-100',
+                      localPromptIndex === index && '!opacity-100',
+                      'focus:outline-none',
+                      'transition-opacity'
+                    )}
+                  >
+                    {service}
+                  </Tab>
+                ))}
+              </TabList>
+              <TabPanels className="mt-3">
+                {Object.entries(AIService).map(([name, service]: [string, AIService]) => (
+                  <TabPanel key={name} className="">
+                    <Field>
+                      <Textarea
+                        name="prompt"
+                        className={clsx(
+                          'block w-full rounded-lg',
+                          'px-3 py-1.5 text-base/6',
+                          'text-zinc-700 dark:text-zinc-300',
+                          'bg-zinc-50 dark:bg-zinc-800',
+                          'border border-zinc-300 dark:border-none',
+                          'focus:outline-none focus:ring-1 focus:ring-zinc-300 dark:focus:ring-zinc-700',
+                          'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-300 dark:focus-visible:ring-zinc-700'
+                        )}
+                        rows={12}
+                        value={localPrompt?.[service] ?? ''}
+                        onChange={async e => await setStoredPromptFor(service, e.target.value)}
+                      />
+                    </Field>
+                  </TabPanel>
+                ))}
+              </TabPanels>
+            </TabGroup>
+          </OptionCard>
 
-        {/* Open AI Service in */}
-        <OptionCard title="Open AI Service in">
-          <TabGroup selectedIndex={localTabBehavior} onChange={setLocalTabBehavior}>
-            <TabList className="flex flex-wrap gap-2">
-              {Object.entries(TabBehavior).map(([name, behavior]: [string, TabBehavior], index) => (
-                <Tab
-                  key={name}
-                  className={clsx(
-                    'rounded-full px-3 py-1 font-semibold',
-                    'text-zinc-900 dark:text-zinc-50',
-                    'bg-zinc-300 dark:bg-zinc-700',
-                    'opacity-30 dark:opacity-30',
-                    'hover:opacity-100',
-                    localTabBehavior === index && '!opacity-100',
-                    'focus:outline-none',
-                    'transition-opacity'
-                  )}
-                  onClick={async () => await setStoredTabBehavior(behavior)}
-                >
-                  {getTabBehaviorLabel(behavior)}
-                </Tab>
-              ))}
-            </TabList>
-          </TabGroup>
-        </OptionCard>
+          {/* Open AI Service in */}
+          <OptionCard title="Open AI Service in">
+            <TabGroup selectedIndex={localTabBehavior} onChange={setLocalTabBehavior}>
+              <TabList className="flex flex-wrap gap-2">
+                {Object.entries(TabBehavior).map(([name, behavior]: [string, TabBehavior], index) => (
+                  <Tab
+                    key={name}
+                    className={clsx(
+                      'rounded-full px-3 py-1 font-semibold',
+                      'text-zinc-900 dark:text-zinc-50',
+                      'bg-zinc-300 dark:bg-zinc-700',
+                      'opacity-30 dark:opacity-30',
+                      'hover:opacity-100',
+                      localTabBehavior === index && '!opacity-100',
+                      'focus:outline-none',
+                      'transition-opacity'
+                    )}
+                    onClick={async () => await setStoredTabBehavior(behavior)}
+                  >
+                    {getTabBehaviorLabel(behavior)}
+                  </Tab>
+                ))}
+              </TabList>
+            </TabGroup>
+          </OptionCard>
 
-        {/* Float Panel */}
-        <OptionCard title="Float Button Position">
-          <TabGroup selectedIndex={localFloatPanel} onChange={setLocalFloatPanel}>
-            <TabList className="flex flex-wrap gap-2">
-              {Object.entries(FloatPanelPosition).map(([name, position]: [string, FloatPanelPosition], index) => (
-                <Tab
-                  key={name}
-                  className={clsx(
-                    'rounded-full px-3 py-1 font-semibold',
-                    'text-zinc-900 dark:text-zinc-50',
-                    'bg-zinc-300 dark:bg-zinc-700',
-                    'opacity-30 dark:opacity-30',
-                    'hover:opacity-100',
-                    localFloatPanel === index && '!opacity-100',
-                    'focus:outline-none',
-                    'transition-opacity'
-                  )}
-                  onClick={async () => await setStoredFloatPanelPosition(position)}
-                >
-                  {getFloatPanelPositionLabel(position)}
-                </Tab>
-              ))}
-            </TabList>
-          </TabGroup>
-        </OptionCard>
+          {/* Float Panel */}
+          <OptionCard title="Float Button Position">
+            <TabGroup selectedIndex={localFloatPanel} onChange={setLocalFloatPanel}>
+              <TabList className="flex flex-wrap gap-2">
+                {Object.entries(FloatPanelPosition).map(([name, position]: [string, FloatPanelPosition], index) => (
+                  <Tab
+                    key={name}
+                    className={clsx(
+                      'rounded-full px-3 py-1 font-semibold',
+                      'text-zinc-900 dark:text-zinc-50',
+                      'bg-zinc-300 dark:bg-zinc-700',
+                      'opacity-30 dark:opacity-30',
+                      'hover:opacity-100',
+                      localFloatPanel === index && '!opacity-100',
+                      'focus:outline-none',
+                      'transition-opacity'
+                    )}
+                    onClick={async () => await setStoredFloatPanelPosition(position)}
+                  >
+                    {getFloatPanelPositionLabel(position)}
+                  </Tab>
+                ))}
+              </TabList>
+            </TabGroup>
+          </OptionCard>
 
-        {/* Content Extraction */}
-        <OptionCard title="Content Extraction">
-          <TabGroup selectedIndex={localContentExtractionTiming} onChange={setLocalContentExtractionTiming}>
-            <TabList className="flex flex-wrap gap-2">
-              {Object.entries(ContentExtractionTiming).map(([name, method]: [string, ContentExtractionTiming], index) => (
-                <Tab
-                  key={name}
-                  className={clsx(
-                    'rounded-full px-3 py-1 font-semibold',
-                    'text-zinc-900 dark:text-zinc-50',
-                    'bg-zinc-300 dark:bg-zinc-700',
-                    'opacity-30 dark:opacity-30',
-                    'hover:opacity-100',
-                    localContentExtractionTiming === index && '!opacity-100',
-                    'focus:outline-none',
-                    'transition-opacity'
-                  )}
-                  onClick={async () => await setStoredContentExtractionTiming(method)}
-                >
-                  {getContentExtractionTimingLabel(method)}
-                </Tab>
-              ))}
-            </TabList>
-          </TabGroup>
-        </OptionCard>
-        {storedContentExtractionTiming === ContentExtractionTiming.AUTOMATIC && (
-          <div className="p-2">
-            <h3 className="mb-4 text-default font-semibold text-zinc-900 dark:text-zinc-100">Denylist</h3>
-            <Textarea
-              name="denylist"
-              className={`
+          {/* Content Extraction */}
+          <OptionCard title="Content Extraction">
+            <TabGroup selectedIndex={localContentExtractionTiming} onChange={setLocalContentExtractionTiming}>
+              <TabList className="flex flex-wrap gap-2">
+                {Object.entries(ContentExtractionTiming).map(([name, method]: [string, ContentExtractionTiming], index) => (
+                  <Tab
+                    key={name}
+                    className={clsx(
+                      'rounded-full px-3 py-1 font-semibold',
+                      'text-zinc-900 dark:text-zinc-50',
+                      'bg-zinc-300 dark:bg-zinc-700',
+                      'opacity-30 dark:opacity-30',
+                      'hover:opacity-100',
+                      localContentExtractionTiming === index && '!opacity-100',
+                      'focus:outline-none',
+                      'transition-opacity'
+                    )}
+                    onClick={async () => await setStoredContentExtractionTiming(method)}
+                  >
+                    {getContentExtractionTimingLabel(method)}
+                  </Tab>
+                ))}
+              </TabList>
+            </TabGroup>
+          </OptionCard>
+          {storedContentExtractionTiming === ContentExtractionTiming.AUTOMATIC && (
+            <div className="p-2">
+              <h3 className="mb-4 text-default font-semibold text-zinc-900 dark:text-zinc-100">Denylist</h3>
+              <Textarea
+                name="denylist"
+                className={`
                 block w-full
                 rounded-lg
                 px-3 py-1.5
@@ -414,152 +420,152 @@ export const OptionsMain: React.FC = () => {
                 focus:outline-none focus:ring-1 focus:ring-zinc-300 dark:focus:ring-zinc-700
                 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-300 dark:focus-visible:ring-zinc-700
               `}
-              rows={12}
-              value={localExtractionDenylist}
-              onChange={e => {
-                const newValue = e.target.value;
-                setLocalExtractionDenylist(newValue);
-                const filteredLines = newValue.split('\n');
-                setStoredExtractionDenylist(filteredLines);
-              }}
-            />
-          </div>
-        )}
+                rows={12}
+                value={localExtractionDenylist}
+                onChange={e => {
+                  const newValue = e.target.value;
+                  setLocalExtractionDenylist(newValue);
+                  const filteredLines = newValue.split('\n');
+                  setStoredExtractionDenylist(filteredLines);
+                }}
+              />
+            </div>
+          )}
 
-        {/* Copy Article on Clipboard */}
-        <OptionCard title="Copy Article on Clipboard">
-          <Switch checked={localIsSaveArticleOnClipboard ?? false} onChange={setLocalIsSaveArticleOnClipboard} as={Fragment}>
-            {({ checked, disabled }) => (
-              <button
-                className={clsx(
-                  'group inline-flex h-6 w-11 items-center rounded-full',
-                  checked ? 'bg-blue-600' : 'bg-zinc-200 dark:bg-zinc-700',
-                  disabled && 'cursor-not-allowed opacity-50'
-                )}
-                onClick={async () => await setStoredSaveArticleOnClipboard(!checked)}
-              >
-                <span className="sr-only">Copy Article on Clipboard</span>
-                <span className={clsx('size-4 rounded-full transition', 'bg-white', checked ? 'translate-x-6' : 'translate-x-1')} />
-              </button>
-            )}
-          </Switch>
-        </OptionCard>
+          {/* Copy Article on Clipboard */}
+          <OptionCard title="Copy Article on Clipboard">
+            <Switch checked={localIsSaveArticleOnClipboard ?? false} onChange={setLocalIsSaveArticleOnClipboard} as={Fragment}>
+              {({ checked, disabled }) => (
+                <button
+                  className={clsx(
+                    'group inline-flex h-6 w-11 items-center rounded-full',
+                    checked ? 'bg-blue-600' : 'bg-zinc-200 dark:bg-zinc-700',
+                    disabled && 'cursor-not-allowed opacity-50'
+                  )}
+                  onClick={async () => await setStoredSaveArticleOnClipboard(!checked)}
+                >
+                  <span className="sr-only">Copy Article on Clipboard</span>
+                  <span className={clsx('size-4 rounded-full transition', 'bg-white', checked ? 'translate-x-6' : 'translate-x-1')} />
+                </button>
+              )}
+            </Switch>
+          </OptionCard>
 
-        {/* Show Message when Article is Extracted */}
-        <OptionCard title="Show Message when Article is Extracted">
-          <Switch checked={localIsShowMessage ?? false} onChange={setLocalIsShowMessage} as={Fragment}>
-            {({ checked, disabled }) => (
-              <button
-                className={clsx(
-                  'group inline-flex h-6 w-11 items-center rounded-full',
-                  checked ? 'bg-blue-600' : 'bg-zinc-200 dark:bg-zinc-700',
-                  disabled && 'cursor-not-allowed opacity-50'
-                )}
-                onClick={async () => await setStoredIsShowMessage(!checked)}
-              >
-                <span className="sr-only">Show Message when Article is Extracted</span>
-                <span className={clsx('size-4 rounded-full transition', 'bg-white', checked ? 'translate-x-6' : 'translate-x-1')} />
-              </button>
-            )}
-          </Switch>
-        </OptionCard>
+          {/* Show Message when Article is Extracted */}
+          <OptionCard title="Show Message when Article is Extracted">
+            <Switch checked={localIsShowMessage ?? false} onChange={setLocalIsShowMessage} as={Fragment}>
+              {({ checked, disabled }) => (
+                <button
+                  className={clsx(
+                    'group inline-flex h-6 w-11 items-center rounded-full',
+                    checked ? 'bg-blue-600' : 'bg-zinc-200 dark:bg-zinc-700',
+                    disabled && 'cursor-not-allowed opacity-50'
+                  )}
+                  onClick={async () => await setStoredIsShowMessage(!checked)}
+                >
+                  <span className="sr-only">Show Message when Article is Extracted</span>
+                  <span className={clsx('size-4 rounded-full transition', 'bg-white', checked ? 'translate-x-6' : 'translate-x-1')} />
+                </button>
+              )}
+            </Switch>
+          </OptionCard>
 
-        {/* Show Badge when Article is Extracted */}
-        <OptionCard title="Show Badge when Article is Extracted">
-          <Switch checked={localIsShowBadge ?? false} onChange={setLocalIsShowBadge} as={Fragment}>
-            {({ checked, disabled }) => (
-              <button
-                className={clsx(
-                  'group inline-flex h-6 w-11 items-center rounded-full',
-                  checked ? 'bg-blue-600' : 'bg-zinc-200 dark:bg-zinc-700',
-                  disabled && 'cursor-not-allowed opacity-50'
-                )}
-                onClick={async () => await setStoredIsShowBadge(!checked)}
-              >
-                <span className="sr-only">Show Message when Article is Extracted</span>
-                <span className={clsx('size-4 rounded-full transition', 'bg-white', checked ? 'translate-x-6' : 'translate-x-1')} />
-              </button>
-            )}
-          </Switch>
-        </OptionCard>
+          {/* Show Badge when Article is Extracted */}
+          <OptionCard title="Show Badge when Article is Extracted">
+            <Switch checked={localIsShowBadge ?? false} onChange={setLocalIsShowBadge} as={Fragment}>
+              {({ checked, disabled }) => (
+                <button
+                  className={clsx(
+                    'group inline-flex h-6 w-11 items-center rounded-full',
+                    checked ? 'bg-blue-600' : 'bg-zinc-200 dark:bg-zinc-700',
+                    disabled && 'cursor-not-allowed opacity-50'
+                  )}
+                  onClick={async () => await setStoredIsShowBadge(!checked)}
+                >
+                  <span className="sr-only">Show Message when Article is Extracted</span>
+                  <span className={clsx('size-4 rounded-full transition', 'bg-white', checked ? 'translate-x-6' : 'translate-x-1')} />
+                </button>
+              )}
+            </Switch>
+          </OptionCard>
 
-        {/* Manage Settings */}
-        <OptionCard title="Manage Settings" className="flex flex-col gap-2">
-          <button
-            className={clsx(
-              'rounded-full max-w-60 px-6 py-4 text-lg',
-              'font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors',
-              'focus:outline-none whitespace-nowrap'
-            )}
-            onClick={handleExport}
-          >
-            Export Settings
-          </button>
-          <div className="relative">
-            <input type="file" accept=".json" onChange={handleImport} className="hidden" id="import-settings" />
-            <label
-              htmlFor="import-settings"
+          {/* Manage Settings */}
+          <OptionCard title="Manage Settings" className="flex flex-col gap-2">
+            <button
               className={clsx(
                 'rounded-full max-w-60 px-6 py-4 text-lg',
                 'font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors',
-                'focus:outline-none whitespace-nowrap',
-                'cursor-pointer block text-center'
+                'focus:outline-none whitespace-nowrap'
               )}
+              onClick={handleExport}
             >
-              Import Settings
-            </label>
-            {importError && <div className="mt-2 text-sm text-red-600 dark:text-red-400">{importError}</div>}
-          </div>
-          <button
-            className={clsx(
-              'rounded-full max-w-60 px-6 py-4 text-lg',
-              'font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors',
-              'focus:outline-none whitespace-nowrap'
-            )}
-            onClick={() => setIsResetSettingsDialogOpen(true)}
-          >
-            Restore Default Settings
-          </button>
-        </OptionCard>
-        <OptionCard title="Manage Cache" className="flex flex-col gap-2">
-          <button
-            className={`
+              Export Settings
+            </button>
+            <div className="relative">
+              <input type="file" accept=".json" onChange={handleImport} className="hidden" id="import-settings" />
+              <label
+                htmlFor="import-settings"
+                className={clsx(
+                  'rounded-full max-w-60 px-6 py-4 text-lg',
+                  'font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors',
+                  'focus:outline-none whitespace-nowrap',
+                  'cursor-pointer block text-center'
+                )}
+              >
+                Import Settings
+              </label>
+            </div>
+            <button
+              className={clsx(
+                'rounded-full max-w-60 px-6 py-4 text-lg',
+                'font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors',
+                'focus:outline-none whitespace-nowrap'
+              )}
+              onClick={() => setIsResetSettingsDialogOpen(true)}
+            >
+              Restore Default Settings
+            </button>
+          </OptionCard>
+          <OptionCard title="Manage Cache" className="flex flex-col gap-2">
+            <button
+              className={`
               rounded-full max-w-60 px-6 py-4 text-lg
               font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors
               focus:outline-none whitespace-nowrap
             `}
-            onClick={() => setIsDeleteCacheDialogOpen(true)}
-          >
-            Clear Article Cache
-          </button>
-        </OptionCard>
+              onClick={() => setIsDeleteCacheDialogOpen(true)}
+            >
+              Clear Article Cache
+            </button>
+          </OptionCard>
+        </div>
+
+        {/* Reset Settings Dialog */}
+        <ConfirmDialog
+          isOpen={isResetSettingsDialogOpen}
+          onClose={() => setIsResetSettingsDialogOpen(false)}
+          title="Restore Default Settings"
+          description="Are you sure you want to restore default settings?"
+          confirmText="Restore"
+          onConfirm={async () => {
+            await handleResetSettings();
+            setIsResetSettingsDialogOpen(false);
+          }}
+        />
+
+        {/* Delete Cache Dialog */}
+        <ConfirmDialog
+          isOpen={isDeleteCacheDialogOpen}
+          onClose={() => setIsDeleteCacheDialogOpen(false)}
+          title="Clear Article Cache"
+          description="Are you sure you want to clear all cached articles?"
+          confirmText="Clear"
+          onConfirm={async () => {
+            await handleDeleteCache();
+            setIsDeleteCacheDialogOpen(false);
+          }}
+        />
       </div>
-
-      {/* Reset Settings Dialog */}
-      <ConfirmDialog
-        isOpen={isResetSettingsDialogOpen}
-        onClose={() => setIsResetSettingsDialogOpen(false)}
-        title="Restore Default Settings"
-        description="Are you sure you want to restore default settings?"
-        confirmText="Restore"
-        onConfirm={async () => {
-          await handleResetSettings();
-          setIsResetSettingsDialogOpen(false);
-        }}
-      />
-
-      {/* Delete Cache Dialog */}
-      <ConfirmDialog
-        isOpen={isDeleteCacheDialogOpen}
-        onClose={() => setIsDeleteCacheDialogOpen(false)}
-        title="Clear Article Cache"
-        description="Are you sure you want to clear all cached articles?"
-        confirmText="Clear"
-        onConfirm={async () => {
-          await handleDeleteCache();
-          setIsDeleteCacheDialogOpen(false);
-        }}
-      />
-    </div>
+    </>
   );
 };
