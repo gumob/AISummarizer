@@ -138,6 +138,11 @@ export const OptionsMain: React.FC = () => {
     logger.debug('📦⌥', '[OptionsMain.tsx]', '[useEffect]', 'enableShowBadge', enableShowBadge);
   }, [enableShowBadge]);
 
+  /**
+   * TODO: 設定の読み込み、レストアをしてもUIに反映されない。
+   * TODO: `enableShowBadge === null`のように、nullの場合のみ更新しているのが原因。
+   * TODO: ユーザーインプットとデータの更新が競合しないようにuseEffectの使用方法を見直す。
+   */
   useEffect(() => {
     if (enableShowBadge === null) setEnableShowBadge(isShowBadge);
     logger.debug('📦⌥', '[OptionsMain.tsx]', '[useEffect]', 'isShowBadge', isShowBadge);
