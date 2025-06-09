@@ -204,13 +204,13 @@ export const OptionsMain: React.FC = () => {
       const file = event.target.files?.[0];
       if (!file) return;
 
-      /** Unset input settings */
-      await unsetInputValues();
-
       /** Import the settings */
       const result = await importSettings(file);
       if (result.success) toast.success('Settings imported successfully');
       else toast.error(result.error?.message ?? 'Failed to import settings');
+
+      /** Unset input settings */
+      await unsetInputValues();
     },
     [importSettings, unsetInputValues]
   );
@@ -219,13 +219,13 @@ export const OptionsMain: React.FC = () => {
    * Restore Default Settings
    */
   const handleResetSettings = useCallback(async () => {
-    /** Unset input settings */
-    await unsetInputValues();
-
     /** Restore settings */
     const result = await restoreSettings();
     if (result.success) toast.success('Settings restored successfully');
     else toast.error(result.error?.message ?? 'Failed to restore settings');
+
+    /** Unset input settings */
+    await unsetInputValues();
   }, [restoreSettings, unsetInputValues]);
 
   /**
@@ -306,7 +306,13 @@ export const OptionsMain: React.FC = () => {
                         )}
                         rows={12}
                         value={inputPrompt?.[service] ?? ''}
-                        onChange={async e => await setStoredPromptFor(service, e.target.value)}
+                        onChange={e => {
+                          const newValue = e.target.value;
+                          setInputPrompt(prev => ({
+                            ...(prev ?? {}),
+                            [service]: newValue,
+                          }));
+                        }}
                       />
                     </Field>
                   </TabPanel>
