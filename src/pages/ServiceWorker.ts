@@ -17,6 +17,7 @@ import {
   AIService,
   ContentExtractionTiming,
   formatArticleForClipboard,
+  getAIServiceFromString,
   getSummarizeUrl,
   Message,
   MessageAction,
@@ -26,7 +27,7 @@ import { logger } from '@/utils';
 
 class ServiceWorker {
   themeService = new ThemeService();
-  contextMenuService = new ContextMenuService(this.onContextMenuClicked.bind(this));
+  contextMenuService = new ContextMenuService(this.handleContextMenuClicked.bind(this));
   cleanupService = new CleanupDBService();
 
   constructor() {
@@ -47,6 +48,62 @@ class ServiceWorker {
   /**************************************************
    * Event listeners
    **************************************************/
+
+  /**
+   * Event listener for when the context menu is clicked
+   *
+   * @param info - The information about the clicked context menu
+   * @param tab - The tab that the context menu was clicked on
+   */
+  private async handleContextMenuClicked(info: chrome.contextMenus.OnClickData, tab?: chrome.tabs.Tab) {
+    if (!tab?.id || !tab?.url) {
+      logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleContextMenuClicked]', 'No active tab found');
+      return;
+    }
+
+    switch (info.menuItemId) {
+      case 'chatgpt':
+      case 'gemini':
+      case 'claude':
+      case 'grok':
+      case 'perplexity':
+      case 'deepseek':
+        logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleContextMenuClicked]', 'Extract clicked');
+        try {
+          /** Check if the content script is injected */
+          logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleContextMenuClicked]', 'Tab:', tab);
+          if (tab.id === undefined || tab.id === null || tab.url === undefined || tab.url === null) throw new Error('No active tab found');
+
+          const service = getAIServiceFromString(info.menuItemId);
+          await this.executeSummarization(service, tab.id, tab.url);
+        } catch (error) {
+          logger.error('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleContextMenuClicked]', 'Failed to send message:', error);
+        }
+        break;
+      case 'copy':
+        logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleContextMenuClicked]', 'Copy clicked');
+        await this.readArticleForClipboard(tab.id, tab.url);
+        break;
+
+      case 'extract':
+        logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleContextMenuClicked]', 'Extract clicked');
+        try {
+          /** Send the message to the content script */
+          await chrome.tabs.sendMessage(tab.id, {
+            action: MessageAction.EXTRACT_ARTICLE_START,
+            payload: { tabId: tab.id, url: tab.url },
+          });
+        } catch (error: any) {
+          logger.error('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleContextMenuClicked]', 'Failed to send message to content script:', error);
+        }
+        break;
+      case 'settings':
+        if (!tab.windowId) throw new Error('No window id found');
+        logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleContextMenuClicked]', 'Settings clicked');
+        chrome.sidePanel.open({ windowId: tab.windowId });
+        break;
+    }
+  }
 
   /**
    * Event listener for when the tab is activated
@@ -91,35 +148,34 @@ class ServiceWorker {
         break;
 
       case MessageAction.READ_ARTICLE_FOR_CLIPBOARD:
-        logger.debug('🫳💬', '[ServiceWorker.ts]', '[handleChromeMessage]', 'Copying article to clipboard');
-        const record: ArticleRecord | undefined = await db.getArticleByUrl(message.payload.url);
-        logger.debug('🫳💬', '[ServiceWorker.ts]', '[handleChromeMessage]', 'message.payload.url', message.payload.url);
-        logger.debug('🫳💬', '[ServiceWorker.ts]', '[handleChromeMessage]', 'record', record);
-        if (record && record.is_success) {
-          const text = formatArticleForClipboard(record);
-          chrome.tabs.sendMessage(message.payload.tabId, {
-            action: MessageAction.WRITE_ARTICLE_TO_CLIPBOARD,
-            payload: { tabId: message.payload.tabId, url: message.payload.url, text: text },
-          });
-        } else {
-          logger.warn('🫳💬', '[ServiceWorker.ts]', '[handleChromeMessage]', 'Ignoring message: article is', record);
-          return false;
-        }
-        return true;
+        this.readArticleForClipboard(message.payload.tabId, message.payload.url);
+        break;
 
       default:
         break;
     }
   }
 
-  async onContextMenuClicked(service: AIService, tabId: number, url: string) {
-    logger.debug('📄🤐', '[ServiceWorker.ts]', '[onContextMenuClicked]', service, tabId, url);
-    await this.executeSummarization(service, tabId, url);
-  }
-
   /**************************************************
    * Functions
    **************************************************/
+
+  async readArticleForClipboard(tabId: number, url: string): Promise<boolean> {
+    const record: ArticleRecord | undefined = await db.getArticleByUrl(url);
+    logger.debug('🫳💬', '[ServiceWorker.ts]', '[readArticleForClipboard]', 'url', url);
+    logger.debug('🫳💬', '[ServiceWorker.ts]', '[readArticleForClipboard]', 'record', record);
+    if (record && record.is_success) {
+      const text = formatArticleForClipboard(record);
+      chrome.tabs.sendMessage(tabId, {
+        action: MessageAction.WRITE_ARTICLE_TO_CLIPBOARD,
+        payload: { tabId: tabId, url: url, text: text },
+      });
+      return true;
+    } else {
+      logger.warn('🫳💬', '[ServiceWorker.ts]', '[readArticleForClipboard]', 'Ignoring message: article is', record);
+      return false;
+    }
+  }
 
   async toggleBadge(tabId: number, isArticleExist: boolean) {
     const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
