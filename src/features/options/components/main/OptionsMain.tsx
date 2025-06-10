@@ -430,8 +430,8 @@ export const OptionsMain: React.FC = () => {
             </div>
           )}
 
-          {/* Copy Article on Clipboard */}
-          <OptionCard title="Copy Article on Clipboard">
+          {/* Copy Article to Clipboard */}
+          <OptionCard title="Copy Article to Clipboard When Extraction Completes">
             <Switch checked={inputIsSaveArticleOnClipboard ?? false} onChange={setInputIsSaveArticleOnClipboard} as={Fragment}>
               {({ checked, disabled }) => (
                 <button
@@ -442,15 +442,15 @@ export const OptionsMain: React.FC = () => {
                   )}
                   onClick={async () => await setStoredSaveArticleOnClipboard(!checked)}
                 >
-                  <span className="sr-only">Copy Article on Clipboard</span>
+                  <span className="sr-only">Copy Article to Clipboard</span>
                   <span className={clsx('size-4 rounded-full transition', 'bg-white', checked ? 'translate-x-6' : 'translate-x-1')} />
                 </button>
               )}
             </Switch>
           </OptionCard>
 
-          {/* Show Message when Article is Extracted */}
-          <OptionCard title="Show Message when Article is Extracted">
+          {/* Show Message on Extraction Complete */}
+          <OptionCard title="Show Message When Extraction Completes">
             <Switch checked={inputIsShowMessage ?? false} onChange={setInputIsShowMessage} as={Fragment}>
               {({ checked, disabled }) => (
                 <button
@@ -461,15 +461,15 @@ export const OptionsMain: React.FC = () => {
                   )}
                   onClick={async () => await setStoredIsShowMessage(!checked)}
                 >
-                  <span className="sr-only">Show Message when Article is Extracted</span>
+                  <span className="sr-only">Show Message on Extraction Complete</span>
                   <span className={clsx('size-4 rounded-full transition', 'bg-white', checked ? 'translate-x-6' : 'translate-x-1')} />
                 </button>
               )}
             </Switch>
           </OptionCard>
 
-          {/* Show Badge when Article is Extracted */}
-          <OptionCard title="Show Badge when Article is Extracted">
+          {/* Show Badge on Extraction Complete */}
+          <OptionCard title="Show Badge When Extraction Completes">
             <Switch checked={inputIsShowBadge ?? false} onChange={setInputIsShowBadge} as={Fragment}>
               {({ checked, disabled }) => (
                 <button
@@ -480,7 +480,7 @@ export const OptionsMain: React.FC = () => {
                   )}
                   onClick={async () => await setStoredIsShowBadge(!checked)}
                 >
-                  <span className="sr-only">Show Message when Article is Extracted</span>
+                  <span className="sr-only">Show Message on Extraction Complete</span>
                   <span className={clsx('size-4 rounded-full transition', 'bg-white', checked ? 'translate-x-6' : 'translate-x-1')} />
                 </button>
               )}
