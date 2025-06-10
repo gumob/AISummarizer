@@ -1,6 +1,13 @@
-import { DBSchema, IDBPDatabase, openDB } from 'idb';
+import {
+  DBSchema,
+  IDBPDatabase,
+  openDB,
+} from 'idb';
 
-import { isBrowserSpecificUrl, logger } from '@/utils';
+import {
+  isBrowserSpecificUrl,
+  logger,
+} from '@/utils';
 
 /**
  * ArticleRecord
@@ -147,8 +154,9 @@ export class Database {
    * @param url - The URL of the article
    * @returns The article
    */
-  async getArticleByUrl(url: string): Promise<ArticleRecord | undefined> {
+  async getArticleByUrl(url?: string): Promise<ArticleRecord | undefined> {
     try {
+      if (!url) return undefined;
       /** Skip processing for browser-specific URLs */
       if (isBrowserSpecificUrl(url)) {
         logger.warn('💾', '[Database.tsx]', '[getArticleByUrl]', 'Skipping extraction for browser-specific URLs', url);

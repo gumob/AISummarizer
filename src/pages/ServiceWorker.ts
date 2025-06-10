@@ -42,13 +42,76 @@ class ServiceWorker {
     chrome.tabs.onUpdated.removeListener(this.handleTabUpdated.bind(this));
     chrome.tabs.onUpdated.addListener(this.handleTabUpdated.bind(this));
 
-    chrome.runtime.onMessage.removeListener(this.handleChromeMessage.bind(this));
-    chrome.runtime.onMessage.addListener(this.handleChromeMessage.bind(this));
+    chrome.runtime.onMessage.removeListener(this.handleServiceWorkerMessage.bind(this));
+    chrome.runtime.onMessage.addListener(this.handleServiceWorkerMessage.bind(this));
   }
 
   /**************************************************
    * Event listeners
    **************************************************/
+
+  /**
+   * Event listener for when the tab is activated
+   * @param activeInfo - The information about the activated tab
+   */
+  async handleTabActivated(activeInfo: chrome.tabs.TabActiveInfo) {
+    logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleTabActivated]', activeInfo);
+
+    /** Wait for 500ms */
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    /** Get the active tab */
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+    /** Update the UI state */
+    this.toggleUIState(activeInfo.tabId, tab.url);
+
+    /** Notify the current tab state to the content script */
+    this.notifyCurrentTabState(activeInfo.tabId, tab.url);
+  }
+
+  /**
+   * Event listener for when the tab is updated
+   * @description This event is triggered when the tab is newly created, url updated or reloaded
+   * @param tabId - The ID of the updated tab
+   * @param changeInfo - The information about the updated tab
+   * @param tab - The updated tab
+   */
+  async handleTabUpdated(tabId: number, changeInfo: chrome.tabs.TabChangeInfo, tab: chrome.tabs.Tab) {
+    if (changeInfo.status !== 'complete' || !tab.url) return;
+    logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleTabUpdated]', tab.url, tab.status);
+
+    /** Execute the extraction */
+    await this.executeExtraction(tabId, tab.url, true);
+
+    /** Update the UI state */
+    this.toggleUIState(tabId, tab.url);
+
+    /** Notify the current tab state */
+    this.notifyCurrentTabState(tabId, tab.url);
+  }
+
+  /**
+   * Event listener for when the message is sent from the content script
+   * @param message - The message sent from the content script
+   * @param sender - The sender of the message
+   * @param sendResponse - The response to the message
+   */
+  async handleServiceWorkerMessage(message: Message, sender: chrome.runtime.MessageSender, sendResponse: (response: any) => void) {
+    logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleServiceWorkerMessage]', message.action);
+    switch (message.action) {
+      case MessageAction.SUMMARIZE_ARTICLE:
+        this.executeSummarization(message.payload.service, message.payload.tabId, message.payload.url);
+        break;
+
+      case MessageAction.READ_ARTICLE_FOR_CLIPBOARD:
+        await this.readArticleForClipboard(message.payload.tabId, message.payload.url, true);
+        break;
+
+      default:
+        break;
+    }
+  }
 
   /**
    * Event listener for when the context menu is clicked
@@ -74,11 +137,18 @@ class ServiceWorker {
         break;
 
       case 'copy':
-        this.readArticleForClipboard(tab.id, tab.url);
+        this.readArticleForClipboard(tab.id, tab.url, true);
         break;
 
       case 'extract':
-        this.executeExtraction(tab.id, tab.url);
+        /** Execute the extraction */
+        await this.executeExtraction(tab.id, tab.url, true);
+
+        /** Update the UI state */
+        this.toggleUIState(tab.id, tab.url);
+
+        /** Notify the current tab state */
+        this.notifyCurrentTabState(tab.id, tab.url);
         break;
 
       case 'settings':
@@ -87,60 +157,60 @@ class ServiceWorker {
     }
   }
 
-  /**
-   * Event listener for when the tab is activated
-   * @param activeInfo - The information about the activated tab
-   */
-  async handleTabActivated(activeInfo: chrome.tabs.TabActiveInfo) {
-    logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleTabActivated]', activeInfo);
-    this.contextMenuService.createMenu();
-  }
-
-  /**
-   * Event listener for when the tab is updated
-   * @description This event is triggered when the tab is newly created, url updated or reloaded
-   * @param tabId - The ID of the updated tab
-   * @param changeInfo - The information about the updated tab
-   * @param tab - The updated tab
-   */
-  async handleTabUpdated(tabId: number, changeInfo: chrome.tabs.TabChangeInfo, tab: chrome.tabs.Tab) {
-    if (changeInfo.status !== 'complete' || !tab.url) return;
-    logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleTabUpdated]', tab.url, tab.status);
-    await this.toggleUIState(tabId, tab.url);
-  }
-
-  /**
-   * Event listener for when the message is sent from the content script
-   * @param message - The message sent from the content script
-   * @param sender - The sender of the message
-   * @param sendResponse - The response to the message
-   */
-  async handleChromeMessage(message: Message, sender: chrome.runtime.MessageSender, sendResponse: (response: any) => void) {
-    logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleChromeMessage]', message.action);
-    switch (message.action) {
-      case MessageAction.EXTRACT_ARTICLE_COMPLETE:
-        this.updateArticle(message.payload.tabId, message.payload.url, message.payload.result);
-        break;
-
-      case MessageAction.SUMMARIZE_ARTICLE_START:
-        this.executeSummarization(message.payload.service, message.payload.tabId, message.payload.url);
-        break;
-
-      case MessageAction.SUMMARIZE_ARTICLE_COMPLETE:
-        break;
-
-      case MessageAction.READ_ARTICLE_FOR_CLIPBOARD:
-        await this.readArticleForClipboard(message.payload.tabId, message.payload.url);
-        break;
-
-      default:
-        break;
-    }
-  }
-
   /**************************************************
    * Functions
    **************************************************/
+
+  /**
+   * Execute the extraction
+   * @param tabId - The ID of the tab
+   * @param url - The URL of the tab
+   * @param forcibly - Whether to forcibly extract the article
+   * @returns The article record
+   */
+  async executeExtraction(tabId: number, url: string, forcibly: boolean = false) {
+    logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[executeExtraction]', 'tabId:', tabId, 'url:', url);
+    try {
+      /** Get the article from the database */
+      const doesArticleExist: boolean = (await useArticleStore.getState().getArticleByUrl(url))?.is_success ?? false;
+
+      /** Check if the article should be extracted */
+      let shouldExtract = await (async (doesArticleExist: boolean): Promise<boolean> => {
+        if (forcibly) return true;
+        if (doesArticleExist) return false;
+        const contentExtractionTiming = await useSettingsStore.getState().getContentExtractionTiming();
+        if (contentExtractionTiming === ContentExtractionTiming.AUTOMATIC) return true;
+        return false;
+      })(doesArticleExist);
+
+      /** Extract the article */
+      if (shouldExtract) {
+        /** Send the message to the content script */
+        const response = await chrome.tabs.sendMessage(tabId, {
+          action: MessageAction.EXTRACT_ARTICLE,
+          payload: { tabId: tabId, url: url },
+        });
+
+        /** Handle the response from the content script */
+        const payload = response.payload as { tabId: number; url: string; result: ArticleExtractionResult };
+        if (response.success && payload && payload.result.isSuccess) {
+          /** Save the article to the database */
+          await db.addArticle({
+            url: payload.result.url ?? payload.url,
+            title: payload.result.title,
+            content: payload.result.content,
+            date: new Date(),
+            is_success: true,
+          });
+
+          /** Copy the article to the clipboard */
+          this.readArticleForClipboard(payload.tabId, payload.url, false);
+        }
+      }
+    } catch (error: any) {
+      logger.error('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleContextMenuClicked]', 'Failed to send message to content script:', error);
+    }
+  }
 
   async executeSummarization(service: AIService, tabId: number, url: string): Promise<boolean> {
     try {
@@ -157,9 +227,11 @@ class ServiceWorker {
         case TabBehavior.CURRENT_TAB:
           chrome.tabs.update(tabId, { url: summarizeUrl });
           break;
+
         case TabBehavior.NEW_TAB:
           chrome.tabs.create({ url: summarizeUrl });
           break;
+
         case TabBehavior.NEW_PRIVATE_TAB:
           const windows = await chrome.windows.getAll({ populate: true });
           const incognitoWindow = windows.find(w => w.incognito);
@@ -169,6 +241,7 @@ class ServiceWorker {
             chrome.windows.create({ url: summarizeUrl, incognito: true });
           }
           break;
+
         default:
           break;
       }
@@ -179,101 +252,85 @@ class ServiceWorker {
     }
   }
 
-  async executeExtraction(tabId: number, url: string): Promise<boolean> {
-    try {
-      /** Send the message to the content script */
-      await chrome.tabs.sendMessage(tabId, {
-        action: MessageAction.EXTRACT_ARTICLE_START,
-        payload: { tabId: tabId, url: url },
-      });
-      return true;
-    } catch (error: any) {
-      logger.error('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleContextMenuClicked]', 'Failed to send message to content script:', error);
-      return false;
-    }
-  }
-
   /**
    * Reload the article extraction state
    * @param tabId - The ID of the tab
    * @param url - The URL of the tab
    */
-
-  async toggleUIState(tabId: number, url: string) {
+  async toggleUIState(tabId: number, tabUrl?: string) {
     try {
-      logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[toggleUIState]', 'tabId:', tabId, 'url:', url);
-
       /** Toggle the context menu */
       this.contextMenuService.createMenu();
 
+      logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[toggleUIState]');
+
       /** Get the article from the database */
-      const article = await useArticleStore.getState().getArticleByUrl(url);
+      const doesArticleExist = (await useArticleStore.getState().getArticleByUrl(tabUrl))?.is_success ?? false;
 
       /** Toggle the badge */
       const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
       const isShowBadge = settings[STORAGE_KEYS.SETTINGS]?.state?.isShowBadge ?? DEFAULT_SETTINGS.isShowBadge;
-      if (isShowBadge && article?.is_success) {
-        chrome.action.setBadgeText({ text: '✓', tabId });
-        chrome.action.setBadgeBackgroundColor({ color: '#999999', tabId });
+      if (isShowBadge && doesArticleExist) {
+        chrome.action.setBadgeText({ text: '✓', tabId: tabId });
+        chrome.action.setBadgeBackgroundColor({ color: '#999999', tabId: tabId });
       } else {
-        chrome.action.setBadgeText({ text: '', tabId });
+        chrome.action.setBadgeText({ text: '', tabId: tabId });
       }
-
-      /** Extract the article */
-      if (!article?.is_success) {
-        const contentExtractionTiming = await useSettingsStore.getState().getContentExtractionTiming();
-        if (contentExtractionTiming === ContentExtractionTiming.AUTOMATIC) {
-          this.executeExtraction(tabId, url);
-        }
-      }
-
-      /** Send the message to the content script */
-      await chrome.tabs.sendMessage(tabId, {
-        action: MessageAction.TAB_UPDATED,
-        payload: { tabId: tabId, url: url, article: article },
-      });
     } catch (error: any) {
       logger.error('🧑‍🍳📃', '[ServiceWorker.ts]', 'Failed to update article extraction state', error);
     }
   }
 
-  async updateArticle(tabId: number, tabUrl: string, result: ArticleExtractionResult) {
-    logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[updateArticle]', 'tabId:', tabId, 'tabUrl:', tabUrl, 'result:', result);
-    /** Toggle the context menu */
-    this.contextMenuService.createMenu();
+  /**
+   * Notify the current tab state
+   * @param tabId - The ID of the tab
+   * @param url - The URL of the tab
+   * @param article - The article to notify
+   */
+  async notifyCurrentTabState(tabId: number, url?: string) {
+    logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'tabId:', tabId, 'url:', url);
+    /** Get the article from the database */
+    const article = await db.getArticleByUrl(url);
 
-    logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[updateArticle]', 'Extracting article complete', result);
-    if (result.isSuccess && result.url) {
-      /** Save the article to the database */
-      db.addArticle({
-        url: result.url,
-        title: result.title,
-        content: result.content,
-        date: new Date(),
-        is_success: true,
-      });
-
-      /** Copy the article to the clipboard */
-      const saveArticleOnClipboard = await useSettingsStore.getState().getSaveArticleOnClipboard();
-      if (saveArticleOnClipboard) {
-        await this.readArticleForClipboard(tabId, tabUrl);
-      }
-    }
+    /** Send the message to the content script */
+    const response = await chrome.tabs.sendMessage(tabId, {
+      action: MessageAction.TAB_UPDATED,
+      payload: { tabId: tabId, url: url, article: article },
+    });
+    logger.debug('🧑‍🍳📃🟣🟣🟣🟣🟣🟣', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'response:', response);
   }
 
-  async readArticleForClipboard(tabId: number, url: string): Promise<boolean> {
-    const record: ArticleRecord | undefined = await db.getArticleByUrl(url);
-    logger.debug('🫳💬', '[ServiceWorker.ts]', '[readArticleForClipboard]', 'url', url);
-    logger.debug('🫳💬', '[ServiceWorker.ts]', '[readArticleForClipboard]', 'record', record);
-    if (record && record.is_success) {
-      const text = formatArticleForClipboard(record);
-      chrome.tabs.sendMessage(tabId, {
+  /**
+   * Read the article for clipboard
+   * @param tabId - The ID of the tab
+   * @param url - The URL of the tab
+   * @param forcibly - Whether to forcibly copy the article
+   * @returns Whether the article was copied successfully
+   */
+  async readArticleForClipboard(tabId: number, url: string, forcibly: boolean = false): Promise<boolean> {
+    logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[readArticleForClipboard]', 'tabId:', tabId, 'url:', url, 'forcibly:', forcibly);
+    /** Check if the article should be copied to the clipboard */
+    const shouldCopy = await (async (): Promise<boolean> => {
+      const saveArticleOnClipboard = await useSettingsStore.getState().getSaveArticleOnClipboard();
+      if (forcibly) return true;
+      if (saveArticleOnClipboard) return true;
+      return false;
+    })();
+
+    /** Get the article from the database */
+    const article: ArticleRecord | undefined = await db.getArticleByUrl(url);
+
+    /** Copy the article to the clipboard */
+    if (shouldCopy && article && article.is_success) {
+      const text = formatArticleForClipboard(article);
+      const response = await chrome.tabs.sendMessage(tabId, {
         action: MessageAction.WRITE_ARTICLE_TO_CLIPBOARD,
         payload: { tabId: tabId, url: url, text: text },
       });
+      logger.debug('🧑‍🍳📃🟣🟣🟣🟣🟣🟣', '[ServiceWorker.ts]', '[readArticleForClipboard]', 'response:', response);
       return true;
     } else {
-      logger.warn('🫳💬', '[ServiceWorker.ts]', '[readArticleForClipboard]', 'Ignoring message: article is', record);
+      logger.warn('�‍🍳�', '[ServiceWorker.ts]', '[readArticleForClipboard]', 'Ignoring message: article is', article);
       return false;
     }
   }

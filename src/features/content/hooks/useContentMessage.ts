@@ -10,6 +10,7 @@ import {
   ArticleExtractionResult,
   Message,
   MessageAction,
+  MessageResponse,
 } from '@/types';
 import {
   copyToClipboard,
@@ -27,9 +28,9 @@ export const useContentMessage = () => {
   const extractionService = useRef(new ArticleService());
   const isListenerRegistered = useRef(false);
 
-  const [tabId, setTabId] = useState<number | null>(null);
-  const [tabUrl, setTabUrl] = useState<string | null>(null);
-  const [article, setArticle] = useState<ArticleExtractionResult | null>(null);
+  const [currentTabId, setCurrentTabId] = useState<number | null>(null);
+  const [currentTabUrl, setCurrentTabUrl] = useState<string | null>(null);
+  const [currentArticle, setCurrentArticle] = useState<ArticleExtractionResult | null>(null);
   const [settings, setSettings] = useState(useSettingsStore.getState());
 
   /*******************************************************
@@ -48,24 +49,29 @@ export const useContentMessage = () => {
       return;
     }
 
-    const handleMessage = async (message: Message, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void): Promise<boolean> => {
+    const handleMessage = (message: Message, sender: chrome.runtime.MessageSender, sendResponse: (response: MessageResponse) => void) => {
       logger.debug('🫳💬', '[useContentMessage.tsx]', '[handleMessage]:', message.action);
       if (!message.payload.tabId) {
         logger.warn('🫳💬', '[useContentMessage.tsx]', '[handleMessage]', 'Ignoring message: tabId is', message.payload.tabId);
-        return false;
+        /** Respond to the content script */
+        sendResponse({ success: false, error: new Error('tabId is required') });
+        return true;
       }
       if (!message.payload.url) {
         logger.warn('🫳💬', '[useContentMessage.tsx]', '[handleMessage]', 'Ignoring message: url is', message.payload.url);
-        return false;
+        /** Respond to the content script */
+        sendResponse({ success: false, error: new Error('url is required') });
+        return true;
       }
 
       switch (message.action) {
         case MessageAction.TAB_UPDATED:
           try {
-            setTabId(message.payload.tabId);
-            setTabUrl(message.payload.url);
+            /** Update the current tab state */
+            setCurrentTabId(message.payload.tabId);
+            setCurrentTabUrl(message.payload.url);
             if (message.payload.article) {
-              setArticle({
+              setCurrentArticle({
                 isSuccess: message.payload.article.is_success,
                 title: message.payload.article.title ?? null,
                 lang: message.payload.article.lang ?? null,
@@ -73,57 +79,87 @@ export const useContentMessage = () => {
                 content: message.payload.article.content ?? null,
                 error: message.payload.article.error ?? null,
               });
+            } else {
+              setCurrentArticle(null);
             }
-            return true;
+
+            /** Respond to the content script */
+            sendResponse({ success: true });
           } catch (error) {
             logger.error('🫳💬', '[useContentMessage.tsx]', '[handleMessage]', 'Failed to update tab:', error);
-            return false;
-          }
 
-        case MessageAction.EXTRACT_ARTICLE_START:
+            /** Respond to the content script */
+            sendResponse({ success: false, error: new Error('Failed to update tab') });
+          }
+          break;
+
+        case MessageAction.EXTRACT_ARTICLE:
           try {
-            const result: ArticleExtractionResult = await extractionService.current.execute(message.payload.url);
-            sendResponse(result);
-            chrome.runtime.sendMessage({
-              action: MessageAction.EXTRACT_ARTICLE_COMPLETE,
-              payload: { tabId: message.payload.tabId, url: message.payload.url, result: result },
+            extractionService.current.execute(message.payload.url).then((article: ArticleExtractionResult) => {
+              /** Update the current tab state */
+              setCurrentTabId(message.payload.tabId);
+              setCurrentTabUrl(message.payload.url);
+              setCurrentArticle(article);
+
+              /** Respond to the content script */
+              sendResponse({
+                success: true,
+                payload: {
+                  tabId: message.payload.tabId,
+                  url: message.payload.url,
+                  result: article,
+                },
+              });
             });
-            setTabId(message.payload.tabId);
-            setTabUrl(message.payload.url);
-            setArticle(result);
-            return true;
           } catch (error: any) {
             logger.error('🫳💬', '[useContentMessage.tsx]', '[handleMessage]', 'Failed to extract article:', error);
-            sendResponse({ error: error.message });
-            setArticle(null);
-            return false;
+
+            /** Update the current tab state */
+            setCurrentArticle(null);
+
+            /** Respond to the content script */
+            sendResponse({ success: false, error: new Error(error.message) });
           }
+          break;
 
         case MessageAction.WRITE_ARTICLE_TO_CLIPBOARD:
           try {
             const text = message.payload.text;
             logger.debug('🫳💬', '[useContentMessage.tsx]', '[handleMessage]', 'text', text);
-            if (!text) {
-              logger.warn('🫳💬', '[useContentMessage.tsx]', '[handleMessage]', 'Ignoring message: text is', text);
-              return false;
-            }
-            await copyToClipboard(text);
-            // await navigator.clipboard.write([new ClipboardItem({ 'text/plain': new Blob([text], { type: 'text/plain' }) })]);
-            return true;
+
+            /** Check if the text is valid */
+            if (!text) throw new Error('text is required');
+
+            /** Copy the text to the clipboard */
+            copyToClipboard(text);
+
+            /** Respond to the content script */
+            sendResponse({ success: true });
           } catch (error: any) {
             logger.error('🫳💬', '[useContentMessage.tsx]', '[handleMessage]', 'Failed to write article to clipboard:', error);
-            return false;
+
+            /** Respond to the content script */
+            sendResponse({ success: false, error: new Error('Failed to write article to clipboard') });
           }
+          break;
 
         case MessageAction.SETTINGS_UPDATED:
           setSettings(message.payload);
-          return true;
+
+          /** Respond to the content script */
+          sendResponse({ success: true });
+          break;
 
         default:
           logger.debug('🫳💬', '[useContentMessage.tsx]', '[handleMessage]', 'Unknown message action:', message.action);
-          return true;
+
+          /** Respond to the content script */
+          sendResponse({ success: false, error: new Error('Unknown message action') });
+          break;
       }
+      return true;
     };
+
     chrome.runtime.onMessage.addListener(handleMessage);
     isListenerRegistered.current = true;
 
@@ -134,5 +170,5 @@ export const useContentMessage = () => {
     };
   }, []);
 
-  return { article, tabId, tabUrl, settings };
+  return { currentArticle, currentTabId, currentTabUrl, settings };
 };

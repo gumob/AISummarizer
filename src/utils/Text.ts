@@ -17,7 +17,7 @@ export const normalizeContent = (content: string | null): string | null => {
     .replace(/\n+$/, ''); // Remove trailing newlines
 };
 
-export const copyToClipboard = async (textToCopy: string) => {
+export const copyToClipboard = (textToCopy: string) => {
   const textarea = document.createElement('textarea');
   textarea.value = textToCopy;
   textarea.style.position = 'fixed';

@@ -41,7 +41,7 @@ interface FloatPanelProps {}
  * @returns The FloatPanel component
  */
 export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
-  const { isFloatPanelVisible, settings, tabId, tabUrl } = useContentContext();
+  const { isFloatPanelVisible, settings, currentTabId, currentTabUrl } = useContentContext();
   const [isHovered, setIsHovered] = useState(false);
   const panelRef = useRef<HTMLElement | null>(null);
   const buttonRef = useRef<HTMLElement | null>(null);
@@ -171,15 +171,15 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
                     key={index}
                     onClick={async () => {
                       logger.debug('🫳💬', '[FloatPanel.tsx]', `Clicked ${name} button`);
-                      if (tabId === null || tabUrl === null) throw new Error('No active tab found');
-                      logger.debug('🫳💬', '[FloatPanel.tsx]', 'Sending message to service worker script', tabId, tabUrl);
+                      if (currentTabId === null || currentTabUrl === null) throw new Error('No active tab found');
+                      logger.debug('🫳💬', '[FloatPanel.tsx]', 'Sending message to service worker script', currentTabId, currentTabUrl);
                       try {
                         await chrome.runtime.sendMessage({
-                          action: MessageAction.SUMMARIZE_ARTICLE_START,
+                          action: MessageAction.SUMMARIZE_ARTICLE,
                           payload: {
                             service: service,
-                            tabId: tabId,
-                            url: tabUrl,
+                            tabId: currentTabId,
+                            url: currentTabUrl,
                           },
                         });
                         logger.debug('🫳💬', '[FloatPanel.tsx]', 'Message sent successfully');

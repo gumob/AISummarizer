@@ -1,6 +1,9 @@
 import { create } from 'zustand';
 
-import { ArticleRecord, db } from '@/db/Database';
+import {
+  ArticleRecord,
+  db,
+} from '@/db/Database';
 import { logger } from '@/utils';
 
 interface ArticleStore {
@@ -8,7 +11,7 @@ interface ArticleStore {
   setActiveArticle: (article: ArticleRecord) => void;
   isArticleExtractedForUrl: (url: string) => Promise<boolean>;
   addArticle: (article: Omit<ArticleRecord, 'id'>) => Promise<string>;
-  getArticleByUrl: (url: string) => Promise<ArticleRecord | undefined>;
+  getArticleByUrl: (url?: string) => Promise<ArticleRecord | undefined>;
   getLastCleanupDate: () => Promise<Date | null>;
 }
 
@@ -33,8 +36,9 @@ export const useArticleStore = create<ArticleStore>((set, get) => ({
       throw error;
     }
   },
-  getArticleByUrl: async (url: string): Promise<ArticleRecord | undefined> => {
+  getArticleByUrl: async (url?: string): Promise<ArticleRecord | undefined> => {
     try {
+      if (!url) return undefined;
       // logger.debug('🏪🖼️', '[useArticleStore.ts]', '[getArticleByUrl]', 'Getting article by url:', url);
       return await db.getArticleByUrl(url);
     } catch (error) {

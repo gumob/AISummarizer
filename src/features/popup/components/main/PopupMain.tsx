@@ -75,7 +75,7 @@ export const PopupMain: React.FC = () => {
 
                 /** Send the message to the content script */
                 await chrome.runtime.sendMessage({
-                  action: MessageAction.SUMMARIZE_ARTICLE_START,
+                  action: MessageAction.SUMMARIZE_ARTICLE,
                   payload: {
                     service: service,
                     tabId: tab.id,
@@ -124,7 +124,7 @@ export const PopupMain: React.FC = () => {
 
               /** Send the message to the content script */
               await chrome.tabs.sendMessage(tab.id, {
-                action: MessageAction.EXTRACT_ARTICLE_START,
+                action: MessageAction.EXTRACT_ARTICLE,
                 payload: { tabId: tab.id, url: tab.url },
               });
 

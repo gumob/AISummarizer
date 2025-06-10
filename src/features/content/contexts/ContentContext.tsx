@@ -25,9 +25,9 @@ import { logger } from '@/utils';
  * @property settings - The settings data.
  */
 interface ContentContextValue {
-  tabId: number | null;
-  tabUrl: string | null;
-  article: ArticleExtractionResult | null;
+  currentTabId: number | null;
+  currentTabUrl: string | null;
+  currentArticle: ArticleExtractionResult | null;
   isFloatPanelVisible: boolean;
   settings: SettingsState;
 }
@@ -58,7 +58,7 @@ export const ContentContextProvider: React.FC<ContentContextProviderProps> = ({ 
    * State Management
    *******************************************************/
 
-  const { tabId, tabUrl, article, settings } = useContentMessage();
+  const { currentTabId, currentTabUrl, currentArticle, settings } = useContentMessage();
   const [isFloatPanelVisible, setIsFloatPanelVisible] = useState(false);
 
   /*******************************************************
@@ -67,20 +67,20 @@ export const ContentContextProvider: React.FC<ContentContextProviderProps> = ({ 
 
   useEffect(() => {
     const toggleFloatPanelVisibility = async () => {
-      const isArticleExtracted = article != null && article.isSuccess;
+      const isArticleExtracted = currentArticle != null && currentArticle.isSuccess;
       const state = isArticleExtracted && settings.floatPanelPosition !== FloatPanelPosition.HIDE;
       logger.debug('🗣️🎁', '[ContentContext.tsx]', '[toggleFloatPanelVisibility]', 'state', state);
       setIsFloatPanelVisible(state);
     };
     const toggleShowMessage = async () => {
-      if (article?.isSuccess && settings.isShowMessage) {
+      if (currentArticle?.isSuccess && settings.isShowMessage) {
         logger.debug('🗣️🎁', '[ContentContext.tsx]', '[toggleShowMessage]');
         toast.success('Article extracted successfully');
       }
     };
     toggleFloatPanelVisibility();
     toggleShowMessage();
-  }, [tabId, tabUrl, article, settings]);
+  }, [currentTabId, currentTabUrl, currentArticle, settings]);
 
   /*******************************************************
    * Exported Value
@@ -88,13 +88,13 @@ export const ContentContextProvider: React.FC<ContentContextProviderProps> = ({ 
 
   const value = useMemo(
     () => ({
-      tabId,
-      tabUrl,
-      article,
+      currentTabId,
+      currentTabUrl,
+      currentArticle,
       isFloatPanelVisible,
       settings,
     }),
-    [tabId, tabUrl, article, isFloatPanelVisible, settings]
+    [currentTabId, currentTabUrl, currentArticle, isFloatPanelVisible, settings]
   );
 
   return <ContentContext.Provider value={value}>{children}</ContentContext.Provider>;
