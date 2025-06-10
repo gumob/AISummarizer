@@ -51,6 +51,7 @@ class Background {
    */
   async handleTabActivated(activeInfo: chrome.tabs.TabActiveInfo) {
     // logger.debug('📄🤐', '[Background.ts]', '[handleTabActivated]', 'Tab activated', activeInfo);
+    this.contextMenuService.createMenu();
   }
 
   /**
@@ -206,6 +207,10 @@ class Background {
       logger.warn('📄🤐', '[Background.ts]', '[updateArticle]', 'Ignoring EXTRACT_ARTICLE_COMPLETE for different url', tabUrl, result.url);
       return;
     }
+
+    /** Toggle the context menu */
+    this.contextMenuService.createMenu();
+
     logger.debug('📄🤐', '[Background.ts]', '[updateArticle]', 'Extracting article complete', result);
     if (result.isSuccess) {
       /** Save the article to the database */

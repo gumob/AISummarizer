@@ -1,6 +1,15 @@
+import { db } from '@/db/Database';
 import { MENU_ITEMS } from '@/models';
-import { AIService, getAIServiceFromString, MessageAction } from '@/types';
-import { isBrowserSpecificUrl, isExtractionDenylistUrl, logger } from '@/utils';
+import {
+  AIService,
+  getAIServiceFromString,
+  MessageAction,
+} from '@/types';
+import {
+  isBrowserSpecificUrl,
+  isExtractionDenylistUrl,
+  logger,
+} from '@/utils';
 
 export class ContextMenuService {
   private aiServiceCallback: (service: AIService, tabId: number, url: string) => void;
@@ -27,7 +36,7 @@ export class ContextMenuService {
     }
   }
 
-  private createFullMenu() {
+  private async createFullMenu() {
     try {
       logger.debug('🧑‍🍳📃', '[ContextMenuService.tsx]', '[createFullMenu]', 'Creating full menu');
       const root = chrome.contextMenus.create({
@@ -55,12 +64,15 @@ export class ContextMenuService {
       });
 
       /** Create copy option */
-      // chrome.contextMenus.create({
-      //   id: MENU_ITEMS.COPY.id,
-      //   title: MENU_ITEMS.COPY.title,
-      //   contexts: ['page' as chrome.contextMenus.ContextType],
-      //   parentId: root,
-      // });
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (tab.url && (await db.getArticleByUrl(tab.url))?.is_success) {
+        chrome.contextMenus.create({
+          id: MENU_ITEMS.COPY.id,
+          title: MENU_ITEMS.COPY.title,
+          contexts: ['page' as chrome.contextMenus.ContextType],
+          parentId: root,
+        });
+      }
 
       /** Create extract option */
       chrome.contextMenus.create({
