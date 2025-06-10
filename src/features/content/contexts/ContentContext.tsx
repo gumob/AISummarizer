@@ -1,9 +1,18 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 
 import { toast } from '@/features/content/components/main/Toaster';
-import { useChromeMessage } from '@/features/content/hooks';
+import { useContentMessage } from '@/features/content/hooks';
 import { SettingsState } from '@/stores';
-import { ArticleExtractionResult, FloatPanelPosition } from '@/types';
+import {
+  ArticleExtractionResult,
+  FloatPanelPosition,
+} from '@/types';
 import { logger } from '@/utils';
 
 /**
@@ -49,7 +58,7 @@ export const ContentContextProvider: React.FC<ContentContextProviderProps> = ({ 
    * State Management
    *******************************************************/
 
-  const { tabId, tabUrl, article, settings } = useChromeMessage();
+  const { tabId, tabUrl, article, settings } = useContentMessage();
   const [isFloatPanelVisible, setIsFloatPanelVisible] = useState(false);
 
   /*******************************************************

@@ -1,5 +1,8 @@
 import { STORAGE_KEYS } from '@/constants';
-import { db } from '@/db';
+import {
+  ArticleRecord,
+  db,
+} from '@/db';
 import {
   BackgroundThemeService,
   CleanupDBService,
@@ -13,6 +16,7 @@ import { DEFAULT_SETTINGS } from '@/stores/SettingsStore';
 import {
   AIService,
   ContentExtractionTiming,
+  formatArticleForClipboard,
   getSummarizeUrl,
   Message,
   MessageAction,
@@ -85,6 +89,23 @@ class Background {
 
       case MessageAction.SUMMARIZE_ARTICLE_COMPLETE:
         break;
+
+      case MessageAction.READ_ARTICLE_FOR_CLIPBOARD:
+        logger.debug('🫳💬', '[Background.ts]', '[handleChromeMessage]', 'Copying article to clipboard');
+        const record: ArticleRecord | undefined = await db.getArticleByUrl(message.payload.url);
+        logger.debug('🫳💬', '[Background.ts]', '[handleChromeMessage]', 'message.payload.url', message.payload.url);
+        logger.debug('🫳💬', '[Background.ts]', '[handleChromeMessage]', 'record', record);
+        if (record && record.is_success) {
+          const text = formatArticleForClipboard(record);
+          chrome.tabs.sendMessage(message.payload.tabId, {
+            action: MessageAction.WRITE_ARTICLE_TO_CLIPBOARD,
+            payload: { tabId: message.payload.tabId, url: message.payload.url, text: text },
+          });
+        } else {
+          logger.warn('🫳💬', '[Background.ts]', '[handleChromeMessage]', 'Ignoring message: article is', record);
+          return false;
+        }
+        return true;
 
       default:
         break;
@@ -225,8 +246,8 @@ class Background {
       if (saveArticleOnClipboard) {
         const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
         if (tab.id) {
-          await chrome.tabs.sendMessage(tab.id, {
-            action: MessageAction.COPY_ARTICLE_TO_CLIPBOARD,
+          await chrome.runtime.sendMessage({
+            action: MessageAction.READ_ARTICLE_FOR_CLIPBOARD,
             payload: { tabId: tabId, url: tabUrl },
           });
         }

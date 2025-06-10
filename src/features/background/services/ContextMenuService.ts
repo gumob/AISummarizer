@@ -1,21 +1,13 @@
 import { db } from '@/db/Database';
 import { MENU_ITEMS } from '@/models';
-import {
-  AIService,
-  getAIServiceFromString,
-  MessageAction,
-} from '@/types';
-import {
-  isBrowserSpecificUrl,
-  isExtractionDenylistUrl,
-  logger,
-} from '@/utils';
+import { AIService, getAIServiceFromString, MessageAction } from '@/types';
+import { isBrowserSpecificUrl, isExtractionDenylistUrl, logger } from '@/utils';
 
 export class ContextMenuService {
   private aiServiceCallback: (service: AIService, tabId: number, url: string) => void;
   constructor(aiServiceCallback: (service: AIService, tabId: number, url: string) => void) {
     this.aiServiceCallback = aiServiceCallback;
-    this.setupClickHandler();
+    chrome.contextMenus.onClicked.addListener(this.handleClick.bind(this));
   }
 
   async createMenu() {
@@ -121,66 +113,59 @@ export class ContextMenuService {
     }
   }
 
-  private setupClickHandler() {
-    chrome.contextMenus.onClicked.addListener(async (info, tab) => {
-      if (!tab?.id) return;
+  private async handleClick(info: chrome.contextMenus.OnClickData, tab?: chrome.tabs.Tab) {
+    if (!tab?.id || !tab?.url) {
+      logger.warn('🧑‍🍳📃', '[ContextMenuService.tsx]', '[handleClick]', 'No active tab found');
+      return;
+    }
 
-      switch (info.menuItemId) {
-        case 'chatgpt':
-        case 'gemini':
-        case 'claude':
-        case 'grok':
-        case 'perplexity':
-        case 'deepseek':
-          logger.debug('🧑‍🍳📃', '[ContextMenuService.tsx]', '[setupClickHandler]', 'Extract clicked');
-          try {
-            /** Check if the content script is injected */
-            logger.debug('🧑‍🍳📃', '[ContextMenuService.tsx]', '[setupClickHandler]', 'Tab:', tab);
-            if (tab.id === undefined || tab.id === null || tab.url === undefined || tab.url === null) throw new Error('No active tab found');
+    switch (info.menuItemId) {
+      case 'chatgpt':
+      case 'gemini':
+      case 'claude':
+      case 'grok':
+      case 'perplexity':
+      case 'deepseek':
+        logger.debug('🧑‍🍳📃', '[ContextMenuService.tsx]', '[handleClick]', 'Extract clicked');
+        try {
+          /** Check if the content script is injected */
+          logger.debug('🧑‍🍳📃', '[ContextMenuService.tsx]', '[handleClick]', 'Tab:', tab);
+          if (tab.id === undefined || tab.id === null || tab.url === undefined || tab.url === null) throw new Error('No active tab found');
 
-            this.aiServiceCallback(getAIServiceFromString(info.menuItemId), tab.id, tab.url);
-          } catch (error) {
-            logger.error('🧑‍🍳📃', '[ContextMenuService.tsx]', '[setupClickHandler]', 'Failed to send message:', error);
-          }
-
-          break;
-        case 'copy':
-          logger.debug('🧑‍🍳📃', '[ContextMenuService.tsx]', '[setupClickHandler]', 'Copy clicked');
-          if (!tab.id) throw new Error('No active tab found');
-          if (!tab.url) throw new Error('No url found');
-          await chrome.tabs.sendMessage(tab.id, {
-            action: MessageAction.COPY_ARTICLE_TO_CLIPBOARD,
+          this.aiServiceCallback(getAIServiceFromString(info.menuItemId), tab.id, tab.url);
+        } catch (error) {
+          logger.error('🧑‍🍳📃', '[ContextMenuService.tsx]', '[handleClick]', 'Failed to send message:', error);
+        }
+        break;
+      case 'copy':
+        logger.debug('🧑‍🍳📃', '[ContextMenuService.tsx]', '[handleClick]', 'Copy clicked');
+        try {
+          await chrome.runtime.sendMessage({
+            action: MessageAction.READ_ARTICLE_FOR_CLIPBOARD,
             payload: { tabId: tab.id, url: tab.url },
           });
-          break;
+        } catch (error) {
+          logger.error('🧑‍🍳📃', '[ContextMenuService.tsx]', '[handleClick]', 'Failed to send message:', error);
+        }
+        break;
 
-        case 'extract':
-          logger.debug('🧑‍🍳📃', '[ContextMenuService.tsx]', '[setupClickHandler]', 'Extract clicked');
-          try {
-            /** Check if the content script is injected */
-            if (tab.id === undefined || tab.id === null) throw new Error('No active tab found');
-
-            /** Inject the content script */
-            // await chrome.scripting.executeScript({
-            //   target: { tabId: tab.id },
-            //   files: ['content.js'],
-            // });
-
-            /** Send the message to the content script */
-            await chrome.tabs.sendMessage(tab.id, {
-              action: MessageAction.EXTRACT_ARTICLE_START,
-              payload: { tabId: tab.id, url: tab.url },
-            });
-          } catch (error: any) {
-            logger.error('🧑‍🍳📃', '[ContextMenuService.tsx]', '[setupClickHandler]', 'Failed to send message to content script:', error);
-          }
-          break;
-        case 'settings':
-          if (!tab.windowId) throw new Error('No window id found');
-          logger.debug('🧑‍🍳📃', '[ContextMenuService.tsx]', '[setupClickHandler]', 'Settings clicked');
-          chrome.sidePanel.open({ windowId: tab.windowId });
-          break;
-      }
-    });
+      case 'extract':
+        logger.debug('🧑‍🍳📃', '[ContextMenuService.tsx]', '[handleClick]', 'Extract clicked');
+        try {
+          /** Send the message to the content script */
+          await chrome.tabs.sendMessage(tab.id, {
+            action: MessageAction.EXTRACT_ARTICLE_START,
+            payload: { tabId: tab.id, url: tab.url },
+          });
+        } catch (error: any) {
+          logger.error('🧑‍🍳📃', '[ContextMenuService.tsx]', '[handleClick]', 'Failed to send message to content script:', error);
+        }
+        break;
+      case 'settings':
+        if (!tab.windowId) throw new Error('No window id found');
+        logger.debug('🧑‍🍳📃', '[ContextMenuService.tsx]', '[handleClick]', 'Settings clicked');
+        chrome.sidePanel.open({ windowId: tab.windowId });
+        break;
+    }
   }
 }

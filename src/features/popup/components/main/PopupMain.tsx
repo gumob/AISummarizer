@@ -82,6 +82,8 @@ export const PopupMain: React.FC = () => {
                     url: tab.url!,
                   },
                 });
+
+                /** Close the popup */
                 window.close();
               }}
             >
@@ -95,11 +97,15 @@ export const PopupMain: React.FC = () => {
               logger.debug('📦🍿', '[PopupMain.tsx]', '[render]', 'Copy to clipboard');
               const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
               if (!tab.id) throw new Error('No active tab found');
-              await chrome.tabs.sendMessage(tab.id, {
-                action: MessageAction.COPY_ARTICLE_TO_CLIPBOARD,
+              await chrome.runtime.sendMessage({
+                action: MessageAction.READ_ARTICLE_FOR_CLIPBOARD,
                 payload: { tabId: tab.id, url: tab.url },
               });
-              window.close();
+
+              /** Close the popup */
+              // setTimeout(() => {
+              //   window.close();
+              // }, 1000);
             }}
           >
             <IoClipboardOutline className="w-4 h-4" />
@@ -160,6 +166,8 @@ export const PopupMain: React.FC = () => {
               if (tab?.id) {
                 chrome.sidePanel.setOptions({ path: 'options.html', enabled: true });
                 chrome.sidePanel.open({ windowId: tab.windowId });
+
+                /** Close the popup */
                 window.close();
               }
             }}
