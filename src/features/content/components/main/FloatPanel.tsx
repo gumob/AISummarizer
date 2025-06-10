@@ -172,7 +172,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
                     onClick={async () => {
                       logger.debug('🫳💬', '[FloatPanel.tsx]', `Clicked ${name} button`);
                       if (tabId === null || tabUrl === null) throw new Error('No active tab found');
-                      logger.debug('🫳💬', '[FloatPanel.tsx]', 'Sending message to background script', tabId, tabUrl);
+                      logger.debug('🫳💬', '[FloatPanel.tsx]', 'Sending message to service worker script', tabId, tabUrl);
                       try {
                         await chrome.runtime.sendMessage({
                           action: MessageAction.SUMMARIZE_ARTICLE_START,

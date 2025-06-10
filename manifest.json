@@ -19,7 +19,7 @@
     "128": "icons/color/icon128.png"
   },
   "background": {
-    "service_worker": "background.js",
+    "service_worker": "service-worker.js",
     "type": "module"
   },
   "content_scripts": [

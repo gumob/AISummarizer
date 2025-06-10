@@ -1,3 +1,3 @@
-export * from './BackgroundThemeService';
+export * from './ThemeService';
 export * from './CleanupDBService';
 export * from './ContextMenuService';

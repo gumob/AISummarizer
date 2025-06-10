@@ -4,7 +4,7 @@ import { logger } from '@/utils';
 /**
  * Service for detecting theme changes in the offscreen document
  * This service is used to detect theme changes in the offscreen document
- * and send the message to the background script
+ * and send the message to the service worker script
  *
  * @see https://developer.chrome.com/docs/extensions/reference/offscreen/
  * @see https://developer.chrome.com/docs/extensions/reference/runtime/
@@ -66,7 +66,7 @@ export class OffscreenThemeService {
   }
 
   /**
-   * Send the theme status to the background script
+   * Send the theme status to the service worker script
    */
   private sendThemeStatus = () => {
     const isDarkMode = this.mediaQuery.matches;

@@ -4,10 +4,10 @@ import {
   db,
 } from '@/db';
 import {
-  BackgroundThemeService,
   CleanupDBService,
   ContextMenuService,
-} from '@/features/background/services';
+  ThemeService,
+} from '@/features/serviceworker/services';
 import {
   useArticleStore,
   useSettingsStore,
@@ -24,13 +24,13 @@ import {
 } from '@/types';
 import { logger } from '@/utils';
 
-class Background {
-  themeService = new BackgroundThemeService();
+class ServiceWorker {
+  themeService = new ThemeService();
   contextMenuService = new ContextMenuService(this.onContextMenuClicked.bind(this));
   cleanupService = new CleanupDBService();
 
   constructor() {
-    logger.debug('📄🤐', '[Background.ts]', '[constructor]', 'Background initialized');
+    logger.debug('📄🤐', '[ServiceWorker.ts]', '[constructor]', 'ServiceWorker initialized');
     this.themeService.initialize();
     this.cleanupService.startCleanup();
 
@@ -53,7 +53,7 @@ class Background {
    * @param activeInfo - The information about the activated tab
    */
   async handleTabActivated(activeInfo: chrome.tabs.TabActiveInfo) {
-    // logger.debug('📄🤐', '[Background.ts]', '[handleTabActivated]', 'Tab activated', activeInfo);
+    // logger.debug('📄🤐', '[ServiceWorker.ts]', '[handleTabActivated]', 'Tab activated', activeInfo);
     this.contextMenuService.createMenu();
   }
 
@@ -66,7 +66,7 @@ class Background {
    */
   async handleTabUpdated(tabId: number, changeInfo: chrome.tabs.TabChangeInfo, tab: chrome.tabs.Tab) {
     if (changeInfo.status !== 'complete' || !tab.url) return;
-    logger.debug('📄🤐', '[Background.ts]', '[handleTabUpdated]', 'Tab updated', tab.url, tab.status);
+    logger.debug('📄🤐', '[ServiceWorker.ts]', '[handleTabUpdated]', 'Tab updated', tab.url, tab.status);
     await this.updateStateAndLoadArticle(tabId, tab.url);
   }
 
@@ -77,7 +77,7 @@ class Background {
    * @param sendResponse - The response to the message
    */
   async handleChromeMessage(message: Message, sender: chrome.runtime.MessageSender, sendResponse: (response: any) => void) {
-    logger.debug('📄🤐', '[Background.ts]', '[handleChromeMessage]', 'message', message.action);
+    logger.debug('📄🤐', '[ServiceWorker.ts]', '[handleChromeMessage]', 'message', message.action);
     switch (message.action) {
       case MessageAction.EXTRACT_ARTICLE_COMPLETE:
         this.updateArticle(sender.tab?.id, sender.tab?.url, message.payload.result);
@@ -91,10 +91,10 @@ class Background {
         break;
 
       case MessageAction.READ_ARTICLE_FOR_CLIPBOARD:
-        logger.debug('🫳💬', '[Background.ts]', '[handleChromeMessage]', 'Copying article to clipboard');
+        logger.debug('🫳💬', '[ServiceWorker.ts]', '[handleChromeMessage]', 'Copying article to clipboard');
         const record: ArticleRecord | undefined = await db.getArticleByUrl(message.payload.url);
-        logger.debug('🫳💬', '[Background.ts]', '[handleChromeMessage]', 'message.payload.url', message.payload.url);
-        logger.debug('🫳💬', '[Background.ts]', '[handleChromeMessage]', 'record', record);
+        logger.debug('🫳💬', '[ServiceWorker.ts]', '[handleChromeMessage]', 'message.payload.url', message.payload.url);
+        logger.debug('🫳💬', '[ServiceWorker.ts]', '[handleChromeMessage]', 'record', record);
         if (record && record.is_success) {
           const text = formatArticleForClipboard(record);
           chrome.tabs.sendMessage(message.payload.tabId, {
@@ -102,7 +102,7 @@ class Background {
             payload: { tabId: message.payload.tabId, url: message.payload.url, text: text },
           });
         } else {
-          logger.warn('🫳💬', '[Background.ts]', '[handleChromeMessage]', 'Ignoring message: article is', record);
+          logger.warn('🫳💬', '[ServiceWorker.ts]', '[handleChromeMessage]', 'Ignoring message: article is', record);
           return false;
         }
         return true;
@@ -113,7 +113,7 @@ class Background {
   }
 
   async onContextMenuClicked(service: AIService, tabId: number, url: string) {
-    logger.debug('📄🤐', '[Background.ts]', '[onContextMenuClicked]', service, tabId, url);
+    logger.debug('📄🤐', '[ServiceWorker.ts]', '[onContextMenuClicked]', service, tabId, url);
     await this.executeSummarization(service, tabId, url);
   }
 
@@ -154,7 +154,7 @@ class Background {
   }
 
   async executeSummarization(service: AIService, tabId: number, url: string) {
-    logger.debug('📄🤐', '[Background.ts]', '[executeSummarization]', service, tabId, url);
+    logger.debug('📄🤐', '[ServiceWorker.ts]', '[executeSummarization]', service, tabId, url);
     const article = await db.getArticleByUrl(url);
     if (article?.is_success) {
       const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
@@ -180,7 +180,7 @@ class Background {
           break;
       }
     } else {
-      logger.warn('📄🤐', '[Background.ts]', '[onContextMenuClicked]', 'Article not found', url);
+      logger.warn('📄🤐', '[ServiceWorker.ts]', '[onContextMenuClicked]', 'Article not found', url);
     }
   }
 
@@ -192,7 +192,7 @@ class Background {
 
   async updateStateAndLoadArticle(tabId: number, url: string) {
     try {
-      logger.debug('📄🤐', '[Background.ts]', '[updateStateAndLoadArticle]', 'tabId:', tabId, 'url:', url);
+      logger.debug('📄🤐', '[ServiceWorker.ts]', '[updateStateAndLoadArticle]', 'tabId:', tabId, 'url:', url);
 
       /** Get the article from the database */
       const article = await useArticleStore.getState().getArticleByUrl(url);
@@ -213,25 +213,25 @@ class Background {
         payload: { tabId: tabId, url: url, article: article },
       });
     } catch (error: any) {
-      logger.error('📄🤐', '[Background.ts]', 'Failed to update article extraction state', error);
+      logger.error('📄🤐', '[ServiceWorker.ts]', 'Failed to update article extraction state', error);
     }
   }
 
   async updateArticle(tabId?: number, tabUrl?: string, result?: any) {
     // Only process messages from content scripts
     if (!tabId) {
-      logger.warn('📄🤐', '[Background.ts]', '[updateArticle]', 'Ignoring EXTRACT_ARTICLE_COMPLETE from non-content script');
+      logger.warn('📄🤐', '[ServiceWorker.ts]', '[updateArticle]', 'Ignoring EXTRACT_ARTICLE_COMPLETE from non-content script');
       return;
     }
     if (tabUrl !== result.url) {
-      logger.warn('📄🤐', '[Background.ts]', '[updateArticle]', 'Ignoring EXTRACT_ARTICLE_COMPLETE for different url', tabUrl, result.url);
+      logger.warn('📄🤐', '[ServiceWorker.ts]', '[updateArticle]', 'Ignoring EXTRACT_ARTICLE_COMPLETE for different url', tabUrl, result.url);
       return;
     }
 
     /** Toggle the context menu */
     this.contextMenuService.createMenu();
 
-    logger.debug('📄🤐', '[Background.ts]', '[updateArticle]', 'Extracting article complete', result);
+    logger.debug('📄🤐', '[ServiceWorker.ts]', '[updateArticle]', 'Extracting article complete', result);
     if (result.isSuccess) {
       /** Save the article to the database */
       db.addArticle({
@@ -256,4 +256,4 @@ class Background {
   }
 }
 
-new Background();
+new ServiceWorker();

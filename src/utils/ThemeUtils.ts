@@ -6,10 +6,10 @@ import { logger } from '@/utils';
  */
 
 /**
- * Check if background script is ready
- * @returns Whether the background script is ready
+ * Check if service worker script is ready
+ * @returns Whether the service worker script is ready
  */
-const isBackgroundScriptReady = async (): Promise<boolean> => {
+const isServiceWorkerScriptReady = async (): Promise<boolean> => {
   try {
     await chrome.runtime.sendMessage({ action: MessageAction.PING });
     return true;
@@ -25,10 +25,10 @@ export const detectTheme = async () => {
   const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
   logger.debug('🎨', '[ThemeUtils.ts]', '[detectTheme]', 'Theme detected', isDarkMode ? 'dark' : 'light');
 
-  /** Check if the background script is ready */
-  const isReady = await isBackgroundScriptReady();
+  /** Check if the service worker script is ready */
+  const isReady = await isServiceWorkerScriptReady();
   if (!isReady) {
-    logger.warn('🎨', '[ThemeUtils.ts]', '[detectTheme]', 'Background script is not ready, skipping theme detection');
+    logger.warn('🎨', '[ThemeUtils.ts]', '[detectTheme]', 'ServiceWorker script is not ready, skipping theme detection');
     return;
   }
 

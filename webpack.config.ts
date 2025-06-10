@@ -18,7 +18,7 @@ const config: Configuration = {
       import: './src/pages/Options.tsx',
       filename: 'options.js',
     },
-    background: './src/pages/Background.ts',
+    'service-worker': './src/pages/ServiceWorker.ts',
     offscreen: './src/pages/Offscreen.ts',
     content: './src/pages/Content.tsx',
   },
