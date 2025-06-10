@@ -11,12 +11,16 @@ export class ContextMenuService {
   }
 
   async createMenu() {
-    await this.removeMenu();
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    if (tab.url && !(await isInvalidUrl(tab.url))) {
-      await this.createFullMenu();
-    } else {
-      await this.createBasicMenu();
+    try {
+      await this.removeMenu();
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (tab.url && !(await isInvalidUrl(tab.url))) {
+        await this.createFullMenu();
+      } else {
+        await this.createBasicMenu();
+      }
+    } catch (error) {
+      logger.error('🧑‍🍳📃', '[ContextMenuService.tsx]', '[createMenu]', 'Failed to create context menu:', error);
     }
   }
 
