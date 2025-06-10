@@ -20,7 +20,6 @@ export class ArticleService {
       return {
         isSuccess: false,
         title: null,
-        lang: null,
         url: url,
         content: null,
         error: new Error('Skipping extraction for invalid URLs'),
@@ -39,7 +38,6 @@ export class ArticleService {
         return {
           isSuccess: false,
           title: null,
-          lang: null,
           url: url,
           content: null,
           error: error instanceof Error ? error : new Error('Failed to extract article'),
@@ -59,7 +57,6 @@ export class ArticleService {
       return {
         isSuccess: false,
         title: null,
-        lang: null,
         url: url,
         content: null,
         error: error instanceof Error ? error : new Error('Failed to extract article'),

@@ -74,7 +74,6 @@ export const useContentMessage = () => {
               setCurrentArticle({
                 isSuccess: message.payload.article.is_success,
                 title: message.payload.article.title ?? null,
-                lang: message.payload.article.lang ?? null,
                 url: message.payload.article.url,
                 content: message.payload.article.content ?? null,
                 error: message.payload.article.error ?? null,

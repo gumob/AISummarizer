@@ -1,153 +1,115 @@
 import { ArticleExtractionResult } from '@/types';
-import { logger, normalizeContent } from '@/utils';
+import { logger } from '@/utils';
 
-/** List of punctuation marks. */
-const puncs = [',', '.', '?', '!', ';', ':'];
-
-/**
- * Interface for a caption track.
- * @property baseUrl - The base URL of the caption track.
- * @property languageCode - The code of the language of the caption track.
- * @property name - The name of the caption track.
- */
-interface CaptionTrack {
-  baseUrl: string;
-  languageCode: string;
-  name: {
-    simpleText: string;
-  };
+interface TranscriptSegment {
+  start: number;
+  texts: string[];
 }
 
 /**
- * Interface for the player response.
- * @property captions - The captions of the player.
- * @property playerCaptionsTracklistRenderer - The player captions tracklist renderer.
- * @property videoDetails - The video details of the player.
+ * Parse timestamp string to seconds
+ * @param timestamp - The timestamp string in format "MM:SS" or "HH:MM:SS"
+ * @returns The number of seconds
  */
-interface PlayerResponse {
-  captions?: {
-    playerCaptionsTracklistRenderer?: {
-      captionTracks?: CaptionTrack[];
-      defaultAudioTrackIndex?: number;
-    };
-  };
-  videoDetails?: {
-    title?: string;
-  };
+function parseTimestamp(timestamp: string): number {
+  const parts = timestamp.split(':').map(Number);
+  if (parts.length === 2) {
+    // MM:SS format
+    const [minutes, seconds] = parts;
+    return minutes * 60 + seconds;
+  } else if (parts.length === 3) {
+    // HH:MM:SS format
+    const [hours, minutes, seconds] = parts;
+    return hours * 3600 + minutes * 60 + seconds;
+  }
+  return 0;
 }
 
 /**
- * This function is used to get the HTML of a YouTube video by its ID.
- * @param videoId - The ID of the YouTube video.
- * @returns The HTML of the YouTube video.
- */
-async function getHtmlByVideoID(videoId: string): Promise<string> {
-  /** Generate the URL of the YouTube video. */
-  const url = new URL('https://www.youtube.com/watch');
-  url.searchParams.set('v', videoId);
-
-  /** Fetch the HTML of the YouTube video. */
-  const response = await fetch(url.toString(), {
-    headers: {
-      accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-      'accept-language': 'en-US,en;q=0.9',
-      'cache-control': 'no-cache',
-      pragma: 'no-cache',
-      'sec-ch-ua': '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
-      'sec-ch-ua-mobile': '?0',
-      'sec-ch-ua-platform': '"macOS"',
-      'sec-fetch-dest': 'document',
-      'sec-fetch-mode': 'navigate',
-      'sec-fetch-site': 'none',
-      'sec-fetch-user': '?1',
-      'upgrade-insecure-requests': '1',
-      'user-agent': navigator.userAgent,
-    },
-    credentials: 'omit',
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch YouTube page: ${response.status} ${response.statusText}`);
-  }
-
-  return await response.text();
-}
-
-/**
- * This function is used to select the caption track based on the language priority.
- * @param captionTracks - The caption tracks.
- * @param defaultAudioTrackIndex - The index of the default audio track.
- * @returns The selected caption track.
- */
-function selectCaptionTrack(captionTracks: CaptionTrack[], defaultAudioTrackIndex?: number): CaptionTrack | undefined {
-  if (!captionTracks || captionTracks.length === 0) {
-    return undefined;
-  }
-
-  /** 1. The original language of the video (specified by defaultAudioTrackIndex). */
-  if (defaultAudioTrackIndex !== undefined && captionTracks[defaultAudioTrackIndex]) {
-    return captionTracks[defaultAudioTrackIndex];
-  }
-
-  /** 2. The browser's setting language. */
-  const browserLanguage = navigator.language.split('-')[0]; // 'ja-JP' -> 'ja'
-  const browserLanguageTrack = captionTracks.find(track => track.languageCode === browserLanguage);
-  if (browserLanguageTrack) {
-    return browserLanguageTrack;
-  }
-
-  /** 3. The first available caption track. */
-  return captionTracks[0];
-}
-
-/**
- * Format seconds into MM:SS format
+ * Format seconds into time string
  * @param seconds - The number of seconds
- * @returns The formatted time string
+ * @returns The formatted time string in format "MM:SS" or "HH:MM:SS"
  */
 function formatTime(seconds: number): string {
-  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
   const remainingSeconds = Math.floor(seconds % 60);
-  return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+
+  if (hours > 0) {
+    // HH:MM:SS format for times over 1 hour
+    return `${hours}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+  } else {
+    // MM:SS format for times under 1 hour
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  }
 }
 
 /**
  * Group transcript segments by time intervals
- * @param elements - The text elements from XML
- * @param videoId - The YouTube video ID
+ * @param segments - Array of transcript segments
  * @returns Array of grouped transcript segments
  */
-function groupTranscriptSegments(elements: HTMLCollectionOf<Element>, videoId: string): string[] {
-  const groups: { start: number; texts: string[] }[] = [];
-  let currentGroup: { start: number; texts: string[] } | null = null;
+function groupTranscriptSegments(segments: { start: number; text: string }[]): TranscriptSegment[] {
+  const groups: TranscriptSegment[] = [];
+  let currentGroup: TranscriptSegment | null = null;
 
-  for (let i = 0; i < elements.length; i++) {
-    const element = elements[i];
-    const text = element.textContent?.trim();
-    const start = parseFloat(element.getAttribute('start') || '0');
-
-    if (!text) continue;
-
-    /**
-     * Start a new group if:
-     * 1. No current group exists
-     * 2. Current segment is more than 60 seconds after the group start
-     */
-    if (!currentGroup || start - currentGroup.start >= 60) {
-      currentGroup = { start, texts: [] };
+  for (const segment of segments) {
+    if (!currentGroup || segment.start - currentGroup.start >= 60) {
+      currentGroup = { start: segment.start, texts: [] };
       groups.push(currentGroup);
     }
-
-    currentGroup.texts.push(text);
+    currentGroup.texts.push(segment.text);
   }
 
-  /** Format each group into a single line */
-  return groups.map(group => {
-    const timestamp = formatTime(group.start);
-    const url = `https://www.youtu.be/${videoId}?t=${Math.floor(group.start)}s`;
-    return `- [${timestamp}](${url}) ${group.texts.join(' ')}`;
-  });
+  return groups;
 }
+
+/**
+ * Extract transcript segments from DOM
+ * @param container - The container element containing transcript segments
+ * @returns Array of transcript segments
+ */
+function extractTranscriptSegments(container: Element): { start: number; text: string }[] {
+  const segments: { start: number; text: string }[] = [];
+  const segmentElements = container.querySelectorAll('ytd-transcript-segment-renderer');
+
+  segmentElements.forEach(element => {
+    const timestampElement = element.querySelector('.segment-timestamp');
+    const textElement = element.querySelector('.segment-text');
+
+    if (timestampElement && textElement) {
+      const timestamp = timestampElement.textContent?.trim() || '';
+      const text = textElement.textContent?.trim() || '';
+
+      if (timestamp && text) {
+        segments.push({
+          start: parseTimestamp(timestamp),
+          text,
+        });
+      }
+    }
+  });
+
+  return segments;
+}
+
+/**
+ * This function is used to wait for an element to be visible.
+ * @param selector - The selector of the element.
+ * @param attribute - The attribute of the element.
+ * @param maxAttempts - The maximum number of attempts.
+ * @returns The element if it is visible, otherwise null.
+ */
+const waitForElement = async (selector: string, attribute?: { name: string; value: string }, maxAttempts = 20): Promise<Element | null> => {
+  for (let i = 0; i < maxAttempts; i++) {
+    const element = document.querySelector(selector);
+    if (element && (!attribute || element.getAttribute(attribute.name) === attribute.value)) {
+      return element;
+    }
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  }
+  return null;
+};
 
 /**
  * This function is used to extract the YouTube transcript.
@@ -164,139 +126,56 @@ export async function extractYoutube(urls: string): Promise<ArticleExtractionRes
   }
   logger.debug('🎥', '[Youtube.tsx]', '[extractYoutube]', 'Extracting YouTube transcript', videoId);
 
-  /** Get the HTML of the YouTube video. */
-  const html = await getHtmlByVideoID(videoId);
+  try {
+    await new Promise(resolve => setTimeout(resolve, 2000));
 
-  /** Extract the JSON part of ytInitialPlayerResponse. */
-  const ytInitialPlayerResponsePattern = /var\s+ytInitialPlayerResponse\s*=\s*({[\s\S]+?});/;
-  const match = html.match(ytInitialPlayerResponsePattern);
-
-  if (match && match[1]) {
-    try {
-      const json = JSON.parse(match[1]) as PlayerResponse;
-      const videoTitle = json.videoDetails?.title || null;
-
-      /** Get the caption tracks. */
-      const captionTracks = json.captions?.playerCaptionsTracklistRenderer?.captionTracks;
-      const defaultAudioTrackIndex = json.captions?.playerCaptionsTracklistRenderer?.defaultAudioTrackIndex;
-
-      if (!captionTracks || captionTracks.length === 0) {
-        logger.error('🎥', '[Youtube.tsx]', '[extractYoutube]', 'no captions', videoId);
-        return {
-          title: videoTitle,
-          lang: null,
-          url: rawUrl,
-          content: null,
-          isSuccess: false,
-        };
-      }
-
-      /** Select the caption track based on the language priority. */
-      const selectedTrack = selectCaptionTrack(captionTracks, defaultAudioTrackIndex);
-      if (!selectedTrack) {
-        logger.error('🎥', '[Youtube.tsx]', '[extractYoutube]', 'no suitable caption track found', videoId);
-        return {
-          title: videoTitle,
-          lang: null,
-          url: rawUrl,
-          content: null,
-          isSuccess: false,
-        };
-      }
-
-      /** Generate the caption URL (XML format). */
-      const captionUrl = selectedTrack.baseUrl;
-      logger.debug('🎥', '[Youtube.tsx]', '[extractYoutube]', 'captionUrl', captionUrl);
-
-      /** Fetch the caption XML. */
-      const response = await fetch(captionUrl, {
-        headers: {
-          accept: '*/*',
-          'accept-language': 'en-US,en;q=0.9',
-          'cache-control': 'no-cache',
-          dnt: '1',
-          priority: 'u=1, i',
-          referer: `https://www.youtube.com/watch?v=${videoId}`,
-          'sec-fetch-dest': 'empty',
-          'sec-fetch-mode': 'cors',
-          'sec-fetch-site': 'same-origin',
-          'sec-gpc': '1',
-          'upgrade-insecure-requests': '1',
-          'user-agent': navigator.userAgent,
-        },
-        credentials: 'omit',
-      });
-
-      if (!response.ok) {
-        logger.error('🎥', '[Youtube.tsx]', '[extractYoutube]', 'Failed to fetch captions XML', videoId);
-        return {
-          title: videoTitle,
-          lang: selectedTrack.languageCode,
-          url: rawUrl,
-          content: null,
-          isSuccess: false,
-        };
-      }
-
-      const responseText = await response.text();
-
-      if (!responseText.trim()) {
-        logger.error('🎥', '[Youtube.tsx]', '[extractYoutube]', 'Empty response received', videoId);
-        return {
-          title: videoTitle,
-          lang: selectedTrack.languageCode,
-          url: rawUrl,
-          content: null,
-          isSuccess: false,
-        };
-      }
-
-      /** Parse the XML. */
-      const parser = new DOMParser();
-      const xmlDoc = parser.parseFromString(responseText, 'text/xml');
-      const textElements = xmlDoc.getElementsByTagName('text');
-
-      /** Extract and group the caption data. */
-      const rawTranscript = groupTranscriptSegments(textElements, videoId).join('\n');
-      const transcript = normalizeContent(rawTranscript);
-
-      if (!transcript) {
-        logger.error('🎥', '[Youtube.tsx]', '[extractYoutube]', 'Empty transcript', videoId);
-        return {
-          title: videoTitle,
-          lang: selectedTrack.languageCode,
-          url: rawUrl,
-          content: null,
-          isSuccess: false,
-          error: new Error('Empty transcript'),
-        };
-      }
-
-      return {
-        title: videoTitle,
-        lang: selectedTrack.languageCode,
-        url: rawUrl,
-        content: transcript,
-        isSuccess: true,
-      };
-    } catch (error: unknown) {
-      return {
-        title: null,
-        lang: null,
-        url: rawUrl,
-        content: null,
-        isSuccess: false,
-        error: error instanceof Error ? error : new Error('Failed to extract YouTube transcript'),
-      };
+    const transcriptButton = await waitForElement('#description-inline-expander ytd-video-description-transcript-section-renderer button');
+    if (!(transcriptButton instanceof HTMLElement)) {
+      throw new Error('Transcript button not found');
     }
-  } else {
-    logger.debug('🎥', '[Youtube.tsx]', '[extractYoutube]', 'no captions', videoId);
+    transcriptButton.click();
+
+    const transcriptContainer = await waitForElement('#segments-container');
+    if (!transcriptContainer) {
+      throw new Error('Transcript container not found');
+    }
+
+    const rawSegments = extractTranscriptSegments(transcriptContainer);
+    const segments = groupTranscriptSegments(rawSegments);
+
+    // Convert segments to string format
+    const content = segments
+      .map(segment => {
+        const timestamp = formatTime(segment.start);
+        const url = `https://youtu.be/${videoId}?t=${Math.floor(segment.start)}s`;
+        return `[${timestamp}](${url}) ${segment.texts.join(' ')}`;
+      })
+      .join('\n');
+
+    const titleElement = await waitForElement('#above-the-fold #title');
+    const title = titleElement?.textContent?.trim() || null;
+
+    const closeButton = await waitForElement('ytd-engagement-panel-section-list-renderer ytd-engagement-panel-title-header-renderer #visibility-button button');
+    if (closeButton instanceof HTMLElement) closeButton.click();
+
+    logger.debug('🎥', '[Youtube.tsx]', '[extractYoutube]', 'title', title);
+    logger.debug('🎥', '[Youtube.tsx]', '[extractYoutube]', 'content', content);
+
     return {
+      isSuccess: true,
+      title: title,
+      url: rawUrl,
+      content,
+      error: null,
+    };
+  } catch (error) {
+    logger.error('🎥', '[Youtube.tsx]', '[extractYoutube]', 'Error extracting YouTube transcript', error);
+    return {
+      isSuccess: false,
       title: null,
-      lang: null,
       url: rawUrl,
       content: null,
-      isSuccess: false,
+      error: error instanceof Error ? error : new Error('An error occurred'),
     };
   }
 }

@@ -1,7 +1,9 @@
-import { Readability } from '@mozilla/readability';
-
 import { ArticleExtractionResult } from '@/types';
-import { logger, normalizeContent } from '@/utils';
+import {
+  logger,
+  normalizeContent,
+} from '@/utils';
+import { Readability } from '@mozilla/readability';
 
 export async function extractReadability(document: Document): Promise<ArticleExtractionResult> {
   try {
@@ -10,14 +12,12 @@ export async function extractReadability(document: Document): Promise<ArticleExt
     logger.debug('📕', '[Readability.tsx]', '[extractReadability]', 'extractReadability url:', document.URL);
     // logger.debug('📕', '[Readability.tsx]', '[extractReadability]', 'extractReadability article:', article);
     const title = article?.title || null;
-    const lang = article?.lang || null;
     const url = document.URL;
     const rawContent = article?.excerpt ? article?.excerpt + '\n' + article?.textContent : article?.textContent || null;
     const content = normalizeContent(rawContent);
     const isSuccess = title !== null && content !== null && content.length > 0;
     return {
       title: title,
-      lang: lang,
       url: url,
       content: content,
       isSuccess: isSuccess,
@@ -26,7 +26,6 @@ export async function extractReadability(document: Document): Promise<ArticleExt
     logger.error('📕', '[Readability.tsx]', '[extractReadability]', 'Failed to extract article:', error);
     return {
       title: null,
-      lang: null,
       url: null,
       content: null,
       isSuccess: false,
