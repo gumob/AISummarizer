@@ -15,9 +15,9 @@ export class ContextMenuService {
     await this.removeMenu();
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (tab.url && !isBrowserSpecificUrl(tab.url) && !(await isExtractionDenylistUrl(tab.url))) {
-      this.createFullMenu();
+      await this.createFullMenu();
     } else {
-      this.createBasicMenu();
+      await this.createBasicMenu();
     }
   }
 
@@ -95,7 +95,7 @@ export class ContextMenuService {
     }
   }
 
-  private createBasicMenu() {
+  private async createBasicMenu() {
     try {
       logger.debug('🧑‍🍳📃', '[ContextMenuService.tsx]', '[createBasicMenu]', 'Creating basic menu');
       const root = chrome.contextMenus.create({
