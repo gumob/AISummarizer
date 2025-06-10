@@ -5,7 +5,7 @@ import {
 } from 'idb';
 
 import {
-  isBrowserSpecificUrl,
+  isInvalidUrl,
   logger,
 } from '@/utils';
 
@@ -158,8 +158,8 @@ export class Database {
     try {
       if (!url) return undefined;
       /** Skip processing for browser-specific URLs */
-      if (isBrowserSpecificUrl(url)) {
-        logger.warn('💾', '[Database.tsx]', '[getArticleByUrl]', 'Skipping extraction for browser-specific URLs', url);
+      if (await isInvalidUrl(url)) {
+        logger.warn('💾', '[Database.tsx]', '[getArticleByUrl]', 'Skipping extraction for invalid URLs', url);
         return undefined;
       }
 

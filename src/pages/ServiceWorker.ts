@@ -24,7 +24,10 @@ import {
   MessageAction,
   TabBehavior,
 } from '@/types';
-import { logger } from '@/utils';
+import {
+  isInvalidUrl,
+  logger,
+} from '@/utils';
 
 class ServiceWorker {
   themeService = new ServiceWorkerThemeService();
@@ -289,15 +292,25 @@ class ServiceWorker {
    */
   async notifyCurrentTabState(tabId: number, url?: string) {
     logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'tabId:', tabId, 'url:', url);
-    /** Get the article from the database */
-    const article = await db.getArticleByUrl(url);
+    try {
+      if (await isInvalidUrl(url)) {
+        logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'Ignoring content script message: url is invalid', url);
+        return;
+      }
 
-    /** Send the message to the content script */
-    const response = await chrome.tabs.sendMessage(tabId, {
-      action: MessageAction.TAB_UPDATED,
-      payload: { tabId: tabId, url: url, article: article },
-    });
-    logger.debug('🧑‍🍳📃🟣🟣🟣🟣🟣🟣', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'response:', response);
+      /** Get the article from the database */
+      const article = await db.getArticleByUrl(url);
+
+      /** Send the message to the content script */
+      const response = await chrome.tabs.sendMessage(tabId, {
+        action: MessageAction.TAB_UPDATED,
+        payload: { tabId: tabId, url: url, article: article },
+      });
+      logger.debug('🧑‍🍳📃🟣🟣🟣🟣🟣🟣', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'response:', response);
+    } catch (error) {
+      // Ignore the error if the content script is not ready
+      logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'Content script not ready:', error);
+    }
   }
 
   /**
@@ -330,7 +343,7 @@ class ServiceWorker {
       logger.debug('🧑‍🍳📃🟣🟣🟣🟣🟣🟣', '[ServiceWorker.ts]', '[readArticleForClipboard]', 'response:', response);
       return true;
     } else {
-      logger.warn('�‍🍳�', '[ServiceWorker.ts]', '[readArticleForClipboard]', 'Ignoring message: article is', article);
+      logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[readArticleForClipboard]', 'Ignoring message: article is', article);
       return false;
     }
   }

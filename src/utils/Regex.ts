@@ -19,11 +19,18 @@ export const escapeRegExpArray = (strings: string[]): string[] => {
   return strings.map(escapeRegExp);
 };
 
-export const isBrowserSpecificUrl = (url: string): boolean => {
+export const isInvalidUrl = async (url?: string): Promise<boolean> => {
+  if (!url) return true;
+  return isBrowserSpecificUrl(url) || (await isExtractionDenylistUrl(url)) || !url.startsWith('http');
+};
+
+export const isBrowserSpecificUrl = (url?: string): boolean => {
+  if (!url) return true;
   return /^(chrome|brave|edge|opera|vivaldi)/.test(url);
 };
 
-export const isExtractionDenylistUrl = async (url: string): Promise<boolean> => {
+export const isExtractionDenylistUrl = async (url?: string): Promise<boolean> => {
+  if (!url) return true;
   const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
   const extractionDenylist = settings[STORAGE_KEYS.SETTINGS]?.state?.extractionDenylist ?? DEFAULT_SETTINGS.extractionDenylist;
   return extractionDenylist.some((pattern: string) => pattern.trim() && new RegExp(pattern.trim()).test(url));

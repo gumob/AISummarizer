@@ -1,8 +1,7 @@
 import { db } from '@/db/Database';
 import { MENU_ITEMS } from '@/models';
 import {
-  isBrowserSpecificUrl,
-  isExtractionDenylistUrl,
+  isInvalidUrl,
   logger,
 } from '@/utils';
 
@@ -14,7 +13,7 @@ export class ContextMenuService {
   async createMenu() {
     await this.removeMenu();
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    if (tab.url && !isBrowserSpecificUrl(tab.url) && !(await isExtractionDenylistUrl(tab.url))) {
+    if (tab.url && !(await isInvalidUrl(tab.url))) {
       await this.createFullMenu();
     } else {
       await this.createBasicMenu();

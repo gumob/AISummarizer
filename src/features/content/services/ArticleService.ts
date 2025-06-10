@@ -1,6 +1,12 @@
-import { extractReadability, extractYoutube } from '@/features/content/extractors';
+import {
+  extractReadability,
+  extractYoutube,
+} from '@/features/content/extractors';
 import { ArticleExtractionResult } from '@/types';
-import { isBrowserSpecificUrl, isExtractionDenylistUrl, logger } from '@/utils';
+import {
+  isInvalidUrl,
+  logger,
+} from '@/utils';
 
 export class ArticleService {
   async execute(url: string): Promise<ArticleExtractionResult> {
@@ -9,30 +15,15 @@ export class ArticleService {
     /**
      * Skip processing for browser-specific URLs
      */
-    if (isBrowserSpecificUrl(url)) {
-      logger.warn('🧑‍🍳📖', '[ArticleService.tsx]', '[execute]', 'Skipping extraction for browser-specific URLs', url);
+    if (await isInvalidUrl(url)) {
+      logger.warn('🧑‍🍳📖', '[ArticleService.tsx]', '[execute]', 'Skipping extraction for invalid URLs', url);
       return {
         isSuccess: false,
         title: null,
         lang: null,
         url: url,
         content: null,
-        error: new Error('Skipping extraction for browser-specific URLs'),
-      };
-    }
-
-    /**
-     * Skip processing for URLs in extractionDenylist
-     */
-    if (await isExtractionDenylistUrl(url)) {
-      logger.warn('🧑‍🍳📖', '[ArticleService.tsx]', '[execute]', 'Skipping extraction for URLs in extractionDenylist');
-      return {
-        isSuccess: false,
-        title: null,
-        lang: null,
-        url: url,
-        content: null,
-        error: new Error('Skipping extraction for URLs in extractionDenylist'),
+        error: new Error('Skipping extraction for invalid URLs'),
       };
     }
 

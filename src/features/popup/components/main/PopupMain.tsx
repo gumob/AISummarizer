@@ -20,8 +20,7 @@ import {
   MessageAction,
 } from '@/types';
 import {
-  isBrowserSpecificUrl,
-  isExtractionDenylistUrl,
+  isInvalidUrl,
   logger,
 } from '@/utils';
 
@@ -35,7 +34,7 @@ export const PopupMain: React.FC = () => {
   useEffect(() => {
     const init = async () => {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      const isAvailable: boolean = tab.id !== undefined && tab.url !== undefined && !isBrowserSpecificUrl(tab.url) && !(await isExtractionDenylistUrl(tab.url));
+      const isAvailable: boolean = tab.id !== undefined && tab.url !== undefined && !(await isInvalidUrl(tab.url));
       setShouldShowFullMenu(isAvailable);
     };
     init();
