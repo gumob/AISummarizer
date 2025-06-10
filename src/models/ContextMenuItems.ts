@@ -1,7 +1,7 @@
 export const MENU_ITEMS = {
   ROOT: {
     id: 'root',
-    title: 'Summarize this page with',
+    title: 'AI Sum: Summarize this page with',
     contexts: ['page' as const],
   },
   AI_SERVICES: [
@@ -57,7 +57,7 @@ export const MENU_ITEMS = {
   },
   NOT_AVAILABLE: {
     id: 'root',
-    title: 'Not available on this page',
+    title: 'AI Sum: Not available on this page',
     contexts: ['page' as const],
   },
 };
