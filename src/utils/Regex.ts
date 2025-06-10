@@ -33,5 +33,16 @@ export const isExtractionDenylistUrl = async (url?: string): Promise<boolean> =>
   if (!url) return true;
   const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
   const extractionDenylist = settings[STORAGE_KEYS.SETTINGS]?.state?.extractionDenylist ?? DEFAULT_SETTINGS.extractionDenylist;
-  return extractionDenylist.some((pattern: string) => pattern.trim() && new RegExp(pattern.trim()).test(url));
+  /** Split the extraction denylist into an array of patterns */
+  const patterns = extractionDenylist
+    .split('\n')
+    /** Remove empty lines, comments */
+    .filter((pattern: string) => {
+      const trimmed = pattern.trim();
+      return trimmed && !trimmed.startsWith('//') && !trimmed.startsWith('/*') && !trimmed.endsWith('*/') && !trimmed.startsWith('#');
+    })
+    /** Escape the patterns */
+    .map(escapeRegExp);
+  /** Check if the URL matches any of the patterns */
+  return patterns.some((pattern: string) => new RegExp(pattern).test(url));
 };

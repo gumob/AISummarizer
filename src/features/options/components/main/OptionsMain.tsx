@@ -135,7 +135,7 @@ export const OptionsMain: React.FC = () => {
   }, [inputContentExtractionTiming, storedContentExtractionTiming]);
 
   useEffect(() => {
-    if (inputExtractionDenylist === undefined) setInputExtractionDenylist(storedExtractionDenylist?.join('\n'));
+    if (inputExtractionDenylist === undefined) setInputExtractionDenylist(storedExtractionDenylist);
   }, [inputExtractionDenylist, storedExtractionDenylist]);
 
   useEffect(() => {
@@ -162,13 +162,15 @@ export const OptionsMain: React.FC = () => {
       prompts: Object.fromEntries(Object.values(AIService).map(service => [service, inputPrompts?.[service] ?? DEFAULT_SETTINGS.prompts[service]])) as {
         [key in AIService]: string;
       },
-      tabBehavior: getTabBehaviorFromIndex(inputTabBehavior ?? 0),
-      floatPanelPosition: getFloatPanelPositionFromIndex(inputFloatPanel ?? 0),
-      contentExtractionTiming: getContentExtractionTimingFromIndex(inputContentExtractionTiming ?? 0),
-      extractionDenylist: inputExtractionDenylist?.split('\n') ?? [],
-      saveArticleOnClipboard: inputIsSaveArticleOnClipboard ?? false,
-      isShowMessage: inputIsShowMessage ?? false,
-      isShowBadge: inputIsShowBadge ?? false,
+      tabBehavior: getTabBehaviorFromIndex(inputTabBehavior ?? getTabBehaviorIndex(DEFAULT_SETTINGS.tabBehavior)),
+      floatPanelPosition: getFloatPanelPositionFromIndex(inputFloatPanel ?? getFloatPanelPositionIndex(DEFAULT_SETTINGS.floatPanelPosition)),
+      contentExtractionTiming: getContentExtractionTimingFromIndex(
+        inputContentExtractionTiming ?? getContentExtractionTimingIndex(DEFAULT_SETTINGS.contentExtractionTiming)
+      ),
+      extractionDenylist: inputExtractionDenylist ?? DEFAULT_SETTINGS.extractionDenylist,
+      saveArticleOnClipboard: inputIsSaveArticleOnClipboard ?? DEFAULT_SETTINGS.saveArticleOnClipboard,
+      isShowMessage: inputIsShowMessage ?? DEFAULT_SETTINGS.isShowMessage,
+      isShowBadge: inputIsShowBadge ?? DEFAULT_SETTINGS.isShowBadge,
     });
   }, [inputPrompts, inputTabBehavior, inputFloatPanel, inputContentExtractionTiming, inputIsSaveArticleOnClipboard]);
 
@@ -423,8 +425,7 @@ export const OptionsMain: React.FC = () => {
                 onChange={e => {
                   const newValue = e.target.value;
                   setInputExtractionDenylist(newValue);
-                  const filteredLines = newValue.split('\n');
-                  setStoredExtractionDenylist(filteredLines);
+                  setStoredExtractionDenylist(newValue);
                 }}
               />
             </div>

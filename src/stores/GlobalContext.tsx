@@ -47,9 +47,9 @@ interface GlobalContextValue {
   contentExtractionTiming: ContentExtractionTiming;
   setContentExtractionTiming: (contentExtractionTiming: ContentExtractionTiming) => Promise<void>;
   getContentExtractionTiming: () => Promise<ContentExtractionTiming>;
-  extractionDenylist: string[];
-  setExtractionDenylist: (extractionDenylist: string[]) => Promise<void>;
-  getExtractionDenylist: () => Promise<string[]>;
+  extractionDenylist: string;
+  setExtractionDenylist: (extractionDenylist: string) => Promise<void>;
+  getExtractionDenylist: () => Promise<string>;
   saveArticleOnClipboard: boolean;
   setSaveArticleOnClipboard: (saveArticleOnClipboard: boolean) => Promise<void>;
   getSaveArticleOnClipboard: () => Promise<boolean>;

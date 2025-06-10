@@ -18,7 +18,7 @@ export interface SettingsState {
   tabBehavior: TabBehavior;
   floatPanelPosition: FloatPanelPosition;
   contentExtractionTiming: ContentExtractionTiming;
-  extractionDenylist: string[];
+  extractionDenylist: string;
   saveArticleOnClipboard: boolean;
   isShowMessage: boolean;
   isShowBadge: boolean;
@@ -47,14 +47,13 @@ export const DEFAULT_SETTINGS: SettingsState = {
   tabBehavior: TabBehavior.NEW_TAB,
   floatPanelPosition: FloatPanelPosition.BOTTOM_RIGHT,
   contentExtractionTiming: ContentExtractionTiming.AUTOMATIC,
-  extractionDenylist: [
-    /** AI services */
-    '(https?)\\:\\/\\/(www\\.)?(chatgpt\\.com|gemini\\.com|grok\\.com|perplexity\\.com|deepseek\\.com|claude\\.ai)',
-    /** Search engines */
-    '(https?)\\:\\/\\/(www\\.)?(google|facebook|bing|yahoo|duckduckgo|baidu|yandex|ask|)\\.(co\\.[a-z]{2}|[a-z]{2,3})',
-    /** E-commerce sites */
-    '(https?)\\:\\/\\/(www\\.)?(amazon|shop|etsy|ebay|walmart|bestbuy|shopify|target|costoco|apple|flipkart|wix|rakuten|mercari|alibaba|aliexpress|shein|taobao|qoo10|)\\.(co\\.[a-z]{2}|[a-z]{2,3})',
-  ],
+  extractionDenylist: `/** AI services */
+'(https?)\\:\\/\\/(www\\.)?(chatgpt\\.com|gemini\\.com|grok\\.com|perplexity\\.com|deepseek\\.com|claude\\.ai)',
+/** Search engines */
+'(https?)\\:\\/\\/(www\\.)?(google|facebook|bing|yahoo|duckduckgo|baidu|yandex|ask|)\\.(co\\.[a-z]{2}|[a-z]{2,3})',
+/** E-commerce sites */
+'(https?)\\:\\/\\/(www\\.)?(amazon|shop|etsy|ebay|walmart|bestbuy|shopify|target|costoco|apple|flipkart|wix|rakuten|mercari|alibaba|aliexpress|shein|taobao|qoo10|)\\.(co\\.[a-z]{2}|[a-z]{2,3})',
+`,
   saveArticleOnClipboard: false,
   isShowMessage: false,
   isShowBadge: true,
@@ -70,8 +69,8 @@ interface SettingsStore extends SettingsState {
   getFloatPanelPosition: () => Promise<FloatPanelPosition>;
   setContentExtractionTiming: (contentExtractionTiming: ContentExtractionTiming) => Promise<void>;
   getContentExtractionTiming: () => Promise<ContentExtractionTiming>;
-  setExtractionDenylist: (extractionDenylist: string[]) => Promise<void>;
-  getExtractionDenylist: () => Promise<string[]>;
+  setExtractionDenylist: (extractionDenylist: string) => Promise<void>;
+  getExtractionDenylist: () => Promise<string>;
   setIsShowMessage: (isShowMessage: boolean) => Promise<void>;
   getIsShowMessage: () => Promise<boolean>;
   setIsShowBadge: (isShowBadge: boolean) => Promise<void>;
@@ -127,7 +126,7 @@ export const useSettingsStore = create<SettingsStore>()(
         const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
         return settings[STORAGE_KEYS.SETTINGS]?.state?.contentExtractionTiming ?? DEFAULT_SETTINGS.contentExtractionTiming;
       },
-      setExtractionDenylist: async (extractionDenylist: string[]) => {
+      setExtractionDenylist: async (extractionDenylist: string) => {
         await get().updateSettings({ extractionDenylist });
       },
       getExtractionDenylist: async () => {
