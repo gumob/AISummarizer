@@ -62,6 +62,7 @@ class ServiceWorker {
     }
 
     switch (info.menuItemId) {
+      /** Summarize the article */
       case 'chatgpt':
       case 'gemini':
       case 'claude':
@@ -74,17 +75,26 @@ class ServiceWorker {
           logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleContextMenuClicked]', 'Tab:', tab);
           if (tab.id === undefined || tab.id === null || tab.url === undefined || tab.url === null) throw new Error('No active tab found');
 
-          const service = getAIServiceFromString(info.menuItemId);
-          await this.executeSummarization(service, tab.id, tab.url);
+          const article = await db.getArticleByUrl(tab.url);
+          if (article?.is_success) {
+            logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleContextMenuClicked]', 'Article found', article);
+            const service = getAIServiceFromString(info.menuItemId);
+            await this.executeSummarization(service, tab.id, tab.url);
+          } else {
+            logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleContextMenuClicked]', 'Article not found', tab.url);
+          }
         } catch (error) {
           logger.error('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleContextMenuClicked]', 'Failed to send message:', error);
         }
         break;
+
+      /** Copy the article to the clipboard */
       case 'copy':
         logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleContextMenuClicked]', 'Copy clicked');
         await this.readArticleForClipboard(tab.id, tab.url);
         break;
 
+      /** Extract the article */
       case 'extract':
         logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleContextMenuClicked]', 'Extract clicked');
         try {
@@ -97,6 +107,8 @@ class ServiceWorker {
           logger.error('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleContextMenuClicked]', 'Failed to send message to content script:', error);
         }
         break;
+
+      /** Open the settings page */
       case 'settings':
         if (!tab.windowId) throw new Error('No window id found');
         logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleContextMenuClicked]', 'Settings clicked');
@@ -148,7 +160,7 @@ class ServiceWorker {
         break;
 
       case MessageAction.READ_ARTICLE_FOR_CLIPBOARD:
-        this.readArticleForClipboard(message.payload.tabId, message.payload.url);
+        await this.readArticleForClipboard(message.payload.tabId, message.payload.url);
         break;
 
       default:
@@ -288,7 +300,7 @@ class ServiceWorker {
     this.contextMenuService.createMenu();
 
     logger.debug('📄🤐', '[ServiceWorker.ts]', '[updateArticle]', 'Extracting article complete', result);
-    if (result.isSuccess) {
+    if (result.isSuccess && tabUrl) {
       /** Save the article to the database */
       db.addArticle({
         url: result.url,
@@ -297,16 +309,11 @@ class ServiceWorker {
         date: new Date(),
         is_success: true,
       });
+
       /** Copy the article to the clipboard */
       const saveArticleOnClipboard = await useSettingsStore.getState().getSaveArticleOnClipboard();
       if (saveArticleOnClipboard) {
-        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-        if (tab.id) {
-          await chrome.runtime.sendMessage({
-            action: MessageAction.READ_ARTICLE_FOR_CLIPBOARD,
-            payload: { tabId: tabId, url: tabUrl },
-          });
-        }
+        await this.readArticleForClipboard(tabId, tabUrl);
       }
     }
   }
