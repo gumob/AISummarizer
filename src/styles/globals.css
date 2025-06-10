@@ -27,7 +27,14 @@ body {
   color: var(--foreground-color);
   background: var(--background-color);
   min-width: 180px;
-  min-height: 292px;
+}
+
+body.popup-full-menu {
+  min-height: 320px;
+}
+
+body.popup-minimal-menu {
+  min-height: 76px;
 }
 
 /* Scrollbar */

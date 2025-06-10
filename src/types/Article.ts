@@ -1,3 +1,5 @@
+import { ArticleRecord } from '@/db/Database';
+
 export interface ArticleExtractionResult {
   title: string | null;
   lang: string | null;
@@ -7,7 +9,11 @@ export interface ArticleExtractionResult {
   error?: Error | null;
 }
 
-export const formatArticleForClipboard = (article: ArticleExtractionResult) => {
+// Function overload declarations
+export function formatArticleForClipboard(article: ArticleRecord): string;
+export function formatArticleForClipboard(article: ArticleExtractionResult): string;
+// Function implementation
+export function formatArticleForClipboard(article: ArticleRecord | ArticleExtractionResult): string {
   return `# Title
 ${article.title}
 
@@ -17,4 +23,4 @@ ${article.url}
 # Content
 ${article.content}
 `;
-};
+}

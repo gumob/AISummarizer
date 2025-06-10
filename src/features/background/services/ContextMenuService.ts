@@ -132,11 +132,9 @@ export class ContextMenuService {
         case 'grok':
         case 'perplexity':
         case 'deepseek':
-        case 'copy':
           logger.debug('🧑‍🍳📃', '[ContextMenuService.tsx]', '[setupClickHandler]', 'Extract clicked');
           try {
             /** Check if the content script is injected */
-            const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
             logger.debug('🧑‍🍳📃', '[ContextMenuService.tsx]', '[setupClickHandler]', 'Tab:', tab);
             if (tab.id === undefined || tab.id === null || tab.url === undefined || tab.url === null) throw new Error('No active tab found');
 
@@ -146,11 +144,20 @@ export class ContextMenuService {
           }
 
           break;
+        case 'copy':
+          logger.debug('🧑‍🍳📃', '[ContextMenuService.tsx]', '[setupClickHandler]', 'Copy clicked');
+          if (!tab.id) throw new Error('No active tab found');
+          if (!tab.url) throw new Error('No url found');
+          await chrome.tabs.sendMessage(tab.id, {
+            action: MessageAction.COPY_ARTICLE_TO_CLIPBOARD,
+            payload: { tabId: tab.id, url: tab.url },
+          });
+          break;
+
         case 'extract':
           logger.debug('🧑‍🍳📃', '[ContextMenuService.tsx]', '[setupClickHandler]', 'Extract clicked');
           try {
             /** Check if the content script is injected */
-            const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
             if (tab.id === undefined || tab.id === null) throw new Error('No active tab found');
 
             /** Inject the content script */
@@ -169,6 +176,7 @@ export class ContextMenuService {
           }
           break;
         case 'settings':
+          if (!tab.windowId) throw new Error('No window id found');
           logger.debug('🧑‍🍳📃', '[ContextMenuService.tsx]', '[setupClickHandler]', 'Settings clicked');
           chrome.sidePanel.open({ windowId: tab.windowId });
           break;

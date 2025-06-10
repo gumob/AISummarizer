@@ -13,7 +13,6 @@ import { DEFAULT_SETTINGS } from '@/stores/SettingsStore';
 import {
   AIService,
   ContentExtractionTiming,
-  formatArticleForClipboard,
   getSummarizeUrl,
   Message,
   MessageAction,
@@ -228,7 +227,7 @@ class Background {
         if (tab.id) {
           await chrome.tabs.sendMessage(tab.id, {
             action: MessageAction.COPY_ARTICLE_TO_CLIPBOARD,
-            payload: { text: formatArticleForClipboard(result) },
+            payload: { tabId: tabId, url: tabUrl },
           });
         }
       }

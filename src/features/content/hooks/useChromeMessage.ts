@@ -106,7 +106,7 @@ export const useChromeMessage = () => {
             return false;
         }
       } catch (error) {
-        logger.error('🫳💬', '[useChromeMessage.tsx]', '[handleMessage]', 'Error handling message:', error);
+        logger.error('🫳💬', '[useChromeMessage.tsx]', '[handleMessage]', 'error:', error);
         return false;
       }
     };
