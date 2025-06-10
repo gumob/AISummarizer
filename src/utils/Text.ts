@@ -16,3 +16,20 @@ export const normalizeContent = (content: string | null): string | null => {
     .replace(/\n{2,}/g, '\n') // Replace multiple newlines with a single newline
     .replace(/\n+$/, ''); // Remove trailing newlines
 };
+
+export const copyToClipboard = async (textToCopy: string) => {
+  const textarea = document.createElement('textarea');
+  textarea.value = textToCopy;
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.select();
+
+  // Execute copy command
+  const success = document.execCommand('copy');
+  document.body.removeChild(textarea);
+
+  if (!success) {
+    throw new Error('Failed to copy text to clipboard');
+  }
+};

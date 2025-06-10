@@ -103,9 +103,7 @@ export const PopupMain: React.FC = () => {
               });
 
               /** Close the popup */
-              // setTimeout(() => {
-              //   window.close();
-              // }, 1000);
+              window.close();
             }}
           >
             <IoClipboardOutline className="w-4 h-4" />

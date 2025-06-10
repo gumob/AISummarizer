@@ -11,7 +11,10 @@ import {
   Message,
   MessageAction,
 } from '@/types';
-import { logger } from '@/utils';
+import {
+  copyToClipboard,
+  logger,
+} from '@/utils';
 
 /**
  * Hook for handling Chrome extension messages
@@ -104,7 +107,8 @@ export const useContentMessage = () => {
               logger.warn('🫳💬', '[useContentMessage.tsx]', '[handleMessage]', 'Ignoring message: text is', text);
               return false;
             }
-            await navigator.clipboard.writeText(text);
+            await copyToClipboard(text);
+            // await navigator.clipboard.write([new ClipboardItem({ 'text/plain': new Blob([text], { type: 'text/plain' }) })]);
             return true;
           } catch (error: any) {
             logger.error('🫳💬', '[useContentMessage.tsx]', '[handleMessage]', 'Failed to write article to clipboard:', error);
