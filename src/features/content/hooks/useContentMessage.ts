@@ -86,7 +86,7 @@ export const useContentMessage = () => {
             sendResponse(result);
             chrome.runtime.sendMessage({
               action: MessageAction.EXTRACT_ARTICLE_COMPLETE,
-              payload: { result: result },
+              payload: { tabId: message.payload.tabId, url: message.payload.url, result: result },
             });
             setTabId(message.payload.tabId);
             setTabUrl(message.payload.url);

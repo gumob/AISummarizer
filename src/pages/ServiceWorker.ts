@@ -15,6 +15,7 @@ import {
 import { DEFAULT_SETTINGS } from '@/stores/SettingsStore';
 import {
   AIService,
+  ArticleExtractionResult,
   ContentExtractionTiming,
   formatArticleForClipboard,
   getAIServiceFromString,
@@ -31,7 +32,7 @@ class ServiceWorker {
   cleanupService = new CleanupDBService();
 
   constructor() {
-    logger.debug('📄🤐', '[ServiceWorker.ts]', '[constructor]', 'ServiceWorker initialized');
+    logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[constructor]', 'ServiceWorker initialized');
     this.themeService.initialize();
     this.cleanupService.startCleanup();
 
@@ -56,63 +57,32 @@ class ServiceWorker {
    * @param tab - The tab that the context menu was clicked on
    */
   private async handleContextMenuClicked(info: chrome.contextMenus.OnClickData, tab?: chrome.tabs.Tab) {
+    logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleContextMenuClicked]', info);
     if (!tab?.id || !tab?.url) {
       logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleContextMenuClicked]', 'No active tab found');
       return;
     }
 
     switch (info.menuItemId) {
-      /** Summarize the article */
       case 'chatgpt':
       case 'gemini':
       case 'claude':
       case 'grok':
       case 'perplexity':
       case 'deepseek':
-        logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleContextMenuClicked]', 'Extract clicked');
-        try {
-          /** Check if the content script is injected */
-          logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleContextMenuClicked]', 'Tab:', tab);
-          if (tab.id === undefined || tab.id === null || tab.url === undefined || tab.url === null) throw new Error('No active tab found');
-
-          const article = await db.getArticleByUrl(tab.url);
-          if (article?.is_success) {
-            logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleContextMenuClicked]', 'Article found', article);
-            const service = getAIServiceFromString(info.menuItemId);
-            await this.executeSummarization(service, tab.id, tab.url);
-          } else {
-            logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleContextMenuClicked]', 'Article not found', tab.url);
-          }
-        } catch (error) {
-          logger.error('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleContextMenuClicked]', 'Failed to send message:', error);
-        }
+        this.executeSummarization(getAIServiceFromString(info.menuItemId), tab.id, tab.url);
         break;
 
-      /** Copy the article to the clipboard */
       case 'copy':
-        logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleContextMenuClicked]', 'Copy clicked');
-        await this.readArticleForClipboard(tab.id, tab.url);
+        this.readArticleForClipboard(tab.id, tab.url);
         break;
 
-      /** Extract the article */
       case 'extract':
-        logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleContextMenuClicked]', 'Extract clicked');
-        try {
-          /** Send the message to the content script */
-          await chrome.tabs.sendMessage(tab.id, {
-            action: MessageAction.EXTRACT_ARTICLE_START,
-            payload: { tabId: tab.id, url: tab.url },
-          });
-        } catch (error: any) {
-          logger.error('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleContextMenuClicked]', 'Failed to send message to content script:', error);
-        }
+        this.executeExtraction(tab.id, tab.url);
         break;
 
-      /** Open the settings page */
       case 'settings':
-        if (!tab.windowId) throw new Error('No window id found');
-        logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleContextMenuClicked]', 'Settings clicked');
-        chrome.sidePanel.open({ windowId: tab.windowId });
+        if (tab.windowId) chrome.sidePanel.open({ windowId: tab.windowId });
         break;
     }
   }
@@ -122,7 +92,7 @@ class ServiceWorker {
    * @param activeInfo - The information about the activated tab
    */
   async handleTabActivated(activeInfo: chrome.tabs.TabActiveInfo) {
-    // logger.debug('📄🤐', '[ServiceWorker.ts]', '[handleTabActivated]', 'Tab activated', activeInfo);
+    logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleTabActivated]', activeInfo);
     this.contextMenuService.createMenu();
   }
 
@@ -135,8 +105,8 @@ class ServiceWorker {
    */
   async handleTabUpdated(tabId: number, changeInfo: chrome.tabs.TabChangeInfo, tab: chrome.tabs.Tab) {
     if (changeInfo.status !== 'complete' || !tab.url) return;
-    logger.debug('📄🤐', '[ServiceWorker.ts]', '[handleTabUpdated]', 'Tab updated', tab.url, tab.status);
-    await this.updateStateAndLoadArticle(tabId, tab.url);
+    logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleTabUpdated]', tab.url, tab.status);
+    await this.toggleUIState(tabId, tab.url);
   }
 
   /**
@@ -146,10 +116,10 @@ class ServiceWorker {
    * @param sendResponse - The response to the message
    */
   async handleChromeMessage(message: Message, sender: chrome.runtime.MessageSender, sendResponse: (response: any) => void) {
-    logger.debug('📄🤐', '[ServiceWorker.ts]', '[handleChromeMessage]', 'message', message.action);
+    logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleChromeMessage]', message.action);
     switch (message.action) {
       case MessageAction.EXTRACT_ARTICLE_COMPLETE:
-        this.updateArticle(sender.tab?.id, sender.tab?.url, message.payload.result);
+        this.updateArticle(message.payload.tabId, message.payload.url, message.payload.result);
         break;
 
       case MessageAction.SUMMARIZE_ARTICLE_START:
@@ -172,59 +142,14 @@ class ServiceWorker {
    * Functions
    **************************************************/
 
-  async readArticleForClipboard(tabId: number, url: string): Promise<boolean> {
-    const record: ArticleRecord | undefined = await db.getArticleByUrl(url);
-    logger.debug('🫳💬', '[ServiceWorker.ts]', '[readArticleForClipboard]', 'url', url);
-    logger.debug('🫳💬', '[ServiceWorker.ts]', '[readArticleForClipboard]', 'record', record);
-    if (record && record.is_success) {
-      const text = formatArticleForClipboard(record);
-      chrome.tabs.sendMessage(tabId, {
-        action: MessageAction.WRITE_ARTICLE_TO_CLIPBOARD,
-        payload: { tabId: tabId, url: url, text: text },
-      });
-      return true;
-    } else {
-      logger.warn('🫳💬', '[ServiceWorker.ts]', '[readArticleForClipboard]', 'Ignoring message: article is', record);
-      return false;
-    }
-  }
-
-  async toggleBadge(tabId: number, isArticleExist: boolean) {
-    const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
-    const isShowBadge = settings[STORAGE_KEYS.SETTINGS]?.state?.isShowBadge ?? DEFAULT_SETTINGS.isShowBadge;
-    if (isShowBadge && isArticleExist) {
-      chrome.action.setBadgeText({ text: '✓', tabId });
-      chrome.action.setBadgeBackgroundColor({ color: '#999999', tabId });
-    } else {
-      chrome.action.setBadgeText({ text: '', tabId });
-    }
-  }
-
-  async executeExtraction(tabId: number, url: string, isExist: boolean) {
-    if (isExist) {
-      return;
-    }
-
-    const contentExtractionTiming = await useSettingsStore.getState().getContentExtractionTiming();
-    if (contentExtractionTiming === ContentExtractionTiming.AUTOMATIC) {
-      /** Inject the content script */
-      // await chrome.scripting.executeScript({
-      //   target: { tabId: tabId },
-      //   files: ['content.js'],
-      // });
-
-      /** Send the message to the content script */
-      await chrome.tabs.sendMessage(tabId, {
-        action: MessageAction.EXTRACT_ARTICLE_START,
-        payload: { tabId: tabId, url: url },
-      });
-    }
-  }
-
-  async executeSummarization(service: AIService, tabId: number, url: string) {
-    logger.debug('📄🤐', '[ServiceWorker.ts]', '[executeSummarization]', service, tabId, url);
-    const article = await db.getArticleByUrl(url);
-    if (article?.is_success) {
+  async executeSummarization(service: AIService, tabId: number, url: string): Promise<boolean> {
+    try {
+      logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[executeSummarization]', service, tabId, url);
+      const article = await db.getArticleByUrl(url);
+      if (!article?.is_success) {
+        logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[executeSummarization]', 'Article not found', url);
+        return false;
+      }
       const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
       const tabBehavior = settings[STORAGE_KEYS.SETTINGS]?.state?.tabBehavior ?? DEFAULT_SETTINGS.tabBehavior;
       const summarizeUrl = getSummarizeUrl(service, article.id.toString());
@@ -247,8 +172,24 @@ class ServiceWorker {
         default:
           break;
       }
-    } else {
-      logger.warn('📄🤐', '[ServiceWorker.ts]', '[onContextMenuClicked]', 'Article not found', url);
+      return true;
+    } catch (error) {
+      logger.error('🧑‍🍳📃', '[ServiceWorker.ts]', '[executeSummarization]', 'Failed to execute summarization:', error);
+      return false;
+    }
+  }
+
+  async executeExtraction(tabId: number, url: string): Promise<boolean> {
+    try {
+      /** Send the message to the content script */
+      await chrome.tabs.sendMessage(tabId, {
+        action: MessageAction.EXTRACT_ARTICLE_START,
+        payload: { tabId: tabId, url: url },
+      });
+      return true;
+    } catch (error: any) {
+      logger.error('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleContextMenuClicked]', 'Failed to send message to content script:', error);
+      return false;
     }
   }
 
@@ -258,22 +199,33 @@ class ServiceWorker {
    * @param url - The URL of the tab
    */
 
-  async updateStateAndLoadArticle(tabId: number, url: string) {
+  async toggleUIState(tabId: number, url: string) {
     try {
-      logger.debug('📄🤐', '[ServiceWorker.ts]', '[updateStateAndLoadArticle]', 'tabId:', tabId, 'url:', url);
-
-      /** Get the article from the database */
-      const article = await useArticleStore.getState().getArticleByUrl(url);
-      const isArticleExtracted = article?.is_success ?? false;
+      logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[toggleUIState]', 'tabId:', tabId, 'url:', url);
 
       /** Toggle the context menu */
       this.contextMenuService.createMenu();
 
+      /** Get the article from the database */
+      const article = await useArticleStore.getState().getArticleByUrl(url);
+
       /** Toggle the badge */
-      this.toggleBadge(tabId, isArticleExtracted);
+      const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
+      const isShowBadge = settings[STORAGE_KEYS.SETTINGS]?.state?.isShowBadge ?? DEFAULT_SETTINGS.isShowBadge;
+      if (isShowBadge && article?.is_success) {
+        chrome.action.setBadgeText({ text: '✓', tabId });
+        chrome.action.setBadgeBackgroundColor({ color: '#999999', tabId });
+      } else {
+        chrome.action.setBadgeText({ text: '', tabId });
+      }
 
       /** Extract the article */
-      await this.executeExtraction(tabId, url, isArticleExtracted);
+      if (!article?.is_success) {
+        const contentExtractionTiming = await useSettingsStore.getState().getContentExtractionTiming();
+        if (contentExtractionTiming === ContentExtractionTiming.AUTOMATIC) {
+          this.executeExtraction(tabId, url);
+        }
+      }
 
       /** Send the message to the content script */
       await chrome.tabs.sendMessage(tabId, {
@@ -281,26 +233,17 @@ class ServiceWorker {
         payload: { tabId: tabId, url: url, article: article },
       });
     } catch (error: any) {
-      logger.error('📄🤐', '[ServiceWorker.ts]', 'Failed to update article extraction state', error);
+      logger.error('🧑‍🍳📃', '[ServiceWorker.ts]', 'Failed to update article extraction state', error);
     }
   }
 
-  async updateArticle(tabId?: number, tabUrl?: string, result?: any) {
-    // Only process messages from content scripts
-    if (!tabId) {
-      logger.warn('📄🤐', '[ServiceWorker.ts]', '[updateArticle]', 'Ignoring EXTRACT_ARTICLE_COMPLETE from non-content script');
-      return;
-    }
-    if (tabUrl !== result.url) {
-      logger.warn('📄🤐', '[ServiceWorker.ts]', '[updateArticle]', 'Ignoring EXTRACT_ARTICLE_COMPLETE for different url', tabUrl, result.url);
-      return;
-    }
-
+  async updateArticle(tabId: number, tabUrl: string, result: ArticleExtractionResult) {
+    logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[updateArticle]', 'tabId:', tabId, 'tabUrl:', tabUrl, 'result:', result);
     /** Toggle the context menu */
     this.contextMenuService.createMenu();
 
-    logger.debug('📄🤐', '[ServiceWorker.ts]', '[updateArticle]', 'Extracting article complete', result);
-    if (result.isSuccess && tabUrl) {
+    logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[updateArticle]', 'Extracting article complete', result);
+    if (result.isSuccess && result.url) {
       /** Save the article to the database */
       db.addArticle({
         url: result.url,
@@ -315,6 +258,23 @@ class ServiceWorker {
       if (saveArticleOnClipboard) {
         await this.readArticleForClipboard(tabId, tabUrl);
       }
+    }
+  }
+
+  async readArticleForClipboard(tabId: number, url: string): Promise<boolean> {
+    const record: ArticleRecord | undefined = await db.getArticleByUrl(url);
+    logger.debug('🫳💬', '[ServiceWorker.ts]', '[readArticleForClipboard]', 'url', url);
+    logger.debug('🫳💬', '[ServiceWorker.ts]', '[readArticleForClipboard]', 'record', record);
+    if (record && record.is_success) {
+      const text = formatArticleForClipboard(record);
+      chrome.tabs.sendMessage(tabId, {
+        action: MessageAction.WRITE_ARTICLE_TO_CLIPBOARD,
+        payload: { tabId: tabId, url: url, text: text },
+      });
+      return true;
+    } else {
+      logger.warn('🫳💬', '[ServiceWorker.ts]', '[readArticleForClipboard]', 'Ignoring message: article is', record);
+      return false;
     }
   }
 }
