@@ -6,7 +6,7 @@ import {
 import {
   CleanupDBService,
   ContextMenuService,
-  ThemeService,
+  ServiceWorkerThemeService,
 } from '@/features/serviceworker/services';
 import {
   useArticleStore,
@@ -26,7 +26,7 @@ import {
 import { logger } from '@/utils';
 
 class ServiceWorker {
-  themeService = new ThemeService();
+  themeService = new ServiceWorkerThemeService();
   contextMenuService = new ContextMenuService(this.handleContextMenuClicked.bind(this));
   cleanupService = new CleanupDBService();
 

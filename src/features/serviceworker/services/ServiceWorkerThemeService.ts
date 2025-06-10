@@ -6,7 +6,7 @@ import {
 } from '@/types';
 import { logger } from '@/utils';
 
-export class ThemeService {
+export class ServiceWorkerThemeService {
   constructor() {
     this.setupMessageListener();
   }
@@ -25,13 +25,13 @@ export class ThemeService {
           reasons: ['MATCH_MEDIA' as chrome.offscreen.Reason],
           justification: 'Detect system color scheme changes',
         });
-        logger.debug('🧑‍🍳🎨', '[ThemeService.tsx]', '[initialize]', 'Offscreen document created successfully');
+        logger.debug('🧑‍🍳🎨', '[ServiceWorkerThemeService.tsx]', '[initialize]', 'Offscreen document created successfully');
       } catch (createError) {
-        logger.error('🧑‍🍳🎨', '[ThemeService.tsx]', '[initialize]', 'Failed to create offscreen document', createError);
+        logger.error('🧑‍🍳🎨', '[ServiceWorkerThemeService.tsx]', '[initialize]', 'Failed to create offscreen document', createError);
         // Continue execution even if offscreen document creation fails
       }
     } catch (error) {
-      logger.error('🧑‍🍳🎨', '[ThemeService.tsx]', '[initialize]', 'Error in theme service initialization', error);
+      logger.error('🧑‍🍳🎨', '[ServiceWorkerThemeService.tsx]', '[initialize]', 'Error in theme service initialization', error);
       // Continue execution even if initialization fails
     }
   }
@@ -40,11 +40,11 @@ export class ThemeService {
     chrome.runtime.onMessage.addListener((message: Message, sender: chrome.runtime.MessageSender, sendResponse: (response: MessageResponse) => void) => {
       switch (message.action) {
         case MessageAction.PING:
-          logger.debug('🧑‍🍳🎨', '[ThemeService.tsx]', '[setupMessageListener]', 'Received PING');
+          logger.debug('🧑‍🍳🎨', '[ServiceWorkerThemeService.tsx]', '[setupMessageListener]', 'Received PING');
           sendResponse({ success: true });
           return true;
         case MessageAction.COLOR_SCHEME_CHANGED:
-          logger.debug('🧑‍🍳🎨', '[ThemeService.tsx]', '[setupMessageListener]', 'Color scheme changed');
+          logger.debug('🧑‍🍳🎨', '[ServiceWorkerThemeService.tsx]', '[setupMessageListener]', 'Color scheme changed');
           if (message.payload?.isDarkMode !== undefined) {
             useThemeStore.getState().setDarkMode(message.payload.isDarkMode);
           }
