@@ -39,7 +39,7 @@ const Content: React.FC = () => {
         const shadowRoot = document.getElementById('ai-summarizer-root')?.shadowRoot;
 
         /** Append elements to the shadow DOM */
-        shadowRoot?.appendChild(style);
+        shadowRoot?.prepend(style);
       });
   }, []);
 
