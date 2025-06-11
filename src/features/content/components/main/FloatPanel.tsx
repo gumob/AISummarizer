@@ -1,34 +1,17 @@
-import React, {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-
 import clsx from 'clsx';
+
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+
 import { IoAddOutline } from 'react-icons/io5';
+
+import { offset, useFloating } from '@floating-ui/react';
+import { Popover, PopoverBackdrop, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 
 import { ServiceIcon } from '@/components';
 import { useContentContext } from '@/features/content/contexts';
 import { useWindowSize } from '@/features/content/hooks';
-import {
-  AIService,
-  FloatPanelPosition,
-  getAIServiceLabel,
-  MessageAction,
-} from '@/types';
+import { AIService, FloatPanelPosition, getAIServiceLabel, MessageAction } from '@/types';
 import { logger } from '@/utils';
-import {
-  offset,
-  useFloating,
-} from '@floating-ui/react';
-import {
-  Popover,
-  PopoverBackdrop,
-  PopoverButton,
-  PopoverPanel,
-  Transition,
-} from '@headlessui/react';
 
 /**
  * FloatPanel
@@ -159,15 +142,15 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
               className={`
                 fixed z-[777777777777]
                 text-base
-                bg-white/80 dark:bg-zinc-900/80
-                backdrop-blur-md
                 rounded-lg
+                p-2 min-w-[140px]
+                backdrop-blur-md
+                bg-white/80 dark:bg-zinc-900/80
                 shadow-[0_0_24px_rgba(0,0,0,0.1)] dark:shadow-[0_0_24px_rgba(0,0,0,0.4)]
-                p-2 min-w-[180px]
                 border border-white/10 dark:border-zinc-800/10
               `}
             >
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-0">
                 {Object.entries(AIService).map(([name, service], index) => (
                   <button
                     key={index}
