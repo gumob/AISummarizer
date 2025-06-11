@@ -127,23 +127,27 @@ export async function extractYoutube(urls: string): Promise<ArticleExtractionRes
   logger.debug('🎥', '[Youtube.tsx]', '[extractYoutube]', 'Extracting YouTube transcript', videoId);
 
   try {
+    /** Wait for 2 seconds */
     await new Promise(resolve => setTimeout(resolve, 2000));
 
+    /** Wait for the transcript button and click it */
     const transcriptButton = await waitForElement('#description-inline-expander ytd-video-description-transcript-section-renderer button');
     if (!(transcriptButton instanceof HTMLElement)) {
       throw new Error('Transcript button not found');
     }
     transcriptButton.click();
 
+    /** Wait for the transcript container */
     const transcriptContainer = await waitForElement('#segments-container');
     if (!transcriptContainer) {
       throw new Error('Transcript container not found');
     }
 
+    /** Extract the transcript segments */
     const rawSegments = extractTranscriptSegments(transcriptContainer);
     const segments = groupTranscriptSegments(rawSegments);
 
-    // Convert segments to string format
+    /** Convert segments to string format */
     const content = segments
       .map(segment => {
         const timestamp = formatTime(segment.start);
@@ -152,15 +156,17 @@ export async function extractYoutube(urls: string): Promise<ArticleExtractionRes
       })
       .join('\n');
 
+    /** Wait for the title */
     const titleElement = await waitForElement('#above-the-fold #title');
     const title = titleElement?.textContent?.trim() || null;
 
-    const closeButton = await waitForElement('ytd-engagement-panel-section-list-renderer ytd-engagement-panel-title-header-renderer #visibility-button button');
-    if (closeButton instanceof HTMLElement) closeButton.click();
+    /** Wait for the panel and hide it */
+    const panel = await waitForElement('ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-searchable-transcript"]');
+    if (panel instanceof HTMLElement) {
+      panel.setAttribute('visibility', 'ENGAGEMENT_PANEL_VISIBILITY_HIDDEN');
+    }
 
-    logger.debug('🎥', '[Youtube.tsx]', '[extractYoutube]', 'title', title);
-    logger.debug('🎥', '[Youtube.tsx]', '[extractYoutube]', 'content', content);
-
+    /** Return the result */
     return {
       isSuccess: true,
       title: title,
