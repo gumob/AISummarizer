@@ -21,26 +21,25 @@ const Content: React.FC = () => {
         /** Create a style element for the shadow DOM */
         const style = document.createElement('style');
         style.textContent = `
-          :host {
-            // all: initial;
-          }
-          #ai-summarizer-root {
-            // all: initial;
-            // font-family: system-ui, -apple-system, sans-serif;
-          }
-          #ai-summarizer-react-root {
-            // all: initial;
-            // font-family: system-ui, -apple-system, sans-serif;
-          }
+          // :host {
+          //   all: initial;
+          // }
+          // #ai-summarizer-root {
+          //   all: initial;
+          //   font-family: system-ui, -apple-system, sans-serif;
+          // }
+          // #ai-summarizer-react-root {
+          //   all: initial;
+          //   font-family: system-ui, -apple-system, sans-serif;
+          // }
           ${globalsCss}
         `;
 
         /** Create a shadow root */
-        const shadowRoot = rootContainer.attachShadow({ mode: process.env.NODE_ENV === 'development' ? 'open' : 'closed' });
+        const shadowRoot = document.getElementById('ai-summarizer-root')?.shadowRoot;
 
         /** Append elements to the shadow DOM */
         shadowRoot?.appendChild(style);
-        shadowRoot?.appendChild(reactContainer);
       });
   }, []);
 
@@ -63,6 +62,9 @@ document.body.appendChild(rootContainer);
 /** Create a container for the React app inside the shadow DOM */
 const reactContainer = document.createElement('div');
 reactContainer.id = 'ai-summarizer-react-root';
+
+const shadowRoot = rootContainer.attachShadow({ mode: process.env.NODE_ENV === 'development' ? 'open' : 'closed' });
+shadowRoot?.appendChild(reactContainer);
 
 /** Render the React app */
 const root = createRoot(reactContainer);
