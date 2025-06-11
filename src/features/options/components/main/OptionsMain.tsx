@@ -24,6 +24,7 @@ import {
   AIService,
   ContentExtractionTiming,
   FloatPanelPosition,
+  getAIServiceLabel,
   getContentExtractionTimingFromIndex,
   getContentExtractionTimingIndex,
   getContentExtractionTimingLabel,
@@ -288,7 +289,7 @@ export const OptionsMain: React.FC = () => {
                       'transition-opacity'
                     )}
                   >
-                    {service}
+                    {getAIServiceLabel(service)}
                   </Tab>
                 ))}
               </TabList>
