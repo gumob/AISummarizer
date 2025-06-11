@@ -21,17 +21,17 @@ const Content: React.FC = () => {
         /** Create a style element for the shadow DOM */
         const style = document.createElement('style');
         style.textContent = `
-          // :host {
-          //   all: initial;
-          // }
-          // #ai-summarizer-root {
-          //   all: initial;
-          //   font-family: system-ui, -apple-system, sans-serif;
-          // }
-          // #ai-summarizer-react-root {
-          //   all: initial;
-          //   font-family: system-ui, -apple-system, sans-serif;
-          // }
+          :host {
+            all: initial;
+          }
+          #ai-summarizer-root {
+            all: initial;
+            font-family: system-ui, -apple-system, sans-serif;
+          }
+          #ai-summarizer-react-root {
+            all: initial;
+            font-family: system-ui, -apple-system, sans-serif;
+          }
           ${globalsCss}
         `;
 

@@ -118,6 +118,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
               flex items-center justify-center
               rounded-full
               gap-1 ps-4 pe-4 py-4
+              text-base
               bg-white/80 dark:bg-zinc-800/80
               text-zinc-900 dark:text-zinc-100
               font-semibold
@@ -155,15 +156,16 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
                 panelRef.current = el;
               }}
               style={floatingStyles}
-              className={clsx(
-                'fixed z-[777777777777]',
-                'bg-white/80 dark:bg-zinc-900/80',
-                'backdrop-blur-md',
-                'rounded-lg',
-                'shadow-[0_0_24px_rgba(0,0,0,0.1)] dark:shadow-[0_0_24px_rgba(0,0,0,0.4)]',
-                'p-2 min-w-[180px]',
-                'border border-white/10 dark:border-zinc-800/10'
-              )}
+              className={`
+                fixed z-[777777777777]
+                text-base
+                bg-white/80 dark:bg-zinc-900/80
+                backdrop-blur-md
+                rounded-lg
+                shadow-[0_0_24px_rgba(0,0,0,0.1)] dark:shadow-[0_0_24px_rgba(0,0,0,0.4)]
+                p-2 min-w-[180px]
+                border border-white/10 dark:border-zinc-800/10
+              `}
             >
               <div className="flex flex-col gap-1">
                 {Object.entries(AIService).map(([name, service], index) => (
@@ -191,6 +193,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
                     }}
                     className={`
                       flex items-center gap-2 px-2 py-2
+                      text-base
                       text-zinc-900 dark:text-zinc-100
                       hover:bg-zinc-500/20 dark:hover:bg-zinc-500/20
                       rounded-md
