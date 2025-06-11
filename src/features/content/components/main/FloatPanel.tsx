@@ -118,7 +118,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
               flex items-center justify-center
               rounded-full
               gap-1 ps-4 pe-4 py-4
-              bg-white/80 dark:bg-zinc-900/80
+              bg-white/80 dark:bg-zinc-800/80
               text-zinc-900 dark:text-zinc-100
               font-semibold
               border border-white/10 dark:border-zinc-800/10

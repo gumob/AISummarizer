@@ -22,15 +22,15 @@ const Content: React.FC = () => {
         const style = document.createElement('style');
         style.textContent = `
           :host {
-            all: initial;
+            // all: initial;
           }
           #ai-summarizer-root {
-            all: initial;
-            font-family: system-ui, -apple-system, sans-serif;
+            // all: initial;
+            // font-family: system-ui, -apple-system, sans-serif;
           }
           #ai-summarizer-react-root {
-            all: initial;
-            font-family: system-ui, -apple-system, sans-serif;
+            // all: initial;
+            // font-family: system-ui, -apple-system, sans-serif;
           }
           ${globalsCss}
         `;
