@@ -100,7 +100,7 @@ function extractTranscriptSegments(container: Element): { start: number; text: s
  * @param maxAttempts - The maximum number of attempts.
  * @returns The element if it is visible, otherwise null.
  */
-const waitForElement = async (selector: string, attribute?: { name: string; value: string }, maxAttempts = 20): Promise<Element | null> => {
+const waitForElement = async (selector: string, attribute?: { name: string; value: string }, maxAttempts = 10): Promise<Element | null> => {
   for (let i = 0; i < maxAttempts; i++) {
     const element = document.querySelector(selector);
     if (element && (!attribute || element.getAttribute(attribute.name) === attribute.value)) {
