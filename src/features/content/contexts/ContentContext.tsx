@@ -75,7 +75,7 @@ export const ContentContextProvider: React.FC<ContentContextProviderProps> = ({ 
         return;
       }
       const isDenied = await isExtractionDenylistUrl(currentTabUrl);
-      logger.info('🗣️🎁', '[ContentContext.tsx]', '[toggleFloatPanelVisibility]', 'isDenied', isDenied);
+      logger.debug('🗣️🎁', '[ContentContext.tsx]', '[toggleFloatPanelVisibility]', 'isDenied', isDenied);
       if (isDenied) {
         setIsFloatPanelVisible(false);
         return;
