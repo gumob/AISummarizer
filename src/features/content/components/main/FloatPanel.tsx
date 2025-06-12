@@ -79,7 +79,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
         className={clsx(
           panelPositionClasses,
           'transition-all duration-200 ease-in-out',
-          isPanelVisible ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'
+          isPanelVisible ? 'opacity-0 scale-95 invisible' : 'opacity-100 scale-100 visible'
         )}
       >
         <button
@@ -110,7 +110,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
         className={clsx(
           panelPositionClasses,
           'transition-all duration-200 ease-in-out',
-          isPanelVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none',
+          isPanelVisible ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible',
           `
           text-[12px]
           rounded-[8px]
