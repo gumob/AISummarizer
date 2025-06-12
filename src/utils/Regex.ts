@@ -40,9 +40,9 @@ export const isExtractionDenylistUrl = async (url?: string): Promise<boolean> =>
     .filter((pattern: string) => {
       const trimmed = pattern.trim();
       return trimmed && !trimmed.startsWith('//') && !trimmed.startsWith('/*') && !trimmed.endsWith('*/') && !trimmed.startsWith('#');
-    })
-    /** Escape the patterns */
-    .map(escapeRegExp);
+    });
+  /** Escape the patterns */
+  // .map(escapeRegExp);
   /** Check if the URL matches any of the patterns */
   return patterns.some((pattern: string) => new RegExp(pattern).test(url));
 };

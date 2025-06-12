@@ -13,7 +13,10 @@ import {
   ArticleExtractionResult,
   FloatPanelPosition,
 } from '@/types';
-import { logger } from '@/utils';
+import {
+  isExtractionDenylistUrl,
+  logger,
+} from '@/utils';
 
 /**
  * The context value type for ContentContext.
@@ -67,6 +70,16 @@ export const ContentContextProvider: React.FC<ContentContextProviderProps> = ({ 
 
   useEffect(() => {
     const toggleFloatPanelVisibility = async () => {
+      if (!currentTabUrl) {
+        setIsFloatPanelVisible(false);
+        return;
+      }
+      const isDenied = await isExtractionDenylistUrl(currentTabUrl);
+      logger.info('🗣️🎁', '[ContentContext.tsx]', '[toggleFloatPanelVisibility]', 'isDenied', isDenied);
+      if (isDenied) {
+        setIsFloatPanelVisible(false);
+        return;
+      }
       const isArticleExtracted = currentArticle != null && currentArticle.isSuccess;
       const state = isArticleExtracted && settings.floatPanelPosition !== FloatPanelPosition.HIDE;
       logger.debug('🗣️🎁', '[ContentContext.tsx]', '[toggleFloatPanelVisibility]', 'state', state);

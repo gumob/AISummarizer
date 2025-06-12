@@ -48,11 +48,11 @@ export const DEFAULT_SETTINGS: SettingsState = {
   floatPanelPosition: FloatPanelPosition.BOTTOM_RIGHT,
   contentExtractionTiming: ContentExtractionTiming.AUTOMATIC,
   extractionDenylist: `/** AI services */
-'(https?)\\:\\/\\/(www\\.)?(chatgpt\\.com|gemini\\.com|grok\\.com|perplexity\\.com|deepseek\\.com|claude\\.ai)',
+(https?)\\:\\/\\/(www\\.)?(chatgpt\\.com|gemini\\.com|grok\\.com|perplexity\\.com|deepseek\\.com|claude\\.ai)
 /** Search engines */
-'(https?)\\:\\/\\/(www\\.)?(google|facebook|bing|yahoo|duckduckgo|baidu|yandex|ask|)\\.(co\\.[a-z]{2}|[a-z]{2,3})',
+(https?)\\:\\/\\/(www\\.)?(google|facebook|bing|yahoo|duckduckgo|baidu|yandex|ask|)\\.(co\\.[a-z]{2}|[a-z]{2,3})
 /** E-commerce sites */
-'(https?)\\:\\/\\/(www\\.)?(amazon|shop|etsy|ebay|walmart|bestbuy|shopify|target|costoco|apple|flipkart|wix|rakuten|mercari|alibaba|aliexpress|shein|taobao|qoo10|)\\.(co\\.[a-z]{2}|[a-z]{2,3})',
+(https?)\\:\\/\\/(www\\.)?(amazon|shop|etsy|ebay|walmart|bestbuy|shopify|target|costoco|apple|flipkart|wix|rakuten|mercari|alibaba|aliexpress|shein|taobao|qoo10|)\\.(co\\.[a-z]{2}|[a-z]{2,3})
 `,
   saveArticleOnClipboard: false,
   isShowMessage: false,
