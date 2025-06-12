@@ -74,7 +74,7 @@ export const PopupMain: React.FC = () => {
 
                 /** Send the message to the content script */
                 await chrome.runtime.sendMessage({
-                  action: MessageAction.SUMMARIZE_ARTICLE,
+                  action: MessageAction.OPEN_AI_SERVICE,
                   payload: {
                     service: service,
                     tabId: tab.id,

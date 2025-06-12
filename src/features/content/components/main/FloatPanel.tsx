@@ -132,7 +132,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
                 logger.debug('🫳💬', '[FloatPanel.tsx]', 'Sending message to service worker script', currentTabId, currentTabUrl);
                 try {
                   await chrome.runtime.sendMessage({
-                    action: MessageAction.SUMMARIZE_ARTICLE,
+                    action: MessageAction.OPEN_AI_SERVICE,
                     payload: {
                       service: service,
                       tabId: currentTabId,

@@ -103,7 +103,7 @@ class ServiceWorker {
   async handleServiceWorkerMessage(message: Message, sender: chrome.runtime.MessageSender, sendResponse: (response: any) => void) {
     logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleServiceWorkerMessage]', message.action);
     switch (message.action) {
-      case MessageAction.SUMMARIZE_ARTICLE:
+      case MessageAction.OPEN_AI_SERVICE:
         this.executeSummarization(message.payload.service, message.payload.tabId, message.payload.url);
         break;
 
@@ -228,26 +228,27 @@ class ServiceWorker {
       const summarizeUrl = getSummarizeUrl(service, article.id.toString());
       switch (tabBehavior) {
         case TabBehavior.CURRENT_TAB:
-          chrome.tabs.update(tabId, { url: summarizeUrl });
+          await chrome.tabs.update(tabId, { url: summarizeUrl });
           break;
 
         case TabBehavior.NEW_TAB:
-          chrome.tabs.create({ url: summarizeUrl });
+          await chrome.tabs.create({ url: summarizeUrl });
           break;
 
         case TabBehavior.NEW_PRIVATE_TAB:
           const windows = await chrome.windows.getAll({ populate: true });
           const incognitoWindow = windows.find(w => w.incognito);
           if (incognitoWindow) {
-            chrome.tabs.create({ windowId: incognitoWindow.id, url: summarizeUrl });
+            await chrome.tabs.create({ windowId: incognitoWindow.id, url: summarizeUrl });
           } else {
-            chrome.windows.create({ url: summarizeUrl, incognito: true });
+            await chrome.windows.create({ url: summarizeUrl, incognito: true });
           }
           break;
 
         default:
           break;
       }
+
       return true;
     } catch (error) {
       logger.error('🧑‍🍳📃', '[ServiceWorker.ts]', '[executeSummarization]', 'Failed to execute summarization:', error);
