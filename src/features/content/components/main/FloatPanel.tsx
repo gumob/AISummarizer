@@ -1,17 +1,34 @@
+import React, {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+
 import clsx from 'clsx';
-
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-
 import { IoAddOutline } from 'react-icons/io5';
-
-import { offset, useFloating } from '@floating-ui/react';
-import { Popover, PopoverBackdrop, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 
 import { ServiceIcon } from '@/components';
 import { useContentContext } from '@/features/content/contexts';
 import { useWindowSize } from '@/features/content/hooks';
-import { AIService, FloatPanelPosition, getAIServiceLabel, MessageAction } from '@/types';
+import {
+  AIService,
+  FloatPanelPosition,
+  getAIServiceLabel,
+  MessageAction,
+} from '@/types';
 import { logger } from '@/utils';
+import {
+  offset,
+  useFloating,
+} from '@floating-ui/react';
+import {
+  Popover,
+  PopoverBackdrop,
+  PopoverButton,
+  PopoverPanel,
+  Transition,
+} from '@headlessui/react';
 
 /**
  * FloatPanel
@@ -100,8 +117,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
               fixed z-[777777777777]
               flex items-center justify-center
               rounded-full
-              gap-1 ps-4 pe-4 py-4
-              !text-base
+              p-[12px]
               bg-white/80 dark:bg-zinc-800/80
               text-zinc-900 dark:text-zinc-100
               font-semibold
@@ -122,7 +138,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
               settings.floatPanelPosition === FloatPanelPosition.BOTTOM_RIGHT && '!bottom-4 !right-4'
             )}
           >
-            <IoAddOutline className="w-5 h-5" />
+            <IoAddOutline className="w-[16px] h-[16px]" />
           </PopoverButton>
           <Transition
             show={isHovered}
@@ -141,9 +157,9 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
               style={floatingStyles}
               className={`
                 fixed z-[777777777777]
-                !text-base
-                rounded-lg
-                p-2 min-w-[140px]
+                text-[12px]
+                rounded-[8px]
+                p-[6px] min-w-[140px]
                 backdrop-blur-md
                 bg-white/80 dark:bg-zinc-900/80
                 shadow-[0_0_24px_rgba(0,0,0,0.1)] dark:shadow-[0_0_24px_rgba(0,0,0,0.4)]
@@ -175,15 +191,15 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
                       close();
                     }}
                     className={`
-                      flex items-center gap-2 px-2 py-2
-                      !text-base
+                      flex items-center gap-[8px] p-[6px]
+                      text-[12px]
                       text-zinc-900 dark:text-zinc-100
                       hover:bg-zinc-500/20 dark:hover:bg-zinc-500/20
-                      rounded-md
+                      rounded-[4px]
                       transition-colors duration-200
                     `}
                   >
-                    <ServiceIcon service={service} className="w-5 h-5" />
+                    <ServiceIcon service={service} className="w-[16px] h-[16px]" />
                     <span>{getAIServiceLabel(service)}</span>
                   </button>
                 ))}
