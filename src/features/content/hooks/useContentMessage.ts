@@ -10,6 +10,7 @@ import {
   ArticleExtractionResult,
   ArticleInjectionResult,
   getAIServiceForUrl,
+  getSummarizeUrl,
   Message,
   MessageAction,
   MessageResponse,
@@ -125,7 +126,25 @@ export const useContentMessage = () => {
 
         case MessageAction.INJECT_ARTICLE:
           try {
-            createPrompt(getAIServiceForUrl(message.payload.tabUrl), settings, message.payload.article)
+            const service = getAIServiceForUrl(message.payload.tabUrl);
+            const serviceUrl = getSummarizeUrl(service, message.payload.article.id);
+            logger.debug('🫳💬', '[useContentMessage.tsx]', '[handleMessage]', 'serviceUrl:', serviceUrl);
+            logger.debug('🫳💬', '[useContentMessage.tsx]', '[handleMessage]', 'tabUrl:', message.payload.tabUrl);
+            if (message.payload.tabUrl !== serviceUrl) {
+              logger.warn(
+                '🫳💬',
+                '[useContentMessage.tsx]',
+                '[handleMessage]',
+                'Skipping injection for invalid service URL:',
+                message.payload.tabUrl,
+                '!=',
+                serviceUrl
+              );
+              sendResponse({ success: false, error: new Error('Invalid service URL') });
+              return true;
+            }
+
+            createPrompt(service, settings, message.payload.article)
               .then(prompt => {
                 /** Inject the article into the ChatGPT */
                 injectionService.current.execute(message.payload.tabUrl, prompt).then((result: ArticleInjectionResult) => {

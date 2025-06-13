@@ -4,3 +4,4 @@ export * from './ThemeUtils';
 export * from './Regex';
 export * from './Text';
 export * from './DOM';
+export * from './Math';

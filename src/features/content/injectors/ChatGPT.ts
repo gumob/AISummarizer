@@ -1,4 +1,5 @@
 import {
+  getRandomInt,
   logger,
   waitForElement,
 } from '@/utils';
@@ -7,13 +8,16 @@ export async function injectChatGPT(promptText: string): Promise<{ success: bool
   try {
     logger.debug('📕', '[ChatGPT.tsx]', '[injectChatGPT]', 'Injecting article into ChatGPT', promptText);
 
-    /** Wait for 1 second */
-    new Promise(resolve => setTimeout(resolve, 1000));
+    /** Wait for 2 to 3 seconds */
+    new Promise(resolve => setTimeout(resolve, getRandomInt(2000, 3000)));
 
     /** Wait for the editor to be found */
     const editor = await waitForElement('#prompt-textarea');
     if (!editor) throw new Error('ChatGPT container not found');
     logger.debug('📕', '[ChatGPT.tsx]', '[injectChatGPT]', 'ChatGPT editor found', editor);
+
+    /** Wait for 0.5 to 1 second */
+    new Promise(resolve => setTimeout(resolve, getRandomInt(500, 1000)));
 
     /** Format the article for clipboard */
     const paragraphs = promptText.split(/\r?\n/).map(line => {
@@ -23,15 +27,12 @@ export async function injectChatGPT(promptText: string): Promise<{ success: bool
       return `<p>${line}</p>`;
     });
 
-    /** Wait for 1 second */
-    new Promise(resolve => setTimeout(resolve, 1000));
-
     /** Inject the article into the editor */
     editor.innerHTML = paragraphs.join('');
     editor.dispatchEvent(new Event('input', { bubbles: true }));
 
-    /** Wait for 1 second */
-    new Promise(resolve => setTimeout(resolve, 1000));
+    /** Wait for 0.5 to 1 second */
+    new Promise(resolve => setTimeout(resolve, getRandomInt(500, 1000)));
 
     /** Wait for the submit button to be found */
     const submitButton = await waitForElement('#composer-submit-button');

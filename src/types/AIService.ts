@@ -17,9 +17,9 @@ export const getSummarizeUrl = (service: AIService, summarizeId: string) => {
     case AIService.GEMINI:
       return `https://gemini.google.com/app?${AI_SERVICE_QUERY_KEY}=${summarizeId}`;
     case AIService.AI_STUDIO:
-      return `https://aistudio.google.com/?${AI_SERVICE_QUERY_KEY}=${summarizeId}`;
+      return `https://aistudio.google.com/prompts/new_chat?${AI_SERVICE_QUERY_KEY}=${summarizeId}`;
     case AIService.CLAUDE:
-      return `https://claude.com/?${AI_SERVICE_QUERY_KEY}=${summarizeId}`;
+      return `https://claude.ai/new?${AI_SERVICE_QUERY_KEY}=${summarizeId}`;
     case AIService.GROK:
       return `https://grok.com/?${AI_SERVICE_QUERY_KEY}=${summarizeId}`;
     case AIService.PERPLEXITY:

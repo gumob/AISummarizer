@@ -1,4 +1,5 @@
 import {
+  getRandomInt,
   logger,
   waitForElement,
 } from '@/utils';
@@ -7,32 +8,24 @@ export async function injectGemini(prompt: string): Promise<{ success: boolean; 
   try {
     logger.debug('📕', '[Gemini.tsx]', '[injectGemini]', 'Injecting article into Gemini', prompt);
 
-    /** Wait for 1 second */
-    new Promise(resolve => setTimeout(resolve, 1000));
+    /** Wait for 2 to 3 seconds */
+    new Promise(resolve => setTimeout(resolve, getRandomInt(2000, 3000)));
 
     /** Wait for the editor to be found */
     const editor = await waitForElement('div.ql-editor[aria-label="Enter a prompt here"]');
     if (!editor) throw new Error('Gemini container not found');
     logger.debug('📕', '[Gemini.tsx]', '[injectGemini]', 'Gemini editor found', editor);
 
-    /** Format the article for clipboard */
-    const paragraphs = prompt.split(/\r?\n/).map(line => {
-      if (line.trim() === '') {
-        return '<p><br class="ProseMirror-trailingBreak"></p>';
-      }
-      return `<p>${line}</p>`;
-    });
-
-    /** Wait for 1 second */
-    new Promise(resolve => setTimeout(resolve, 1000));
+    /** Wait for 0.5 to 1 second */
+    new Promise(resolve => setTimeout(resolve, getRandomInt(500, 1000)));
 
     /** Inject the article into the editor */
     const p = editor.querySelector('p') || editor.appendChild(document.createElement('p'));
     p.textContent = prompt;
     editor.dispatchEvent(new Event('input', { bubbles: true }));
 
-    /** Wait for 1 second */
-    new Promise(resolve => setTimeout(resolve, 1000));
+    /** Wait for 0.5 to 1 second */
+    new Promise(resolve => setTimeout(resolve, getRandomInt(500, 1000)));
 
     /** Wait for the submit button to be found */
     const submitButton = await waitForElement('button[aria-label="Send message"');
