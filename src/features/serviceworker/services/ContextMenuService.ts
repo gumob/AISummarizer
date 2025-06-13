@@ -27,6 +27,7 @@ export class ContextMenuService {
   private async removeMenu() {
     try {
       await chrome.contextMenus.removeAll();
+      await new Promise(resolve => setTimeout(resolve, 100));
     } catch (error) {
       logger.error('🧑‍🍳📃', '[ContextMenuService.tsx]', '[removeMenu]', 'Failed to remove context menu:', error);
     }
