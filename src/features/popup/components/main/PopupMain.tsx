@@ -115,12 +115,6 @@ export const PopupMain: React.FC = () => {
               const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
               if (!tab.id) throw new Error('No active tab found');
 
-              /** Inject the content script */
-              // await chrome.scripting.executeScript({
-              //   target: { tabId: tab.id },
-              //   files: ['content.js'],
-              // });
-
               /** Send the message to the content script */
               await chrome.tabs.sendMessage(tab.id, {
                 action: MessageAction.EXTRACT_ARTICLE,
@@ -137,7 +131,7 @@ export const PopupMain: React.FC = () => {
           <Divider />
           <ServiceListMenu
             onClick={async () => {
-              logger.debug('📦🍿', '[PopupMain.tsx]', '[render]', ' Settings clicked');
+              logger.debug('📦🍿', '[PopupMain.tsx]', '[render]', 'Settings clicked');
               const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
               if (tab?.id) {
                 chrome.sidePanel.setOptions({ path: 'options.html', enabled: true });
@@ -158,7 +152,7 @@ export const PopupMain: React.FC = () => {
           <Divider />
           <ServiceListMenu
             onClick={async () => {
-              logger.debug('📦🍿', '[PopupMain.tsx]', '[render]', ' Settings clicked');
+              logger.debug('📦🍿', '[PopupMain.tsx]', '[render]', 'Settings clicked');
               const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
               if (tab?.id) {
                 chrome.sidePanel.setOptions({ path: 'options.html', enabled: true });

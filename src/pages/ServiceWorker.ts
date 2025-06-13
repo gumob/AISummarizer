@@ -120,6 +120,15 @@ class ServiceWorker {
         await this.readArticleForClipboard(message.payload.tabId, message.payload.tabUrl, true);
         break;
 
+      case MessageAction.OPEN_SETTINGS:
+        chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
+          if (tab.id) {
+            chrome.sidePanel.setOptions({ path: 'options.html', enabled: true });
+            chrome.sidePanel.open({ windowId: tab.windowId });
+          }
+        });
+        break;
+
       default:
         break;
     }

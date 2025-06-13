@@ -5,9 +5,17 @@ import React, {
 } from 'react';
 
 import clsx from 'clsx';
-import { IoAddOutline } from 'react-icons/io5';
+import {
+  IoAddOutline,
+  IoClipboardOutline,
+  IoReloadOutline,
+  IoSettingsOutline,
+} from 'react-icons/io5';
 
-import { ServiceIcon } from '@/components';
+import {
+  Divider,
+  ServiceIcon,
+} from '@/components';
 import { useContentContext } from '@/features/content/contexts';
 import { useWindowSize } from '@/features/content/hooks';
 import {
@@ -90,7 +98,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
             flex items-center justify-center
             rounded-full
             p-[12px]
-            bg-white/80 dark:bg-zinc-800/80
+            bg-white/80 dark:bg-zinc-900/80
             text-zinc-900 dark:text-zinc-100
             font-semibold
             border border-white/10 dark:border-zinc-800/10
@@ -122,7 +130,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
           `
         )}
       >
-        <div className="flex flex-col gap-0">
+        <div className="flex flex-col gap-[6px]">
           {Object.entries(AIService).map(([name, service], index) => (
             <button
               key={index}
@@ -149,7 +157,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
                 flex items-center gap-[8px] p-[6px]
                 text-[12px]
                 text-zinc-900 dark:text-zinc-100
-                hover:bg-zinc-500/20 dark:hover:bg-zinc-500/20
+                hover:bg-zinc-500/80 dark:hover:bg-zinc-500/80
                 rounded-[4px]
                 transition-colors duration-200
               `}
@@ -158,6 +166,82 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
               <span>{getAIServiceLabel(service)}</span>
             </button>
           ))}
+
+          {/* Divider */}
+          <Divider />
+
+          {/* Copy to clipboard */}
+          <button
+            onClick={async () => {
+              if (currentTabId === null || currentTabUrl === null) throw new Error('No active tab found');
+              await chrome.runtime.sendMessage({
+                action: MessageAction.READ_ARTICLE_FOR_CLIPBOARD,
+                payload: { tabId: currentTabId, tabUrl: currentTabUrl },
+              });
+              setIsPanelVisible(false);
+            }}
+            className={`
+                flex items-center gap-[8px] p-[6px]
+                text-[12px]
+                text-zinc-900 dark:text-zinc-100
+                hover:bg-zinc-500/80 dark:hover:bg-zinc-500/80
+                rounded-[4px]
+                transition-colors duration-200
+              `}
+          >
+            <IoClipboardOutline className="w-[16px] h-[16px]" />
+            <span>Copy to clipboard</span>
+          </button>
+
+          {/* Extract article again */}
+          <button
+            onClick={async () => {
+              logger.debug('📦🍿', '[FloatPanel.tsx]', '[render]', 'Extract article again');
+              await chrome.runtime.sendMessage({
+                action: MessageAction.EXTRACT_ARTICLE,
+                payload: { tabId: currentTabId, tabUrl: currentTabUrl },
+              });
+              setIsPanelVisible(false);
+            }}
+            className={`
+                flex items-center gap-[8px] p-[6px]
+                text-[12px]
+                text-zinc-900 dark:text-zinc-100
+                hover:bg-zinc-500/80 dark:hover:bg-zinc-500/80
+                rounded-[4px]
+                transition-colors duration-200
+              `}
+          >
+            <IoReloadOutline className="w-[16px] h-[16px]" />
+            <span>Extract article again</span>
+          </button>
+
+          {/* Divider */}
+          <Divider />
+
+          {/* Settings */}
+          <button
+            onClick={async () => {
+              logger.debug('📦🍿', '[FloatPanel.tsx]', '[render]', 'Settings clicked');
+              if (currentTabId === null || currentTabUrl === null) throw new Error('No active tab found');
+              await chrome.runtime.sendMessage({
+                action: MessageAction.OPEN_SETTINGS,
+                payload: { tabId: currentTabId, tabUrl: currentTabUrl },
+              });
+              setIsPanelVisible(false);
+            }}
+            className={`
+                flex items-center gap-[8px] p-[6px]
+                text-[12px]
+                text-zinc-900 dark:text-zinc-100
+                hover:bg-zinc-500/80 dark:hover:bg-zinc-500/80
+                rounded-[4px]
+                transition-colors duration-200
+              `}
+          >
+            <IoSettingsOutline className="w-[16px] h-[16px]" />
+            <span>Settings</span>
+          </button>
         </div>
       </div>
     </>
