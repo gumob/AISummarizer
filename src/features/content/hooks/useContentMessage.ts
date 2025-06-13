@@ -113,6 +113,9 @@ export const useContentMessage = () => {
                   result: article,
                 },
               });
+              if (article?.isSuccess && settings.isShowMessage) {
+                toast.success('Article extracted successfully');
+              }
             });
           } catch (error: any) {
             logger.error('🫳💬', '[useContentMessage.tsx]', '[handleMessage]', 'Failed to extract article:', error);

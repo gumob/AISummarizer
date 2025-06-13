@@ -6,7 +6,6 @@ import React, {
   useState,
 } from 'react';
 
-import { toast } from '@/features/content/components/main';
 import { useContentMessage } from '@/features/content/hooks';
 import { SettingsState } from '@/stores';
 import {
@@ -85,14 +84,7 @@ export const ContentContextProvider: React.FC<ContentContextProviderProps> = ({ 
       logger.debug('🗣️🎁', '[ContentContext.tsx]', '[toggleFloatPanelVisibility]', 'state', state);
       setIsFloatPanelVisible(state);
     };
-    const toggleShowMessage = async () => {
-      if (currentArticle?.isSuccess && settings.isShowMessage) {
-        logger.debug('🗣️🎁', '[ContentContext.tsx]', '[toggleShowMessage]');
-        toast.success('Article extracted successfully');
-      }
-    };
     toggleFloatPanelVisibility();
-    toggleShowMessage();
   }, [currentTabId, currentTabUrl, currentArticle, settings]);
 
   /*******************************************************
