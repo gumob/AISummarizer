@@ -1,5 +1,8 @@
 import { ArticleExtractionResult } from '@/types';
-import { logger } from '@/utils';
+import {
+  logger,
+  waitForElement,
+} from '@/utils';
 
 interface TranscriptSegment {
   start: number;
@@ -92,24 +95,6 @@ function extractTranscriptSegments(container: Element): { start: number; text: s
 
   return segments;
 }
-
-/**
- * This function is used to wait for an element to be visible.
- * @param selector - The selector of the element.
- * @param attribute - The attribute of the element.
- * @param maxAttempts - The maximum number of attempts.
- * @returns The element if it is visible, otherwise null.
- */
-const waitForElement = async (selector: string, attribute?: { name: string; value: string }, maxAttempts = 10): Promise<Element | null> => {
-  for (let i = 0; i < maxAttempts; i++) {
-    const element = document.querySelector(selector);
-    if (element && (!attribute || element.getAttribute(attribute.name) === attribute.value)) {
-      return element;
-    }
-    await new Promise(resolve => setTimeout(resolve, 1000));
-  }
-  return null;
-};
 
 /**
  * This function is used to extract the YouTube transcript.

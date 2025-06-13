@@ -8,6 +8,7 @@ import { ArticleExtractionService } from '@/features/content/services';
 import { useSettingsStore } from '@/stores';
 import {
   ArticleExtractionResult,
+  ArticleInjectionResult,
   Message,
   MessageAction,
   MessageResponse,
@@ -16,6 +17,8 @@ import {
   copyToClipboard,
   logger,
 } from '@/utils';
+
+import { ArticleInjectionService } from '../services/ArticleInjectionService';
 
 /**
  * Hook for handling Chrome extension messages
@@ -26,6 +29,7 @@ export const useContentMessage = () => {
    *******************************************************/
 
   const extractionService = useRef(new ArticleExtractionService());
+  const injectionService = useRef(new ArticleInjectionService());
   const isListenerRegistered = useRef(false);
 
   const [currentTabId, setCurrentTabId] = useState<number | null>(null);
@@ -122,8 +126,11 @@ export const useContentMessage = () => {
             const article = message.payload.article;
             logger.debug('🫳💬', '[useContentMessage.tsx]', '[handleMessage]', 'article', article);
 
-            /** Respond to the content script */
-            sendResponse({ success: true });
+            /** Inject the article into the ChatGPT */
+            injectionService.current.execute(message.payload.url, article).then((result: ArticleInjectionResult) => {
+              /** Respond to the content script */
+              sendResponse({ success: result.success, error: result.error });
+            });
           } catch (error: any) {
             logger.error('🫳💬', '[useContentMessage.tsx]', '[handleMessage]', 'Failed to inject article:', error);
           }

@@ -3,3 +3,4 @@ export * from './Logger';
 export * from './ThemeUtils';
 export * from './Regex';
 export * from './Text';
+export * from './DOM';

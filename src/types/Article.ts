@@ -8,6 +8,11 @@ export interface ArticleExtractionResult {
   error?: Error | null;
 }
 
+export interface ArticleInjectionResult {
+  success: boolean;
+  error?: Error | undefined;
+}
+
 // Function overload declarations
 export function formatArticleForClipboard(article: ArticleRecord): string;
 export function formatArticleForClipboard(article: ArticleExtractionResult): string;
