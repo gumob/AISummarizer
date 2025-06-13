@@ -11,7 +11,7 @@ export async function injectGemini(prompt: string): Promise<{ success: boolean; 
     new Promise(resolve => setTimeout(resolve, 1000));
 
     /** Wait for the editor to be found */
-    const editor = await waitForElement('#prompt-textarea');
+    const editor = await waitForElement('div.ql-editor[aria-label="Enter a prompt here"]');
     if (!editor) throw new Error('Gemini container not found');
     logger.debug('📕', '[Gemini.tsx]', '[injectGemini]', 'Gemini editor found', editor);
 
@@ -27,14 +27,15 @@ export async function injectGemini(prompt: string): Promise<{ success: boolean; 
     new Promise(resolve => setTimeout(resolve, 1000));
 
     /** Inject the article into the editor */
-    editor.innerHTML = paragraphs.join('');
+    const p = editor.querySelector('p') || editor.appendChild(document.createElement('p'));
+    p.textContent = prompt;
     editor.dispatchEvent(new Event('input', { bubbles: true }));
 
     /** Wait for 1 second */
     new Promise(resolve => setTimeout(resolve, 1000));
 
     /** Wait for the submit button to be found */
-    const submitButton = await waitForElement('#composer-submit-button');
+    const submitButton = await waitForElement('button[aria-label="Send message"');
     if (!submitButton) throw new Error('Gemini submit button not found');
     logger.debug('📕', '[Gemini.tsx]', '[injectGemini]', 'Gemini submit button found', submitButton);
 
