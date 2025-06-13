@@ -113,7 +113,7 @@ export async function extractYoutube(urls: string): Promise<ArticleExtractionRes
 
   try {
     /** Wait for 2 seconds */
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    await new Promise(resolve => setTimeout(resolve, 4000));
 
     /** Wait for the transcript button and click it */
     const transcriptButton = await waitForElement('#description-inline-expander ytd-video-description-transcript-section-renderer button');
