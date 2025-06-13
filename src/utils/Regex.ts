@@ -26,7 +26,7 @@ export const isInvalidUrl = async (url?: string): Promise<boolean> => {
 
 export const isAIServiceUrl = (url?: string): boolean => {
   if (!url) return true;
-  return /^(https?)\:\/\/(www\.)?((chatgpt|gemini\.google|aistudio\.google|grok|perplexity|deepseek)\.com)|(claude\.ai)/.test(url);
+  return /^(https?)\:\/\/(www|chat\.)?((chatgpt|gemini\.google|aistudio\.google|grok|deepseek)\.com)|((perplexity|claude)\.ai)/.test(url);
 };
 
 export const isBrowserSpecificUrl = (url?: string): boolean => {

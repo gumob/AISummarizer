@@ -23,9 +23,9 @@ export const getSummarizeUrl = (service: AIService, summarizeId: string) => {
     case AIService.GROK:
       return `https://grok.com/?${AI_SERVICE_QUERY_KEY}=${summarizeId}`;
     case AIService.PERPLEXITY:
-      return `https://perplexity.com/?${AI_SERVICE_QUERY_KEY}=${summarizeId}`;
+      return `https://www.perplexity.ai/?${AI_SERVICE_QUERY_KEY}=${summarizeId}`;
     case AIService.DEEPSEEK:
-      return `https://deepseek.com/?${AI_SERVICE_QUERY_KEY}=${summarizeId}`;
+      return `https://chat.deepseek.com/?${AI_SERVICE_QUERY_KEY}=${summarizeId}`;
   }
 };
 
@@ -40,9 +40,9 @@ export const getAIServiceForUrl = (url: string): AIService => {
     return AIService.CLAUDE;
   } else if (/^https?:\/\/(?:www\.)?(grok\.com)/.test(url)) {
     return AIService.GROK;
-  } else if (/^https?:\/\/(?:www\.)?(perplexity\.com)/.test(url)) {
+  } else if (/^https?:\/\/(?:www\.)?(perplexity\.ai)/.test(url)) {
     return AIService.PERPLEXITY;
-  } else if (/^https?:\/\/(?:www\.)?(deepseek\.com)/.test(url)) {
+  } else if (/^https?:\/\/(?:www|chat\.)?(deepseek\.com)/.test(url)) {
     return AIService.DEEPSEEK;
   } else {
     throw new Error(`Invalid AI service URL: ${url}`);

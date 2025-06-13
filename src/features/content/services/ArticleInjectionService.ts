@@ -2,7 +2,7 @@ import {
   injectAIStudio,
   injectChatGPT,
   injectClaude,
-  injectDeepseek,
+  injectDeepSeek,
   injectGemini,
   injectGrok,
   injectPerplexity,
@@ -24,7 +24,7 @@ const injectors: Record<AIService, (prompt: string) => Promise<{ success: boolea
   [AIService.CLAUDE]: injectClaude,
   [AIService.GROK]: injectGrok,
   [AIService.PERPLEXITY]: injectPerplexity,
-  [AIService.DEEPSEEK]: injectDeepseek,
+  [AIService.DEEPSEEK]: injectDeepSeek,
 };
 
 export class ArticleInjectionService {

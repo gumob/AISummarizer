@@ -49,7 +49,7 @@ export const DEFAULT_SETTINGS: SettingsState = {
   floatPanelPosition: FloatPanelPosition.BOTTOM_RIGHT,
   contentExtractionTiming: ContentExtractionTiming.AUTOMATIC,
   extractionDenylist: `/** AI services */
-(https?)\\:\\/\\/(www\\.)?(chatgpt\\.com|gemini\\.com|grok\\.com|perplexity\\.com|deepseek\\.com|claude\\.ai)
+(https?)\\:\\/\\/(www|chat\\.)?(chatgpt\\.com|gemini\\.google\\.com|aistudio\\.google\\.com|grok\\.com|deepseek\\.com|claude\\.ai|perplexity\\.ai)
 /** Search engines */
 (https?)\\:\\/\\/(www\\.)?(google|facebook|bing|yahoo|duckduckgo|baidu|yandex|ask|)\\.(co\\.[a-z]{2}|[a-z]{2,3})
 /** E-commerce sites */
