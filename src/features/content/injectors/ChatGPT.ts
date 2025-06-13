@@ -1,13 +1,11 @@
-import { ArticleRecord } from '@/db/Database';
-import { formatArticleForClipboard } from '@/types';
 import {
   logger,
   waitForElement,
 } from '@/utils';
 
-export async function injectChatGPT(article: ArticleRecord): Promise<{ success: boolean; error?: Error }> {
+export async function injectChatGPT(promptText: string): Promise<{ success: boolean; error?: Error }> {
   try {
-    logger.debug('📕', '[ChatGPT.tsx]', '[injectChatGPT]', 'Injecting article into ChatGPT', article);
+    logger.debug('📕', '[ChatGPT.tsx]', '[injectChatGPT]', 'Injecting article into ChatGPT', promptText);
 
     /** Wait for 1 second */
     new Promise(resolve => setTimeout(resolve, 1000));
@@ -18,8 +16,7 @@ export async function injectChatGPT(article: ArticleRecord): Promise<{ success: 
     logger.debug('📕', '[ChatGPT.tsx]', '[injectChatGPT]', 'ChatGPT editor found', editor);
 
     /** Format the article for clipboard */
-    const prompt = formatArticleForClipboard(article);
-    const paragraphs = prompt.split(/\r?\n/).map(line => {
+    const paragraphs = promptText.split(/\r?\n/).map(line => {
       if (line.trim() === '') {
         return '<p><br class="ProseMirror-trailingBreak"></p>';
       }

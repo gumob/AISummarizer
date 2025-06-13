@@ -113,11 +113,11 @@ class ServiceWorker {
     logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleServiceWorkerMessage]', message.action);
     switch (message.action) {
       case MessageAction.OPEN_AI_SERVICE:
-        this.openAIService(message.payload.service, message.payload.tabId, message.payload.url);
+        this.openAIService(message.payload.service, message.payload.tabId, message.payload.tabUrl);
         break;
 
       case MessageAction.READ_ARTICLE_FOR_CLIPBOARD:
-        await this.readArticleForClipboard(message.payload.tabId, message.payload.url, true);
+        await this.readArticleForClipboard(message.payload.tabId, message.payload.tabUrl, true);
         break;
 
       default:
@@ -200,15 +200,15 @@ class ServiceWorker {
         /** Send the message to the content script */
         const response = await chrome.tabs.sendMessage(tabId, {
           action: MessageAction.EXTRACT_ARTICLE,
-          payload: { tabId: tabId, url: tabUrl },
+          payload: { tabId: tabId, tabUrl: tabUrl },
         });
 
         /** Handle the response from the content script */
-        const payload = response.payload as { tabId: number; url: string; result: ArticleExtractionResult };
+        const payload = response.payload as { tabId: number; tabUrl: string; result: ArticleExtractionResult };
         if (response.success && payload && payload.result.isSuccess) {
           /** Save the article to the database */
           await db.addArticle({
-            url: payload.result.url ?? payload.url,
+            url: payload.result.url ?? payload.tabUrl,
             title: payload.result.title,
             content: payload.result.content,
             date: new Date(),
@@ -216,7 +216,7 @@ class ServiceWorker {
           });
 
           /** Copy the article to the clipboard */
-          this.readArticleForClipboard(payload.tabId, payload.url, false);
+          this.readArticleForClipboard(payload.tabId, payload.tabUrl, false);
         }
       }
     } catch (error: any) {
@@ -296,7 +296,7 @@ class ServiceWorker {
       logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[executeInjection]', 'article:', article);
       const response = await chrome.tabs.sendMessage(tabId, {
         action: MessageAction.INJECT_ARTICLE,
-        payload: { tabId: tabId, url: tabUrl, article: article },
+        payload: { tabId: tabId, tabUrl: tabUrl, article: article },
       });
       logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[executeInjection]', 'response:', response);
       /** Insert the article into the web page */
@@ -343,7 +343,7 @@ class ServiceWorker {
     logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'tabId:', tabId, 'tabUrl:', tabUrl);
     try {
       if (await isInvalidUrl(tabUrl)) {
-        logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'Ignoring content script message: url is invalid', tabUrl);
+        logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'Ignoring content script message: tabUrl is invalid', tabUrl);
         return;
       }
 
@@ -353,7 +353,7 @@ class ServiceWorker {
       /** Send the message to the content script */
       const response = await chrome.tabs.sendMessage(tabId, {
         action: MessageAction.TAB_UPDATED,
-        payload: { tabId: tabId, url: tabUrl, article: article },
+        payload: { tabId: tabId, tabUrl: tabUrl, article: article },
       });
       logger.debug('🧑‍🍳📃🟣🟣🟣🟣🟣🟣', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'response:', response);
     } catch (error) {
@@ -364,12 +364,12 @@ class ServiceWorker {
   /**
    * Read the article for clipboard
    * @param tabId - The ID of the tab
-   * @param url - The URL of the tab
+   * @param tabUrl - The URL of the tab
    * @param forcibly - Whether to forcibly copy the article
    * @returns Whether the article was copied successfully
    */
-  async readArticleForClipboard(tabId: number, url: string, forcibly: boolean = false): Promise<boolean> {
-    logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[readArticleForClipboard]', 'tabId:', tabId, 'url:', url, 'forcibly:', forcibly);
+  async readArticleForClipboard(tabId: number, tabUrl: string, forcibly: boolean = false): Promise<boolean> {
+    logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[readArticleForClipboard]', 'tabId:', tabId, 'tabUrl:', tabUrl, 'forcibly:', forcibly);
     /** Check if the article should be copied to the clipboard */
     const shouldCopy = await (async (): Promise<boolean> => {
       const saveArticleOnClipboard = await useSettingsStore.getState().getSaveArticleOnClipboard();
@@ -379,14 +379,14 @@ class ServiceWorker {
     })();
 
     /** Get the article from the database */
-    const article: ArticleRecord | undefined = await db.getArticleByUrl(url);
+    const article: ArticleRecord | undefined = await db.getArticleByUrl(tabUrl);
 
     /** Copy the article to the clipboard */
     if (shouldCopy && article && article.is_success) {
       const text = formatArticleForClipboard(article);
       const response = await chrome.tabs.sendMessage(tabId, {
         action: MessageAction.WRITE_ARTICLE_TO_CLIPBOARD,
-        payload: { tabId: tabId, url: url, text: text },
+        payload: { tabId: tabId, tabUrl: tabUrl, text: text },
       });
       logger.debug('🧑‍🍳📃🟣🟣🟣🟣🟣🟣', '[ServiceWorker.ts]', '[readArticleForClipboard]', 'response:', response);
       return true;

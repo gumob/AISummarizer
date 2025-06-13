@@ -136,7 +136,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
                     payload: {
                       service: service,
                       tabId: currentTabId,
-                      url: currentTabUrl,
+                      tabUrl: currentTabUrl,
                     },
                   });
                   logger.debug('🫳💬', '[FloatPanel.tsx]', 'Message sent successfully');

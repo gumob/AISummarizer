@@ -78,7 +78,7 @@ export const PopupMain: React.FC = () => {
                   payload: {
                     service: service,
                     tabId: tab.id,
-                    url: tab.url!,
+                    tabUrl: tab.url!,
                   },
                 });
 
@@ -98,7 +98,7 @@ export const PopupMain: React.FC = () => {
               if (!tab.id) throw new Error('No active tab found');
               await chrome.runtime.sendMessage({
                 action: MessageAction.READ_ARTICLE_FOR_CLIPBOARD,
-                payload: { tabId: tab.id, url: tab.url },
+                payload: { tabId: tab.id, tabUrl: tab.url },
               });
 
               /** Close the popup */
@@ -124,7 +124,7 @@ export const PopupMain: React.FC = () => {
               /** Send the message to the content script */
               await chrome.tabs.sendMessage(tab.id, {
                 action: MessageAction.EXTRACT_ARTICLE,
-                payload: { tabId: tab.id, url: tab.url },
+                payload: { tabId: tab.id, tabUrl: tab.url },
               });
 
               /** Close the popup */

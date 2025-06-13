@@ -9,6 +9,7 @@ import { useSettingsStore } from '@/stores';
 import {
   ArticleExtractionResult,
   ArticleInjectionResult,
+  getAIServiceForUrl,
   Message,
   MessageAction,
   MessageResponse,
@@ -57,8 +58,8 @@ export const useContentMessage = () => {
         sendResponse({ success: false, error: new Error('tabId is required') });
         return true;
       }
-      if (!message.payload.url) {
-        logger.warn('🫳💬', '[useContentMessage.tsx]', '[handleMessage]', 'Ignoring message: url is', message.payload.url);
+      if (!message.payload.tabUrl) {
+        logger.warn('🫳💬', '[useContentMessage.tsx]', '[handleMessage]', 'Ignoring message: tabUrl is', message.payload.tabUrl);
         /** Respond to the content script */
         sendResponse({ success: false, error: new Error('url is required') });
         return true;
@@ -69,7 +70,7 @@ export const useContentMessage = () => {
           try {
             /** Update the current tab state */
             setCurrentTabId(message.payload.tabId);
-            setCurrentTabUrl(message.payload.url);
+            setCurrentTabUrl(message.payload.tabUrl);
             if (message.payload.article) {
               setCurrentArticle({
                 isSuccess: message.payload.article.is_success,
@@ -94,10 +95,10 @@ export const useContentMessage = () => {
 
         case MessageAction.EXTRACT_ARTICLE:
           try {
-            extractionService.current.execute(message.payload.url).then((article: ArticleExtractionResult) => {
+            extractionService.current.execute(message.payload.tabUrl).then((article: ArticleExtractionResult) => {
               /** Update the current tab state */
               setCurrentTabId(message.payload.tabId);
-              setCurrentTabUrl(message.payload.url);
+              setCurrentTabUrl(message.payload.tabUrl);
               setCurrentArticle(article);
 
               /** Respond to the content script */
@@ -105,7 +106,7 @@ export const useContentMessage = () => {
                 success: true,
                 payload: {
                   tabId: message.payload.tabId,
-                  url: message.payload.url,
+                  tabUrl: message.payload.tabUrl,
                   result: article,
                 },
               });
@@ -124,15 +125,29 @@ export const useContentMessage = () => {
         case MessageAction.INJECT_ARTICLE:
           try {
             const article = message.payload.article;
-            logger.debug('🫳💬', '[useContentMessage.tsx]', '[handleMessage]', 'article', article);
+            settings
+              .getPromptFor(getAIServiceForUrl(message.payload.tabUrl))
+              .then(basePrompt => {
+                const prompt = basePrompt
+                  .replace('{title}', article.title ?? '')
+                  .replace('{url}', message.payload.tabUrl)
+                  .replace('{content}', article.content ?? '');
 
-            /** Inject the article into the ChatGPT */
-            injectionService.current.execute(message.payload.url, article).then((result: ArticleInjectionResult) => {
-              /** Respond to the content script */
-              sendResponse({ success: result.success, error: result.error });
-            });
+                logger.debug('🫳💬', '[useContentMessage.tsx]', '[handleMessage]', 'article', article);
+
+                /** Inject the article into the ChatGPT */
+                injectionService.current.execute(message.payload.tabUrl, prompt).then((result: ArticleInjectionResult) => {
+                  /** Respond to the content script */
+                  sendResponse({ success: result.success, error: result.error });
+                });
+              })
+              .catch(error => {
+                logger.error('🫳💬', '[useContentMessage.tsx]', '[handleMessage]', 'Failed to get prompt:', error);
+                sendResponse({ success: false, error: new Error('Failed to get prompt') });
+              });
           } catch (error: any) {
             logger.error('🫳💬', '[useContentMessage.tsx]', '[handleMessage]', 'Failed to inject article:', error);
+            sendResponse({ success: false, error: error instanceof Error ? error : new Error('Failed to inject article') });
           }
           break;
 

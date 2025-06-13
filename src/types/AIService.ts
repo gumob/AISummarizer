@@ -26,6 +26,24 @@ export const getSummarizeUrl = (service: AIService, summarizeId: string) => {
   }
 };
 
+export const getAIServiceForUrl = (url: string): AIService => {
+  if (/^https?:\/\/(?:www\.)?(chatgpt\.com)/.test(url)) {
+    return AIService.CHATGPT;
+  } else if (/^https?:\/\/(?:www\.)?(gemini\.com)/.test(url)) {
+    return AIService.GEMINI;
+  } else if (/^https?:\/\/(?:www\.)?((claude\.com)|(claude\.ai))/.test(url)) {
+    return AIService.CLAUDE;
+  } else if (/^https?:\/\/(?:www\.)?(grok\.com)/.test(url)) {
+    return AIService.GROK;
+  } else if (/^https?:\/\/(?:www\.)?(perplexity\.com)/.test(url)) {
+    return AIService.PERPLEXITY;
+  } else if (/^https?:\/\/(?:www\.)?(deepseek\.com)/.test(url)) {
+    return AIService.DEEPSEEK;
+  } else {
+    throw new Error(`Invalid AI service URL: ${url}`);
+  }
+};
+
 export const getAIServiceFromString = (id: string): AIService => {
   switch (id.toLowerCase()) {
     case 'chatgpt':

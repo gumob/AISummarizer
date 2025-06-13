@@ -1,4 +1,3 @@
-import { ArticleRecord } from '@/db/Database';
 import { injectChatGPT } from '@/features/content/injectors';
 import { ArticleInjectionResult } from '@/types';
 import {
@@ -7,7 +6,7 @@ import {
 } from '@/utils';
 
 export class ArticleInjectionService {
-  async execute(serviceUrl: string, article: ArticleRecord): Promise<ArticleInjectionResult> {
+  async execute(serviceUrl: string, prompt: string): Promise<ArticleInjectionResult> {
     logger.debug('🧑‍🍳📖', '[ArticleInjectionService.tsx]', '[execute]', 'Injecting...', '\nserviceUrl:', serviceUrl);
 
     /**
@@ -27,7 +26,7 @@ export class ArticleInjectionService {
     if (/^https?:\/\/(?:www\.)?(chatgpt\.com)/.test(serviceUrl)) {
       logger.debug('🧑‍🍳📖', '[ArticleInjectionService.tsx]', '[execute]', 'Injecting article into ChatGPT');
       try {
-        return await injectChatGPT(article);
+        return await injectChatGPT(prompt);
       } catch (error: any) {
         logger.error('🧑‍🍳📖', '[ArticleInjectionService.tsx]', '[execute]', 'Failed to inject article into ChatGPT:', error);
         return {
