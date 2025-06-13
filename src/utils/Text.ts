@@ -24,6 +24,10 @@ export const normalizeContent = (content: string | null): string | null => {
     .replace(/\n+$/, ''); // Remove trailing newlines
 };
 
+/**
+ * Copy text to clipboard
+ * @param textToCopy - The text to copy
+ */
 export const copyToClipboard = (textToCopy: string) => {
   const textarea = document.createElement('textarea');
   textarea.value = textToCopy;
@@ -32,7 +36,7 @@ export const copyToClipboard = (textToCopy: string) => {
   document.body.appendChild(textarea);
   textarea.select();
 
-  // Execute copy command
+  /** Execute copy command */
   const success = document.execCommand('copy');
   document.body.removeChild(textarea);
 
@@ -41,6 +45,13 @@ export const copyToClipboard = (textToCopy: string) => {
   }
 };
 
+/**
+ * Create a prompt for the AI service
+ * @param service - The AI service
+ * @param settings - The settings
+ * @param article - The article
+ * @returns The prompt
+ */
 export const createPrompt = async (service: AIService, settings: SettingsStore, article: ArticleExtractionResult | ArticleRecord) => {
   if (!article.title || !article.url || !article.content) {
     throw new Error('Article is not valid');
