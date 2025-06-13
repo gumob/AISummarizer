@@ -112,6 +112,10 @@ class ServiceWorker {
   async handleServiceWorkerMessage(message: Message, sender: chrome.runtime.MessageSender, sendResponse: (response: any) => void) {
     logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleServiceWorkerMessage]', message.action);
     switch (message.action) {
+      case MessageAction.EXTRACT_ARTICLE:
+        this.executeExtraction(message.payload.tabId, message.payload.tabUrl, true);
+        break;
+
       case MessageAction.OPEN_AI_SERVICE:
         this.openAIService(message.payload.service, message.payload.tabId, message.payload.tabUrl);
         break;
