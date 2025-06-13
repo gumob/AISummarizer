@@ -9,15 +9,13 @@ export async function injectChatGPT(article: ArticleRecord): Promise<{ success: 
   try {
     logger.debug('📕', '[ChatGPT.tsx]', '[injectChatGPT]', 'Injecting article into ChatGPT', article);
 
+    /** Wait for 1 second */
+    new Promise(resolve => setTimeout(resolve, 1000));
+
     /** Wait for the editor to be found */
-    const editor = await waitForElement('div.ProseMirror[contenteditable="true"]#prompt-textarea');
+    const editor = await waitForElement('#prompt-textarea');
     if (!editor) throw new Error('ChatGPT container not found');
     logger.debug('📕', '[ChatGPT.tsx]', '[injectChatGPT]', 'ChatGPT editor found', editor);
-
-    /** Wait for the submit button to be found */
-    const submitButton = await waitForElement('#composer-submit-button');
-    if (!submitButton) throw new Error('ChatGPT submit button not found');
-    logger.debug('📕', '[ChatGPT.tsx]', '[injectChatGPT]', 'ChatGPT submit button found', submitButton);
 
     /** Format the article for clipboard */
     const prompt = formatArticleForClipboard(article);
@@ -28,9 +26,20 @@ export async function injectChatGPT(article: ArticleRecord): Promise<{ success: 
       return `<p>${line}</p>`;
     });
 
+    /** Wait for 1 second */
+    new Promise(resolve => setTimeout(resolve, 1000));
+
     /** Inject the article into the editor */
     editor.innerHTML = paragraphs.join('');
     editor.dispatchEvent(new Event('input', { bubbles: true }));
+
+    /** Wait for 1 second */
+    new Promise(resolve => setTimeout(resolve, 1000));
+
+    /** Wait for the submit button to be found */
+    const submitButton = await waitForElement('#composer-submit-button');
+    if (!submitButton) throw new Error('ChatGPT submit button not found');
+    logger.debug('📕', '[ChatGPT.tsx]', '[injectChatGPT]', 'ChatGPT submit button found', submitButton);
 
     /** Click the submit button */
     if (submitButton instanceof HTMLElement) {
