@@ -4,6 +4,7 @@ import {
   useState,
 } from 'react';
 
+import { toast } from '@/features/content/components/main';
 import { ArticleExtractionService } from '@/features/content/services';
 import { useSettingsStore } from '@/stores';
 import {
@@ -172,6 +173,8 @@ export const useContentMessage = () => {
 
             /** Copy the text to the clipboard */
             copyToClipboard(text);
+
+            toast.success('Article copied to clipboard');
 
             /** Respond to the content script */
             sendResponse({ success: true });

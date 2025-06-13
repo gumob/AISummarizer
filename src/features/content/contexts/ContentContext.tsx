@@ -6,7 +6,7 @@ import React, {
   useState,
 } from 'react';
 
-import { toast } from '@/features/content/components/main/Toaster';
+import { toast } from '@/features/content/components/main';
 import { useContentMessage } from '@/features/content/hooks';
 import { SettingsState } from '@/stores';
 import {
