@@ -15,7 +15,7 @@ export class ContextMenuService {
       await this.removeMenu();
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
       if (tab.url && !(await isInvalidUrl(tab.url))) {
-        await this.createFullMenu();
+        await this.createFullMenu(tab.url);
       } else {
         await this.createBasicMenu();
       }
@@ -32,7 +32,7 @@ export class ContextMenuService {
     }
   }
 
-  private async createFullMenu() {
+  private async createFullMenu(tabUrl: string) {
     try {
       logger.debug('🧑‍🍳📃', '[ContextMenuService.tsx]', '[createFullMenu]', 'Creating full menu');
       const root = chrome.contextMenus.create({
@@ -60,8 +60,7 @@ export class ContextMenuService {
       });
 
       /** Create copy option */
-      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      if (tab.url && (await db.getArticleByUrl(tab.url))?.is_success) {
+      if (tabUrl && (await db.getArticleByUrl(tabUrl))?.is_success) {
         chrome.contextMenus.create({
           id: MENU_ITEMS.COPY.id,
           title: MENU_ITEMS.COPY.title,
