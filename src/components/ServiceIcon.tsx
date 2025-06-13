@@ -27,6 +27,15 @@ export const ServiceIcon = ({ service, className = 'w-4 h-4 text-zinc-900 dark:t
         />
       </svg>
     ),
+    [AIService.AI_STUDIO]: (
+      <svg width="36" height="36" viewBox="0 0 36 36" className={`translate-y-[0px] ${className}`} fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path
+          d="M18,0 C17.6145,9.777 9.777,17.6145 0,18 C9.777,18.3855 17.6145,26.223 18,36 C18.3855,26.223 26.223,18.3855 36,18 C26.223,17.6145 18.3855,9.777 18,0 Z M18,25.7445 C16.1145,22.5585 13.4415,19.8855 10.2555,18 C13.4415,16.1145 16.1145,13.4415 18,10.2555 C19.8855,13.4415 22.5585,16.1145 25.7445,18 C22.5585,19.8855 19.8855,22.5585 18,25.7445 Z"
+          fill="currentColor"
+          fillRule="nonzero"
+        />
+      </svg>
+    ),
     [AIService.CLAUDE]: (
       <svg width="36" height="36" viewBox="0 0 36 36" className={`translate-y-[2px] ${className}`} fill="none" xmlns="http://www.w3.org/2000/svg">
         <path

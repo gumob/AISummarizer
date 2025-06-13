@@ -39,6 +39,7 @@ export const DEFAULT_SETTINGS: SettingsState = {
   prompts: {
     [AIService.CHATGPT]: DEFAULT_PROMPT,
     [AIService.GEMINI]: DEFAULT_PROMPT,
+    [AIService.AI_STUDIO]: DEFAULT_PROMPT,
     [AIService.CLAUDE]: DEFAULT_PROMPT,
     [AIService.GROK]: DEFAULT_PROMPT,
     [AIService.PERPLEXITY]: DEFAULT_PROMPT,

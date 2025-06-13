@@ -1,9 +1,31 @@
-import { injectChatGPT } from '@/features/content/injectors';
-import { ArticleInjectionResult } from '@/types';
+import {
+  injectAIStudio,
+  injectChatGPT,
+  injectClaude,
+  injectDeepseek,
+  injectGemini,
+  injectGrok,
+  injectPerplexity,
+} from '@/features/content/injectors';
+import {
+  AIService,
+  ArticleInjectionResult,
+  getAIServiceForUrl,
+} from '@/types';
 import {
   isAIServiceUrl,
   logger,
 } from '@/utils';
+
+const injectors: Record<AIService, (prompt: string) => Promise<{ success: boolean; error?: Error }>> = {
+  [AIService.CHATGPT]: injectChatGPT,
+  [AIService.GEMINI]: injectGemini,
+  [AIService.AI_STUDIO]: injectAIStudio,
+  [AIService.CLAUDE]: injectClaude,
+  [AIService.GROK]: injectGrok,
+  [AIService.PERPLEXITY]: injectPerplexity,
+  [AIService.DEEPSEEK]: injectDeepseek,
+};
 
 export class ArticleInjectionService {
   async execute(serviceUrl: string, prompt: string): Promise<ArticleInjectionResult> {
@@ -21,17 +43,19 @@ export class ArticleInjectionService {
     }
 
     /**
-     * YouTube
+     * Inject the article into the AI service
      */
-    if (/^https?:\/\/(?:www\.)?(chatgpt\.com)/.test(serviceUrl)) {
-      logger.debug('🧑‍🍳📖', '[ArticleInjectionService.tsx]', '[execute]', 'Injecting article into ChatGPT');
+    const service = getAIServiceForUrl(serviceUrl);
+    const injector = injectors[service];
+    if (injector) {
+      logger.debug('🧑‍🍳📖', '[ArticleInjectionService.tsx]', '[execute]', 'Injecting article into', service);
       try {
-        return await injectChatGPT(prompt);
+        return await injector(prompt);
       } catch (error: any) {
-        logger.error('🧑‍🍳📖', '[ArticleInjectionService.tsx]', '[execute]', 'Failed to inject article into ChatGPT:', error);
+        logger.error('🧑‍🍳📖', '[ArticleInjectionService.tsx]', '[execute]', 'Failed to inject article into', service, ':', error);
         return {
           success: false,
-          error: error instanceof Error ? error : new Error('Failed to inject article into ChatGPT'),
+          error: error instanceof Error ? error : new Error(`Failed to inject article into ${service}`),
         };
       }
     }
