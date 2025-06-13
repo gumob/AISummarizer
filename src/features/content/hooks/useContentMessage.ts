@@ -1,21 +1,9 @@
-import {
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { ArticleService } from '@/features/content/services';
 import { useSettingsStore } from '@/stores';
-import {
-  ArticleExtractionResult,
-  Message,
-  MessageAction,
-  MessageResponse,
-} from '@/types';
-import {
-  copyToClipboard,
-  logger,
-} from '@/utils';
+import { ArticleExtractionResult, Message, MessageAction, MessageResponse } from '@/types';
+import { copyToClipboard, logger } from '@/utils';
 
 /**
  * Hook for handling Chrome extension messages
@@ -114,6 +102,18 @@ export const useContentMessage = () => {
 
             /** Respond to the content script */
             sendResponse({ success: false, error: new Error(error.message) });
+          }
+          break;
+
+        case MessageAction.INJECT_ARTICLE:
+          try {
+            const article = message.payload.article;
+            logger.debug('🫳💬', '[useContentMessage.tsx]', '[handleMessage]', 'article', article);
+
+            /** Respond to the content script */
+            sendResponse({ success: true });
+          } catch (error: any) {
+            logger.error('🫳💬', '[useContentMessage.tsx]', '[handleMessage]', 'Failed to inject article:', error);
           }
           break;
 

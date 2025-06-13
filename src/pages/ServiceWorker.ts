@@ -87,9 +87,11 @@ class ServiceWorker {
     if (changeInfo.status !== 'complete' || !tab.url) return;
     logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleTabUpdated]', tab.url, tab.status);
 
+    await new Promise(resolve => setTimeout(resolve, 500));
+
     /** Execute the extraction */
     if (isAIServiceUrl(tab.url)) {
-      this.executeSummarization(tabId, tab.url);
+      this.executeInjection(tabId, tab.url);
     } else {
       this.executeExtraction(tabId, tab.url, true);
     }
@@ -276,8 +278,8 @@ class ServiceWorker {
    * @param tabUrl - The URL of the tab
    * @returns The article record
    */
-  async executeSummarization(tabId: number, tabUrl: string) {
-    logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[executeSummarization]', 'tabId:', tabId, 'tabUrl:', tabUrl);
+  async executeInjection(tabId: number, tabUrl: string) {
+    logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[executeInjection]', 'tabId:', tabId, 'tabUrl:', tabUrl);
     try {
       /** If the URL is an AI service URL, manipulate the web page to inject article */
       if (!isAIServiceUrl(tabUrl)) return;
@@ -291,15 +293,15 @@ class ServiceWorker {
       /** Get the article from the database */
       const article = await db.getArticleById(articleId);
       if (!article) return;
-      logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[executeSummarization]', 'article:', article);
-      chrome.tabs.sendMessage(tabId, {
+      logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[executeInjection]', 'article:', article);
+      const response = await chrome.tabs.sendMessage(tabId, {
         action: MessageAction.INJECT_ARTICLE,
-        payload: { article: article },
+        payload: { tabId: tabId, url: tabUrl, article: article },
       });
-
+      logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[executeInjection]', 'response:', response);
       /** Insert the article into the web page */
     } catch (error: any) {
-      logger.error('🧑‍🍳📃', '[ServiceWorker.ts]', '[executeSummarization]', 'Failed to execute summarization:', error);
+      logger.error('🧑‍🍳📃', '[ServiceWorker.ts]', '[executeInjection]', 'Failed to execute summarization:', error);
     }
   }
 
