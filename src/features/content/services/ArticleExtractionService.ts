@@ -8,15 +8,15 @@ import {
   logger,
 } from '@/utils';
 
-export class ArticleService {
+export class ArticleExtractionService {
   async execute(url: string): Promise<ArticleExtractionResult> {
-    logger.debug('🧑‍🍳📖', '[ArticleService.tsx]', '[execute]', 'extracting', '\nurl:', url);
+    logger.debug('🧑‍🍳📖', '[ArticleExtractionService.tsx]', '[execute]', 'extracting', '\nurl:', url);
 
     /**
      * Skip processing for browser-specific URLs
      */
     if (await isInvalidUrl(url)) {
-      logger.warn('🧑‍🍳📖', '[ArticleService.tsx]', '[execute]', 'Skipping extraction for invalid URLs', url);
+      logger.warn('🧑‍🍳📖', '[ArticleExtractionService.tsx]', '[execute]', 'Skipping extraction for invalid URLs', url);
       return {
         isSuccess: false,
         title: null,
@@ -30,11 +30,11 @@ export class ArticleService {
      * YouTube
      */
     if (/^https?:\/\/(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=|embed\/|v\/|shorts\/)?([a-zA-Z0-9_-]{11})/.test(url)) {
-      logger.debug('🧑‍🍳📖', '[ArticleService.tsx]', '[execute]', 'Extracting youtube video');
+      logger.debug('🧑‍🍳📖', '[ArticleExtractionService.tsx]', '[execute]', 'Extracting youtube video');
       try {
         return await extractYoutube(url);
       } catch (error: any) {
-        logger.error('🧑‍🍳📖', '[ArticleService.tsx]', '[execute]', 'Failed to extract youtube video:', error);
+        logger.error('🧑‍🍳📖', '[ArticleExtractionService.tsx]', '[execute]', 'Failed to extract youtube video:', error);
         return {
           isSuccess: false,
           title: null,
@@ -50,10 +50,10 @@ export class ArticleService {
      */
     try {
       /** Extract article */
-      logger.debug('🧑‍🍳📖', '[ArticleService.tsx]', '[execute]', 'Extracting normal web page');
+      logger.debug('🧑‍🍳📖', '[ArticleExtractionService.tsx]', '[execute]', 'Extracting normal web page');
       return await extractReadability(document);
     } catch (error: any) {
-      logger.error('🧑‍🍳📖', '[ArticleService.tsx]', '[execute]', 'Failed to extract article:', error);
+      logger.error('🧑‍🍳📖', '[ArticleExtractionService.tsx]', '[execute]', 'Failed to extract article:', error);
       return {
         isSuccess: false,
         title: null,

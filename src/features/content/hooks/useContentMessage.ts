@@ -1,9 +1,21 @@
-import { useEffect, useRef, useState } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 
-import { ArticleService } from '@/features/content/services';
+import { ArticleExtractionService } from '@/features/content/services';
 import { useSettingsStore } from '@/stores';
-import { ArticleExtractionResult, Message, MessageAction, MessageResponse } from '@/types';
-import { copyToClipboard, logger } from '@/utils';
+import {
+  ArticleExtractionResult,
+  Message,
+  MessageAction,
+  MessageResponse,
+} from '@/types';
+import {
+  copyToClipboard,
+  logger,
+} from '@/utils';
 
 /**
  * Hook for handling Chrome extension messages
@@ -13,7 +25,7 @@ export const useContentMessage = () => {
    * State Management
    *******************************************************/
 
-  const extractionService = useRef(new ArticleService());
+  const extractionService = useRef(new ArticleExtractionService());
   const isListenerRegistered = useRef(false);
 
   const [currentTabId, setCurrentTabId] = useState<number | null>(null);
