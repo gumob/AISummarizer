@@ -14,6 +14,7 @@ import {
 } from '@/stores';
 import { DEFAULT_SETTINGS } from '@/stores/SettingsStore';
 import {
+  AI_SERVICE_QUERY_KEY,
   AIService,
   ArticleExtractionResult,
   ContentExtractionTiming,
@@ -25,6 +26,7 @@ import {
   TabBehavior,
 } from '@/types';
 import {
+  isAIServiceUrl,
   isInvalidUrl,
   logger,
 } from '@/utils';
@@ -55,6 +57,7 @@ class ServiceWorker {
 
   /**
    * Event listener for when the tab is activated
+   * @description This event is triggered when the tab is focused
    * @param activeInfo - The information about the activated tab
    */
   async handleTabActivated(activeInfo: chrome.tabs.TabActiveInfo) {
@@ -85,7 +88,11 @@ class ServiceWorker {
     logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleTabUpdated]', tab.url, tab.status);
 
     /** Execute the extraction */
-    await this.executeExtraction(tabId, tab.url, true);
+    if (isAIServiceUrl(tab.url)) {
+      this.executeSummarization(tabId, tab.url);
+    } else {
+      this.executeExtraction(tabId, tab.url, true);
+    }
 
     /** Update the UI state */
     this.toggleUIState(tabId, tab.url);
@@ -104,7 +111,7 @@ class ServiceWorker {
     logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleServiceWorkerMessage]', message.action);
     switch (message.action) {
       case MessageAction.OPEN_AI_SERVICE:
-        this.executeSummarization(message.payload.service, message.payload.tabId, message.payload.url);
+        this.openAIService(message.payload.service, message.payload.tabId, message.payload.url);
         break;
 
       case MessageAction.READ_ARTICLE_FOR_CLIPBOARD:
@@ -136,7 +143,7 @@ class ServiceWorker {
       case 'grok':
       case 'perplexity':
       case 'deepseek':
-        this.executeSummarization(getAIServiceFromString(info.menuItemId), tab.id, tab.url);
+        this.openAIService(getAIServiceFromString(info.menuItemId), tab.id, tab.url);
         break;
 
       case 'copy':
@@ -145,7 +152,7 @@ class ServiceWorker {
 
       case 'extract':
         /** Execute the extraction */
-        await this.executeExtraction(tab.id, tab.url, true);
+        this.executeExtraction(tab.id, tab.url, true);
 
         /** Update the UI state */
         this.toggleUIState(tab.id, tab.url);
@@ -167,15 +174,15 @@ class ServiceWorker {
   /**
    * Execute the extraction
    * @param tabId - The ID of the tab
-   * @param url - The URL of the tab
+   * @param tabUrl - The URL of the tab
    * @param forcibly - Whether to forcibly extract the article
    * @returns The article record
    */
-  async executeExtraction(tabId: number, url: string, forcibly: boolean = false) {
-    logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[executeExtraction]', 'tabId:', tabId, 'url:', url);
+  async executeExtraction(tabId: number, tabUrl: string, forcibly: boolean = false) {
+    logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[executeExtraction]', 'tabId:', tabId, 'tabUrl:', tabUrl);
     try {
       /** Get the article from the database */
-      const doesArticleExist: boolean = (await useArticleStore.getState().getArticleByUrl(url))?.is_success ?? false;
+      const doesArticleExist: boolean = (await useArticleStore.getState().getArticleByUrl(tabUrl))?.is_success ?? false;
 
       /** Check if the article should be extracted */
       let shouldExtract = await (async (doesArticleExist: boolean): Promise<boolean> => {
@@ -191,7 +198,7 @@ class ServiceWorker {
         /** Send the message to the content script */
         const response = await chrome.tabs.sendMessage(tabId, {
           action: MessageAction.EXTRACT_ARTICLE,
-          payload: { tabId: tabId, url: url },
+          payload: { tabId: tabId, url: tabUrl },
         });
 
         /** Handle the response from the content script */
@@ -215,12 +222,19 @@ class ServiceWorker {
     }
   }
 
-  async executeSummarization(service: AIService, tabId: number, url: string): Promise<boolean> {
+  /**
+   * Open the AI service
+   * @param service - The AI service to open
+   * @param tabId - The ID of the tab
+   * @param tabUrl - The URL of the tab
+   * @returns Whether the AI service was opened successfully
+   */
+  async openAIService(service: AIService, tabId: number, tabUrl: string): Promise<boolean> {
     try {
-      logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[executeSummarization]', service, tabId, url);
-      const article = await db.getArticleByUrl(url);
+      logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[openAIService]', service, tabId, tabUrl);
+      const article = await db.getArticleByUrl(tabUrl);
       if (!article?.is_success) {
-        logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[executeSummarization]', 'Article not found', url);
+        logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[openAIService]', 'Article not found', tabUrl);
         return false;
       }
       const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
@@ -251,15 +265,48 @@ class ServiceWorker {
 
       return true;
     } catch (error) {
-      logger.error('🧑‍🍳📃', '[ServiceWorker.ts]', '[executeSummarization]', 'Failed to execute summarization:', error);
+      logger.error('🧑‍🍳📃', '[ServiceWorker.ts]', '[openAIService]', 'Failed to execute summarization:', error);
       return false;
+    }
+  }
+
+  /**
+   * Execute the extraction
+   * @param tabId - The ID of the tab
+   * @param tabUrl - The URL of the tab
+   * @returns The article record
+   */
+  async executeSummarization(tabId: number, tabUrl: string) {
+    logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[executeSummarization]', 'tabId:', tabId, 'tabUrl:', tabUrl);
+    try {
+      /** If the URL is an AI service URL, manipulate the web page to inject article */
+      if (!isAIServiceUrl(tabUrl)) return;
+
+      const params = new URL(tabUrl).searchParams;
+      const articleId = params.get(AI_SERVICE_QUERY_KEY);
+
+      /** If the article ID is not found, return */
+      if (!articleId) return;
+
+      /** Get the article from the database */
+      const article = await db.getArticleById(articleId);
+      if (!article) return;
+      logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[executeSummarization]', 'article:', article);
+      chrome.tabs.sendMessage(tabId, {
+        action: MessageAction.INJECT_ARTICLE,
+        payload: { article: article },
+      });
+
+      /** Insert the article into the web page */
+    } catch (error: any) {
+      logger.error('🧑‍🍳📃', '[ServiceWorker.ts]', '[executeSummarization]', 'Failed to execute summarization:', error);
     }
   }
 
   /**
    * Reload the article extraction state
    * @param tabId - The ID of the tab
-   * @param url - The URL of the tab
+   * @param tabUrl - The URL of the tab
    */
   async toggleUIState(tabId: number, tabUrl?: string) {
     try {
@@ -281,36 +328,34 @@ class ServiceWorker {
         chrome.action.setBadgeText({ text: '', tabId: tabId });
       }
     } catch (error: any) {
-      logger.error('🧑‍🍳📃', '[ServiceWorker.ts]', 'Failed to update article extraction state', error);
+      logger.error('🧑‍🍳📃', '[ServiceWorker.ts]', '[toggleUIState]', 'Failed to update article extraction state', error);
     }
   }
 
   /**
    * Notify the current tab state
    * @param tabId - The ID of the tab
-   * @param url - The URL of the tab
-   * @param article - The article to notify
+   * @param tabUrl - The URL of the tab
    */
-  async notifyCurrentTabState(tabId: number, url?: string) {
-    logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'tabId:', tabId, 'url:', url);
+  async notifyCurrentTabState(tabId: number, tabUrl?: string) {
+    logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'tabId:', tabId, 'tabUrl:', tabUrl);
     try {
-      if (await isInvalidUrl(url)) {
-        logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'Ignoring content script message: url is invalid', url);
+      if (await isInvalidUrl(tabUrl)) {
+        logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'Ignoring content script message: url is invalid', tabUrl);
         return;
       }
 
       /** Get the article from the database */
-      const article = await db.getArticleByUrl(url);
+      const article = await db.getArticleByUrl(tabUrl);
 
       /** Send the message to the content script */
       const response = await chrome.tabs.sendMessage(tabId, {
         action: MessageAction.TAB_UPDATED,
-        payload: { tabId: tabId, url: url, article: article },
+        payload: { tabId: tabId, url: tabUrl, article: article },
       });
       logger.debug('🧑‍🍳📃🟣🟣🟣🟣🟣🟣', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'response:', response);
     } catch (error) {
-      // Ignore the error if the content script is not ready
-      logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'Content script not ready:', error);
+      logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'Failed to notify current tab state:', error);
     }
   }
 
@@ -344,7 +389,7 @@ class ServiceWorker {
       logger.debug('🧑‍🍳📃🟣🟣🟣🟣🟣🟣', '[ServiceWorker.ts]', '[readArticleForClipboard]', 'response:', response);
       return true;
     } else {
-      logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[readArticleForClipboard]', 'Ignoring message: article is', article);
+      logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[readArticleForClipboard]', 'Ignoring message: article is not found or not successful', article);
       return false;
     }
   }

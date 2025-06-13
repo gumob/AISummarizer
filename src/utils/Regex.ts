@@ -21,7 +21,12 @@ export const escapeRegExpArray = (strings: string[]): string[] => {
 
 export const isInvalidUrl = async (url?: string): Promise<boolean> => {
   if (!url) return true;
-  return isBrowserSpecificUrl(url) || (await isExtractionDenylistUrl(url)) || !url.startsWith('http');
+  return isAIServiceUrl(url) || isBrowserSpecificUrl(url) || (await isExtractionDenylistUrl(url)) || !url.startsWith('http');
+};
+
+export const isAIServiceUrl = (url?: string): boolean => {
+  if (!url) return true;
+  return /^(https?)\:\/\/(www\.)?((chatgpt|gemini|aistudio\.google|grok|perplexity|deepseek)\.com)|(claude\.ai)/.test(url);
 };
 
 export const isBrowserSpecificUrl = (url?: string): boolean => {

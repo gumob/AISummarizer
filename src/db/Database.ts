@@ -149,6 +149,14 @@ export class Database {
     }
   }
 
+  async getArticleById(id: string): Promise<ArticleRecord | undefined> {
+    if (!this.db) await this.init();
+    const tx = this.db!.transaction('articles', 'readonly');
+    const article = await tx.store.get(id);
+    await tx.done;
+    return article;
+  }
+
   /**
    * Get an article by its URL
    * @param url - The URL of the article

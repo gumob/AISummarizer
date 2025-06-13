@@ -1,3 +1,5 @@
+export const AI_SERVICE_QUERY_KEY = 'aismid';
+
 export enum AIService {
   CHATGPT = 'CHATGPT',
   GEMINI = 'GEMINI',
@@ -10,17 +12,17 @@ export enum AIService {
 export const getSummarizeUrl = (service: AIService, summarizeId: string) => {
   switch (service) {
     case AIService.CHATGPT:
-      return `https://chatgpt.com/?smid=${summarizeId}`;
+      return `https://chatgpt.com/?${AI_SERVICE_QUERY_KEY}=${summarizeId}`;
     case AIService.GEMINI:
-      return `https://gemini.com/?smid=${summarizeId}`;
+      return `https://gemini.com/?${AI_SERVICE_QUERY_KEY}=${summarizeId}`;
     case AIService.CLAUDE:
-      return `https://claude.com/?smid=${summarizeId}`;
+      return `https://claude.com/?${AI_SERVICE_QUERY_KEY}=${summarizeId}`;
     case AIService.GROK:
-      return `https://grok.com/?smid=${summarizeId}`;
+      return `https://grok.com/?${AI_SERVICE_QUERY_KEY}=${summarizeId}`;
     case AIService.PERPLEXITY:
-      return `https://perplexity.com/?smid=${summarizeId}`;
+      return `https://perplexity.com/?${AI_SERVICE_QUERY_KEY}=${summarizeId}`;
     case AIService.DEEPSEEK:
-      return `https://deepseek.com/?smid=${summarizeId}`;
+      return `https://deepseek.com/?${AI_SERVICE_QUERY_KEY}=${summarizeId}`;
   }
 };
 
