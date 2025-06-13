@@ -48,9 +48,7 @@ export const DEFAULT_SETTINGS: SettingsState = {
   tabBehavior: TabBehavior.NEW_TAB,
   floatPanelPosition: FloatPanelPosition.BOTTOM_RIGHT,
   contentExtractionTiming: ContentExtractionTiming.AUTOMATIC,
-  extractionDenylist: `/** AI services */
-(https?)\\:\\/\\/(www|chat\\.)?(chatgpt\\.com|gemini\\.google\\.com|aistudio\\.google\\.com|grok\\.com|deepseek\\.com|claude\\.ai|perplexity\\.ai)
-/** Search engines */
+  extractionDenylist: `/** Search engines */
 (https?)\\:\\/\\/(www\\.)?(google|facebook|bing|yahoo|duckduckgo|baidu|yandex|ask|)\\.(co\\.[a-z]{2}|[a-z]{2,3})
 /** E-commerce sites */
 (https?)\\:\\/\\/(www\\.)?(amazon|shop|etsy|ebay|walmart|bestbuy|shopify|target|costoco|apple|flipkart|wix|rakuten|mercari|alibaba|aliexpress|shein|taobao|qoo10|)\\.(co\\.[a-z]{2}|[a-z]{2,3})
