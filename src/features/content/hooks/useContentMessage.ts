@@ -16,6 +16,7 @@ import {
 } from '@/types';
 import {
   copyToClipboard,
+  createPrompt,
   logger,
 } from '@/utils';
 
@@ -124,17 +125,8 @@ export const useContentMessage = () => {
 
         case MessageAction.INJECT_ARTICLE:
           try {
-            const article = message.payload.article;
-            settings
-              .getPromptFor(getAIServiceForUrl(message.payload.tabUrl))
-              .then(basePrompt => {
-                const prompt = basePrompt
-                  .replace('{title}', article.title ?? '')
-                  .replace('{url}', message.payload.tabUrl)
-                  .replace('{content}', article.content ?? '');
-
-                logger.debug('🫳💬', '[useContentMessage.tsx]', '[handleMessage]', 'article', article);
-
+            createPrompt(getAIServiceForUrl(message.payload.tabUrl), settings, message.payload.article)
+              .then(prompt => {
                 /** Inject the article into the ChatGPT */
                 injectionService.current.execute(message.payload.tabUrl, prompt).then((result: ArticleInjectionResult) => {
                   /** Respond to the content script */

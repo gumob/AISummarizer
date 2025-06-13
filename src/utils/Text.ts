@@ -1,3 +1,10 @@
+import { ArticleRecord } from '@/db/Database';
+import { SettingsStore } from '@/stores';
+import {
+  AIService,
+  ArticleExtractionResult,
+} from '@/types';
+
 /**
  * Normalize text content
  * - Replace multiple newlines with a single newline
@@ -31,5 +38,20 @@ export const copyToClipboard = (textToCopy: string) => {
 
   if (!success) {
     throw new Error('Failed to copy text to clipboard');
+  }
+};
+
+export const createPrompt = async (service: AIService, settings: SettingsStore, article: ArticleExtractionResult | ArticleRecord) => {
+  if (!article.title || !article.url || !article.content) {
+    throw new Error('Article is not valid');
+  }
+  try {
+    const basePrompt = await settings.getPromptFor(service);
+    return basePrompt
+      .replace('{title}', article.title ?? '')
+      .replace('{url}', article.url ?? '')
+      .replace('{content}', article.content ?? '');
+  } catch (error) {
+    throw new Error('Failed to create prompt');
   }
 };

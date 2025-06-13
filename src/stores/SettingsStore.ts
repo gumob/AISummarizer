@@ -59,7 +59,7 @@ export const DEFAULT_SETTINGS: SettingsState = {
   isShowBadge: true,
 };
 
-interface SettingsStore extends SettingsState {
+export interface SettingsStore extends SettingsState {
   updateSettings: (settings: Partial<SettingsState>) => Promise<void>;
   setPromptFor: (service: AIService, prompt: string) => Promise<void>;
   getPromptFor: (service: AIService) => Promise<string>;
