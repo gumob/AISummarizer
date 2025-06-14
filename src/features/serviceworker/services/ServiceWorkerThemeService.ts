@@ -8,17 +8,18 @@ import { logger } from '@/utils';
 
 export class ServiceWorkerThemeService {
   constructor() {
-    this.setupMessageListener();
+    chrome.runtime.onMessage.removeListener(this.handleMessage.bind(this));
+    chrome.runtime.onMessage.addListener(this.handleMessage.bind(this));
   }
 
   async initialize() {
     try {
-      // Close existing document if it exists
+      /** Close existing document if it exists */
       if (await chrome.offscreen.hasDocument()) {
         await chrome.offscreen.closeDocument();
       }
 
-      // Create new document with error handling
+      /** Create new document with error handling */
       try {
         await chrome.offscreen.createDocument({
           url: 'offscreen.html',
@@ -28,31 +29,27 @@ export class ServiceWorkerThemeService {
         logger.debug('🧑‍🍳🎨', '[ServiceWorkerThemeService.tsx]', '[initialize]', 'Offscreen document created successfully');
       } catch (createError) {
         logger.error('🧑‍🍳🎨', '[ServiceWorkerThemeService.tsx]', '[initialize]', 'Failed to create offscreen document', createError);
-        // Continue execution even if offscreen document creation fails
       }
     } catch (error) {
       logger.error('🧑‍🍳🎨', '[ServiceWorkerThemeService.tsx]', '[initialize]', 'Error in theme service initialization', error);
-      // Continue execution even if initialization fails
     }
   }
 
-  private setupMessageListener() {
-    chrome.runtime.onMessage.addListener((message: Message, sender: chrome.runtime.MessageSender, sendResponse: (response: MessageResponse) => void) => {
-      switch (message.action) {
-        case MessageAction.PING:
-          logger.debug('🧑‍🍳🎨', '[ServiceWorkerThemeService.tsx]', '[setupMessageListener]', 'Received PING');
-          sendResponse({ success: true });
-          return true;
-        case MessageAction.COLOR_SCHEME_CHANGED:
-          logger.debug('🧑‍🍳🎨', '[ServiceWorkerThemeService.tsx]', '[setupMessageListener]', 'Color scheme changed');
-          if (message.payload?.isDarkMode !== undefined) {
-            useThemeStore.getState().setDarkMode(message.payload.isDarkMode);
-          }
-          sendResponse({ success: true });
-          return true;
-        default:
-          return false;
-      }
-    });
+  private handleMessage(message: Message, sender: chrome.runtime.MessageSender, sendResponse: (response: MessageResponse) => void) {
+    switch (message.action) {
+      case MessageAction.PING_SERVICE_WORKER:
+        logger.debug('🧑‍🍳🎨', '[ServiceWorkerThemeService.tsx]', '[setupMessageListener]', 'Received PING_SERVICE_WORKER');
+        sendResponse({ success: true });
+        return true;
+      case MessageAction.COLOR_SCHEME_CHANGED:
+        logger.debug('🧑‍🍳🎨', '[ServiceWorkerThemeService.tsx]', '[setupMessageListener]', 'Color scheme changed');
+        if (message.payload?.isDarkMode !== undefined) {
+          useThemeStore.getState().setDarkMode(message.payload.isDarkMode);
+        }
+        sendResponse({ success: true });
+        return true;
+      default:
+        return false;
+    }
   }
 }

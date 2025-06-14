@@ -8,23 +8,26 @@ export class CleanupDBService {
   private alarmName = 'cleanup-db';
 
   async startCleanup() {
-    // 既存のアラームをクリア
+    /** Clear existing alarm */
     await chrome.alarms.clear(this.alarmName);
 
-    // 新しいアラームを設定
+    /** Set new alarm */
     await chrome.alarms.create(this.alarmName, {
       periodInMinutes: CLEANUP_INTERVAL,
     });
 
-    // アラームのリスナーを設定
-    chrome.alarms.onAlarm.addListener(async alarm => {
-      if (alarm.name === this.alarmName) {
-        await this.checkAndCleanup();
-      }
-    });
+    /** Set alarm listener */
+    chrome.alarms.onAlarm.removeListener(this.handleAlarm.bind(this));
+    chrome.alarms.onAlarm.addListener(this.handleAlarm.bind(this));
 
-    // 初回実行
+    /** Run initial cleanup */
     await this.checkAndCleanup();
+  }
+
+  private handleAlarm(alarm: chrome.alarms.Alarm) {
+    if (alarm.name === this.alarmName) {
+      this.checkAndCleanup();
+    }
   }
 
   stopCleanup() {

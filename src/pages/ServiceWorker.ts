@@ -29,6 +29,7 @@ import {
   isAIServiceUrl,
   isInvalidUrl,
   logger,
+  waitForContentScriptReady,
 } from '@/utils';
 
 class ServiceWorker {
@@ -36,10 +37,19 @@ class ServiceWorker {
   contextMenuService = new ContextMenuService(this.handleContextMenuClicked.bind(this));
   cleanupService = new CleanupDBService();
 
+  isInitialized = false;
+  abortController: AbortController | null = null;
+
   constructor() {
-    logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[constructor]', 'ServiceWorker initialized');
-    this.themeService.initialize();
-    this.cleanupService.startCleanup();
+    this.initialize();
+  }
+
+  async initialize() {
+    if (this.isInitialized) return;
+    logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[initialize]', '▶️', 'ServiceWorker: Initializing');
+
+    /** Abort the previous abort controller */
+    this.abortController?.abort();
 
     /** Remove the event listeners */
     chrome.tabs.onActivated.removeListener(this.handleTabActivated.bind(this));
@@ -51,6 +61,18 @@ class ServiceWorker {
     /** Add the event listeners */
     chrome.runtime.onMessage.removeListener(this.handleServiceWorkerMessage.bind(this));
     chrome.runtime.onMessage.addListener(this.handleServiceWorkerMessage.bind(this));
+
+    /** Wait for the content script to be ready */
+    this.abortController = new AbortController();
+    const isContentScriptReady = await waitForContentScriptReady(1000, this.abortController.signal);
+    if (!isContentScriptReady) logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[initialize]', '❌️', 'Content script is not ready');
+    else logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[initialize]', '🔵', 'Content script is ready');
+
+    this.themeService.initialize();
+    this.cleanupService.startCleanup();
+
+    this.isInitialized = true;
+    logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[initialize]', '✅️', 'ServiceWorker: Initialized');
   }
 
   /**************************************************
@@ -64,9 +86,10 @@ class ServiceWorker {
    */
   async handleTabActivated(activeInfo: chrome.tabs.TabActiveInfo) {
     logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleTabActivated]', activeInfo);
+    // this.initialize();
 
     /** Wait for 500ms */
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // await new Promise(resolve => setTimeout(resolve, 500));
 
     /** Get the active tab */
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -93,7 +116,7 @@ class ServiceWorker {
     if (changeInfo.status !== 'complete' || !tab.url) return;
     logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleTabUpdated]', tab.url, tab.status);
 
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // await new Promise(resolve => setTimeout(resolve, 500));
 
     /** Execute the extraction */
     if (isAIServiceUrl(tab.url)) {
@@ -370,6 +393,14 @@ class ServiceWorker {
       const article = await db.getArticleByUrl(tabUrl);
 
       /** Send the message to the content script */
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'tab.id:', tab.id);
+      logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'tabId:', tabId);
+      logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'tab:', tab);
+      if (tab.id !== tabId) {
+        logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'No active tab found', tab.id, tabId);
+        return;
+      }
       const response = await chrome.tabs.sendMessage(tabId, {
         action: MessageAction.TAB_UPDATED,
         payload: { tabId: tabId, tabUrl: tabUrl, article: article },

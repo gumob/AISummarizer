@@ -2,7 +2,8 @@
  * The message type for Chrome extension messaging.
  */
 export enum MessageAction {
-  PING = 'PING',
+  PING_SERVICE_WORKER = 'PING_SERVICE_WORKER',
+  PING_CONTENT_SCRIPT = 'PING_CONTENT_SCRIPT',
   COLOR_SCHEME_CHANGED = 'COLOR_SCHEME_CHANGED',
   SETTINGS_UPDATED = 'SETTINGS_UPDATED',
   TAB_UPDATED = 'TAB_UPDATED',

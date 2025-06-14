@@ -1,6 +1,6 @@
 export * from './Error';
 export * from './Logger';
-export * from './ThemeUtils';
+export * from './Browser';
 export * from './Regex';
 export * from './Text';
 export * from './DOM';

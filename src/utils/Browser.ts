@@ -11,11 +11,68 @@ import { logger } from '@/utils';
  */
 const isServiceWorkerScriptReady = async (): Promise<boolean> => {
   try {
-    await chrome.runtime.sendMessage({ action: MessageAction.PING });
+    await chrome.runtime.sendMessage({ action: MessageAction.PING_SERVICE_WORKER });
     return true;
   } catch (error) {
     return false;
   }
+};
+
+/**
+ * Wait for the service worker script to be ready
+ * @param maxAttempts - The maximum number of attempts
+ * @param signal - Optional AbortSignal to cancel the operation
+ * @returns Whether the service worker script is ready
+ */
+export const waitForServiceWorkerScriptReady = async (maxAttempts = 10, signal?: AbortSignal): Promise<boolean> => {
+  for (let i = 0; i < maxAttempts; i++) {
+    if (signal?.aborted) {
+      return false;
+    }
+    const isReady = await isServiceWorkerScriptReady();
+    if (isReady) {
+      return true;
+    }
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  }
+  return false;
+};
+
+/**
+ * Check if content script is ready
+ * @returns Whether the content script is ready
+ */
+const isContentScriptReady = async (): Promise<boolean> => {
+  try {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (!tab.id) {
+      return false;
+    }
+    await chrome.tabs.sendMessage(tab.id, { action: MessageAction.PING_CONTENT_SCRIPT });
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
+
+/**
+ * Wait for the content script to be ready
+ * @param maxAttempts - The maximum number of attempts
+ * @param signal - Optional AbortSignal to cancel the operation
+ * @returns Whether the content script is ready
+ */
+export const waitForContentScriptReady = async (maxAttempts = 10, signal?: AbortSignal): Promise<boolean> => {
+  for (let i = 0; i < maxAttempts; i++) {
+    if (signal?.aborted) {
+      return false;
+    }
+    const isReady = await isContentScriptReady();
+    if (isReady) {
+      return true;
+    }
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  }
+  return false;
 };
 
 /**
@@ -26,7 +83,8 @@ export const detectTheme = async () => {
   logger.debug('🎨', '[ThemeUtils.ts]', '[detectTheme]', 'Theme detected', isDarkMode ? 'dark' : 'light');
 
   /** Check if the service worker script is ready */
-  const isReady = await isServiceWorkerScriptReady();
+  const isReady = await waitForServiceWorkerScriptReady();
+  logger.debug('🎨', '[ThemeUtils.ts]', '[detectTheme]', 'ServiceWorker script is ready', isReady);
   if (!isReady) {
     logger.warn('🎨', '[ThemeUtils.ts]', '[detectTheme]', 'ServiceWorker script is not ready, skipping theme detection');
     return;
