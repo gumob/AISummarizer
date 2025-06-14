@@ -34,8 +34,12 @@ export const PopupMain: React.FC = () => {
   useEffect(() => {
     const init = async () => {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      const isAvailable: boolean = tab.id !== undefined && tab.url !== undefined && !(await isInvalidUrl(tab.url));
-      setShouldShowFullMenu(isAvailable);
+      if (!tab.id || !tab.url) {
+        setShouldShowFullMenu(false);
+      } else {
+        const isAvailable: boolean = !(await isInvalidUrl(tab.url));
+        setShouldShowFullMenu(isAvailable);
+      }
     };
     init();
     return () => {
@@ -70,7 +74,7 @@ export const PopupMain: React.FC = () => {
                 logger.debug('📦🍿', '[PopupMain.tsx]', '[render]', 'service', service);
                 /** Check if the content script is injected */
                 const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-                if (!tab.id) throw new Error('No active tab found');
+                if (!tab.id || !tab.url) throw new Error('No active tab found');
 
                 /** Send the message to the content script */
                 await chrome.runtime.sendMessage({
@@ -95,7 +99,7 @@ export const PopupMain: React.FC = () => {
             onClick={async () => {
               logger.debug('📦🍿', '[PopupMain.tsx]', '[render]', 'Copy to clipboard');
               const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-              if (!tab.id) throw new Error('No active tab found');
+              if (!tab.id || !tab.url) throw new Error('No active tab found');
               await chrome.runtime.sendMessage({
                 action: MessageAction.READ_ARTICLE_FOR_CLIPBOARD,
                 payload: { tabId: tab.id, tabUrl: tab.url },
@@ -113,7 +117,7 @@ export const PopupMain: React.FC = () => {
               logger.debug('📦🍿', '[PopupMain.tsx]', '[render]', 'Extract article again');
               /** Check if the content script is injected */
               const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-              if (!tab.id) throw new Error('No active tab found');
+              if (!tab.id || !tab.url) throw new Error('No active tab found');
 
               /** Send the message to the content script */
               await chrome.tabs.sendMessage(tab.id, {
@@ -133,7 +137,7 @@ export const PopupMain: React.FC = () => {
             onClick={async () => {
               logger.debug('📦🍿', '[PopupMain.tsx]', '[render]', 'Settings clicked');
               const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-              if (tab?.id) {
+              if (tab?.id && tab?.windowId) {
                 chrome.sidePanel.setOptions({ path: 'options.html', enabled: true });
                 chrome.sidePanel.open({ windowId: tab.windowId });
                 window.close();
@@ -154,7 +158,7 @@ export const PopupMain: React.FC = () => {
             onClick={async () => {
               logger.debug('📦🍿', '[PopupMain.tsx]', '[render]', 'Settings clicked');
               const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-              if (tab?.id) {
+              if (tab?.id && tab?.windowId) {
                 chrome.sidePanel.setOptions({ path: 'options.html', enabled: true });
                 chrome.sidePanel.open({ windowId: tab.windowId });
 

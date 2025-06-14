@@ -1,7 +1,17 @@
 import { STORAGE_KEYS } from '@/constants';
-import { ArticleRecord, db } from '@/db';
-import { CleanupDBService, ContextMenuService, ServiceWorkerThemeService } from '@/features/serviceworker/services';
-import { useArticleStore, useSettingsStore } from '@/stores';
+import {
+  ArticleRecord,
+  db,
+} from '@/db';
+import {
+  CleanupDBService,
+  ContextMenuService,
+  ServiceWorkerThemeService,
+} from '@/features/serviceworker/services';
+import {
+  useArticleStore,
+  useSettingsStore,
+} from '@/stores';
 import { DEFAULT_SETTINGS } from '@/stores/SettingsStore';
 import {
   AI_SERVICE_QUERY_KEY,
@@ -15,7 +25,11 @@ import {
   MessageAction,
   TabBehavior,
 } from '@/types';
-import { isAIServiceUrl, isInvalidUrl, logger } from '@/utils';
+import {
+  isAIServiceUrl,
+  isInvalidUrl,
+  logger,
+} from '@/utils';
 
 class ServiceWorker {
   themeService = new ServiceWorkerThemeService();
@@ -27,12 +41,14 @@ class ServiceWorker {
     this.themeService.initialize();
     this.cleanupService.startCleanup();
 
+    /** Remove the event listeners */
     chrome.tabs.onActivated.removeListener(this.handleTabActivated.bind(this));
     chrome.tabs.onActivated.addListener(this.handleTabActivated.bind(this));
 
     chrome.tabs.onUpdated.removeListener(this.handleTabUpdated.bind(this));
     chrome.tabs.onUpdated.addListener(this.handleTabUpdated.bind(this));
 
+    /** Add the event listeners */
     chrome.runtime.onMessage.removeListener(this.handleServiceWorkerMessage.bind(this));
     chrome.runtime.onMessage.addListener(this.handleServiceWorkerMessage.bind(this));
   }
@@ -54,6 +70,10 @@ class ServiceWorker {
 
     /** Get the active tab */
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (!tab.id || !tab.url) {
+      logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleTabActivated]', 'No active tab found');
+      return;
+    }
 
     /** Update the UI state */
     this.toggleUIState(activeInfo.tabId, tab.url);
@@ -112,7 +132,7 @@ class ServiceWorker {
 
       case MessageAction.OPEN_SETTINGS:
         chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
-          if (tab.id) {
+          if (tab.id && tab.windowId) {
             chrome.sidePanel.setOptions({ path: 'options.html', enabled: true });
             chrome.sidePanel.open({ windowId: tab.windowId });
           }
@@ -313,18 +333,11 @@ class ServiceWorker {
     try {
       logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[toggleUIState]');
 
-      /** Get the active tab */
-      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-
       /** Get the article from the database */
-      const doesArticleExist = (await useArticleStore.getState().getArticleByUrl(tab.url))?.is_success ?? false;
+      const doesArticleExist = (await useArticleStore.getState().getArticleByUrl(tabUrl))?.is_success ?? false;
 
       /** Toggle the context menu */
-      if (tab.url) {
-        this.contextMenuService.createMenu(doesArticleExist, tab.url);
-      } else {
-        this.contextMenuService.createMenu(false);
-      }
+      await this.contextMenuService.createMenu(doesArticleExist, tabUrl);
 
       /** Toggle the badge */
       const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
@@ -348,7 +361,7 @@ class ServiceWorker {
   async notifyCurrentTabState(tabId: number, tabUrl?: string) {
     logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'tabId:', tabId, 'tabUrl:', tabUrl);
     try {
-      if (await isInvalidUrl(tabUrl)) {
+      if (tabUrl && (await isInvalidUrl(tabUrl))) {
         logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'Ignoring content script message: tabUrl is invalid', tabUrl);
         return;
       }

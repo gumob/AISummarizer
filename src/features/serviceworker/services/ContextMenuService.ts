@@ -1,18 +1,21 @@
 import { MENU_ITEMS } from '@/models';
-import { isInvalidUrl, logger } from '@/utils';
+import {
+  isInvalidUrl,
+  logger,
+} from '@/utils';
 
 export class ContextMenuService {
   constructor(onClick: (info: chrome.contextMenus.OnClickData, tab?: chrome.tabs.Tab) => void) {
     chrome.contextMenus.onClicked.addListener(onClick.bind(this));
   }
 
-  createMenu(isExtracted: boolean, tabUrl?: string) {
+  async createMenu(isExtracted: boolean, tabUrl?: string) {
     try {
       this.removeMenu();
-      if (tabUrl && !isInvalidUrl(tabUrl)) {
-        this.createFullMenu(tabUrl, isExtracted);
-      } else {
+      if (!tabUrl || (await isInvalidUrl(tabUrl))) {
         this.createBasicMenu();
+      } else {
+        this.createFullMenu(tabUrl, isExtracted);
       }
     } catch (error) {
       logger.error('🧑‍🍳📃', '[ContextMenuService.tsx]', '[createMenu]', 'Failed to create context menu:', error);
