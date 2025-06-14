@@ -12,7 +12,8 @@ export class ContextMenuService {
   async createMenu(isExtracted: boolean, tabUrl?: string) {
     try {
       this.removeMenu();
-      if (!tabUrl || (await isInvalidUrl(tabUrl))) {
+      const isInvalid = await isInvalidUrl(tabUrl);
+      if (!tabUrl || isInvalid) {
         this.createBasicMenu();
       } else {
         this.createFullMenu(tabUrl, isExtracted);
