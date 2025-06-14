@@ -5,7 +5,10 @@ import {
 } from 'react';
 
 import { toast } from '@/features/content/components/main';
-import { ArticleExtractionService } from '@/features/content/services';
+import {
+  ArticleExtractionService,
+  ArticleInjectionService,
+} from '@/features/content/services';
 import { useSettingsStore } from '@/stores';
 import {
   ArticleExtractionResult,
@@ -21,8 +24,6 @@ import {
   createPrompt,
   logger,
 } from '@/utils';
-
-import { ArticleInjectionService } from '../services/ArticleInjectionService';
 
 /**
  * Hook for handling Chrome extension messages
@@ -69,6 +70,11 @@ export const useContentMessage = () => {
       }
 
       switch (message.action) {
+        case MessageAction.PING_CONTENT_SCRIPT:
+          logger.debug('🫳💬', '[useContentMessage.tsx]', '[handleMessage]', 'Received PING_CONTENT_SCRIPT');
+          sendResponse({ success: true });
+          break;
+
         case MessageAction.TAB_UPDATED:
           try {
             /** Update the current tab state */
