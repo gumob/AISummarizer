@@ -1,39 +1,33 @@
-import { db } from '@/db/Database';
 import { MENU_ITEMS } from '@/models';
-import {
-  isInvalidUrl,
-  logger,
-} from '@/utils';
+import { isInvalidUrl, logger } from '@/utils';
 
 export class ContextMenuService {
   constructor(onClick: (info: chrome.contextMenus.OnClickData, tab?: chrome.tabs.Tab) => void) {
     chrome.contextMenus.onClicked.addListener(onClick.bind(this));
   }
 
-  async createMenu() {
+  createMenu(isExtracted: boolean, tabUrl?: string) {
     try {
-      await this.removeMenu();
-      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      if (tab.url && !(await isInvalidUrl(tab.url))) {
-        await this.createFullMenu(tab.url);
+      this.removeMenu();
+      if (tabUrl && !isInvalidUrl(tabUrl)) {
+        this.createFullMenu(tabUrl, isExtracted);
       } else {
-        await this.createBasicMenu();
+        this.createBasicMenu();
       }
     } catch (error) {
       logger.error('🧑‍🍳📃', '[ContextMenuService.tsx]', '[createMenu]', 'Failed to create context menu:', error);
     }
   }
 
-  private async removeMenu() {
+  private removeMenu() {
     try {
-      await chrome.contextMenus.removeAll();
-      await new Promise(resolve => setTimeout(resolve, 100));
+      chrome.contextMenus.removeAll();
     } catch (error) {
       logger.error('🧑‍🍳📃', '[ContextMenuService.tsx]', '[removeMenu]', 'Failed to remove context menu:', error);
     }
   }
 
-  private async createFullMenu(tabUrl: string) {
+  private createFullMenu(tabUrl: string, isExtracted: boolean) {
     try {
       logger.debug('🧑‍🍳📃', '[ContextMenuService.tsx]', '[createFullMenu]', 'Creating full menu');
       const root = chrome.contextMenus.create({
@@ -61,7 +55,7 @@ export class ContextMenuService {
       });
 
       /** Create copy option */
-      if (tabUrl && (await db.getArticleByUrl(tabUrl))?.is_success) {
+      if (tabUrl && isExtracted) {
         chrome.contextMenus.create({
           id: MENU_ITEMS.COPY.id,
           title: MENU_ITEMS.COPY.title,
@@ -98,7 +92,7 @@ export class ContextMenuService {
     }
   }
 
-  private async createBasicMenu() {
+  private createBasicMenu() {
     try {
       logger.debug('🧑‍🍳📃', '[ContextMenuService.tsx]', '[createBasicMenu]', 'Creating basic menu');
       const root = chrome.contextMenus.create({

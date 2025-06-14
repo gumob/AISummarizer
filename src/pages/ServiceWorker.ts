@@ -1,17 +1,7 @@
 import { STORAGE_KEYS } from '@/constants';
-import {
-  ArticleRecord,
-  db,
-} from '@/db';
-import {
-  CleanupDBService,
-  ContextMenuService,
-  ServiceWorkerThemeService,
-} from '@/features/serviceworker/services';
-import {
-  useArticleStore,
-  useSettingsStore,
-} from '@/stores';
+import { ArticleRecord, db } from '@/db';
+import { CleanupDBService, ContextMenuService, ServiceWorkerThemeService } from '@/features/serviceworker/services';
+import { useArticleStore, useSettingsStore } from '@/stores';
 import { DEFAULT_SETTINGS } from '@/stores/SettingsStore';
 import {
   AI_SERVICE_QUERY_KEY,
@@ -25,11 +15,7 @@ import {
   MessageAction,
   TabBehavior,
 } from '@/types';
-import {
-  isAIServiceUrl,
-  isInvalidUrl,
-  logger,
-} from '@/utils';
+import { isAIServiceUrl, isInvalidUrl, logger } from '@/utils';
 
 class ServiceWorker {
   themeService = new ServiceWorkerThemeService();
@@ -325,13 +311,20 @@ class ServiceWorker {
    */
   async toggleUIState(tabId: number, tabUrl?: string) {
     try {
-      /** Toggle the context menu */
-      this.contextMenuService.createMenu();
-
       logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[toggleUIState]');
 
+      /** Get the active tab */
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
       /** Get the article from the database */
-      const doesArticleExist = (await useArticleStore.getState().getArticleByUrl(tabUrl))?.is_success ?? false;
+      const doesArticleExist = (await useArticleStore.getState().getArticleByUrl(tab.url))?.is_success ?? false;
+
+      /** Toggle the context menu */
+      if (tab.url) {
+        this.contextMenuService.createMenu(doesArticleExist, tab.url);
+      } else {
+        this.contextMenuService.createMenu(false);
+      }
 
       /** Toggle the badge */
       const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
