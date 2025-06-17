@@ -5,8 +5,8 @@ import React, {
 } from 'react';
 
 import clsx from 'clsx';
+import { ListMinus } from 'lucide-react';
 import {
-  IoAddOutline,
   IoClipboardOutline,
   IoReloadOutline,
   IoSettingsOutline,
@@ -106,7 +106,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
             `
             )}
           >
-            <IoAddOutline className="w-[16px] h-[16px]" />
+            <ListMinus className="w-[16px] h-[16px]" />
           </button>
         </div>
         <div
