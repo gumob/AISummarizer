@@ -1,24 +1,9 @@
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 import { db } from '@/db';
 import { ArticleModel } from '@/models';
-import {
-  SettingsState,
-  useSettingsStore,
-} from '@/stores';
-import {
-  AIService,
-  ContentExtractionTiming,
-  FloatPanelPosition,
-  TabBehavior,
-} from '@/types';
+import { SettingsState, useSettingsStore } from '@/stores';
+import { AIService, ContentExtractionTiming, FloatPanelPosition, TabBehavior } from '@/types';
 import { logger } from '@/utils';
 
 /**

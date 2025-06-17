@@ -1,9 +1,5 @@
 import { useThemeStore } from '@/stores/ThemeStore';
-import {
-  Message,
-  MessageAction,
-  MessageResponse,
-} from '@/types';
+import { Message, MessageAction, MessageResponse } from '@/types';
 import { logger } from '@/utils';
 
 export class ServiceWorkerThemeService {

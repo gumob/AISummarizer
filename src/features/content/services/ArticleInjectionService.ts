@@ -1,21 +1,6 @@
-import {
-  injectAIStudio,
-  injectChatGPT,
-  injectClaude,
-  injectDeepSeek,
-  injectGemini,
-  injectGrok,
-  injectPerplexity,
-} from '@/features/content/injectors';
-import {
-  AIService,
-  ArticleInjectionResult,
-  getAIServiceForUrl,
-} from '@/types';
-import {
-  isAIServiceUrl,
-  logger,
-} from '@/utils';
+import { injectAIStudio, injectChatGPT, injectClaude, injectDeepSeek, injectGemini, injectGrok, injectPerplexity } from '@/features/content/injectors';
+import { AIService, ArticleInjectionResult, getAIServiceForUrl } from '@/types';
+import { isAIServiceUrl, logger } from '@/utils';
 
 const injectors: Record<AIService, (prompt: string) => Promise<{ success: boolean; error?: Error }>> = {
   [AIService.CHATGPT]: injectChatGPT,

@@ -1,9 +1,6 @@
 import { ArticleRecord } from '@/db/Database';
 import { SettingsStore } from '@/stores';
-import {
-  AIService,
-  ArticleExtractionResult,
-} from '@/types';
+import { AIService, ArticleExtractionResult } from '@/types';
 
 /**
  * Normalize text content

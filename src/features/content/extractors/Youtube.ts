@@ -1,8 +1,5 @@
 import { ArticleExtractionResult } from '@/types';
-import {
-  logger,
-  waitForElement,
-} from '@/utils';
+import { logger, waitForElement } from '@/utils';
 
 interface TranscriptSegment {
   start: number;

@@ -1,12 +1,6 @@
-import {
-  extractReadability,
-  extractYoutube,
-} from '@/features/content/extractors';
+import { extractReadability, extractYoutube } from '@/features/content/extractors';
 import { ArticleExtractionResult } from '@/types';
-import {
-  isInvalidUrl,
-  logger,
-} from '@/utils';
+import { isInvalidUrl, logger } from '@/utils';
 
 export class ArticleExtractionService {
   async execute(url: string): Promise<ArticleExtractionResult> {

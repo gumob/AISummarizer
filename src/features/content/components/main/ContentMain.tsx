@@ -1,9 +1,6 @@
 import React from 'react';
 
-import {
-  FloatPanel,
-  Toaster,
-} from '@/features/content/components/main';
+import { FloatPanel, Toaster } from '@/features/content/components/main';
 
 export const ContentMain: React.FC = () => {
   /**

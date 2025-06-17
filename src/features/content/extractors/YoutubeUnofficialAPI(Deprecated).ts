@@ -1,8 +1,5 @@
 import { ArticleExtractionResult } from '@/types';
-import {
-  logger,
-  normalizeContent,
-} from '@/utils';
+import { logger, normalizeContent } from '@/utils';
 
 /** List of punctuation marks. */
 const puncs = [',', '.', '?', '!', ';', ':'];

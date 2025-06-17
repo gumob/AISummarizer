@@ -1,9 +1,6 @@
 import { create } from 'zustand';
 
-import {
-  ArticleRecord,
-  db,
-} from '@/db/Database';
+import { ArticleRecord, db } from '@/db/Database';
 import { logger } from '@/utils';
 
 interface ArticleStore {

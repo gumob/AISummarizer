@@ -1,8 +1,4 @@
-import {
-  getRandomInt,
-  logger,
-  waitForElement,
-} from '@/utils';
+import { getRandomInt, logger, waitForElement } from '@/utils';
 
 export async function injectAIStudio(prompt: string): Promise<{ success: boolean; error?: Error }> {
   try {

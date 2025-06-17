@@ -1,9 +1,7 @@
-import { ArticleExtractionResult } from '@/types';
-import {
-  logger,
-  normalizeContent,
-} from '@/utils';
 import { Readability } from '@mozilla/readability';
+
+import { ArticleExtractionResult } from '@/types';
+import { logger, normalizeContent } from '@/utils';
 
 export async function extractReadability(document: Document): Promise<ArticleExtractionResult> {
   try {

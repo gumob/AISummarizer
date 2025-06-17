@@ -1,29 +1,10 @@
-import {
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { toast } from '@/features/content/components/main';
-import {
-  ArticleExtractionService,
-  ArticleInjectionService,
-} from '@/features/content/services';
+import { ArticleExtractionService, ArticleInjectionService } from '@/features/content/services';
 import { useSettingsStore } from '@/stores';
-import {
-  ArticleExtractionResult,
-  ArticleInjectionResult,
-  getAIServiceForUrl,
-  getSummarizeUrl,
-  Message,
-  MessageAction,
-  MessageResponse,
-} from '@/types';
-import {
-  copyToClipboard,
-  createPrompt,
-  logger,
-} from '@/utils';
+import { ArticleExtractionResult, ArticleInjectionResult, getAIServiceForUrl, getSummarizeUrl, Message, MessageAction, MessageResponse } from '@/types';
+import { copyToClipboard, createPrompt, logger } from '@/utils';
 
 /**
  * Hook for handling Chrome extension messages

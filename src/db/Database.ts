@@ -1,13 +1,6 @@
-import {
-  DBSchema,
-  IDBPDatabase,
-  openDB,
-} from 'idb';
+import { DBSchema, IDBPDatabase, openDB } from 'idb';
 
-import {
-  isInvalidUrl,
-  logger,
-} from '@/utils';
+import { isInvalidUrl, logger } from '@/utils';
 
 /**
  * ArticleRecord

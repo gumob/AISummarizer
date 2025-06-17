@@ -1,29 +1,13 @@
-import React, {
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
-
 import clsx from 'clsx';
-import {
-  IoAddOutline,
-  IoClipboardOutline,
-  IoReloadOutline,
-  IoSettingsOutline,
-} from 'react-icons/io5';
 
-import {
-  Divider,
-  ServiceIcon,
-} from '@/components';
+import React, { useEffect, useRef, useState } from 'react';
+
+import { IoAddOutline, IoClipboardOutline, IoReloadOutline, IoSettingsOutline } from 'react-icons/io5';
+
+import { Divider, ServiceIcon } from '@/components';
 import { useContentContext } from '@/features/content/contexts';
 import { useWindowSize } from '@/features/content/hooks';
-import {
-  AIService,
-  FloatPanelPosition,
-  getAIServiceLabel,
-  MessageAction,
-} from '@/types';
+import { AIService, FloatPanelPosition, getAIServiceLabel, MessageAction } from '@/types';
 import { logger } from '@/utils';
 
 /**

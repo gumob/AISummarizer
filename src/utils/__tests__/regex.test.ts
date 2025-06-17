@@ -1,7 +1,4 @@
-import {
-  escapeRegExp,
-  escapeRegExpArray,
-} from '@/utils';
+import { escapeRegExp, escapeRegExpArray } from '@/utils';
 
 describe('regex utils', () => {
   describe('escapeRegExp', () => {

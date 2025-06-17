@@ -1,8 +1,5 @@
 import { MENU_ITEMS } from '@/models';
-import {
-  isInvalidUrl,
-  logger,
-} from '@/utils';
+import { isInvalidUrl, logger } from '@/utils';
 
 export class ContextMenuService {
   constructor(onClick: (info: chrome.contextMenus.OnClickData, tab?: chrome.tabs.Tab) => void) {
