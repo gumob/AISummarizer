@@ -1,13 +1,29 @@
+import React, {
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+
 import clsx from 'clsx';
+import {
+  IoAddOutline,
+  IoClipboardOutline,
+  IoReloadOutline,
+  IoSettingsOutline,
+} from 'react-icons/io5';
 
-import React, { useEffect, useRef, useState } from 'react';
-
-import { IoAddOutline, IoClipboardOutline, IoReloadOutline, IoSettingsOutline } from 'react-icons/io5';
-
-import { Divider, ServiceIcon } from '@/components';
+import {
+  Divider,
+  ServiceIcon,
+} from '@/components';
 import { useContentContext } from '@/features/content/contexts';
 import { useWindowSize } from '@/features/content/hooks';
-import { AIService, FloatPanelPosition, getAIServiceLabel, MessageAction } from '@/types';
+import {
+  AIService,
+  FloatPanelPosition,
+  getAIServiceLabel,
+  MessageAction,
+} from '@/types';
 import { logger } from '@/utils';
 
 /**
@@ -82,15 +98,12 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
             flex items-center justify-center
             rounded-full
             p-[12px]
+            backdrop-blur-md
             bg-white/80 dark:bg-zinc-900/80
             text-zinc-900 dark:text-zinc-100
             font-semibold
             border border-white/10 dark:border-zinc-800/10
             shadow-[0_0_24px_rgba(0,0,0,0.1)] dark:shadow-[0_0_24px_rgba(0,0,0,0.4)]
-            backdrop-blur-md
-            dark:focus:ring-offset-zinc-900
-            transition-colors duration-200
-            focus:outline-none focus:ring-none
             `
           )}
         >
