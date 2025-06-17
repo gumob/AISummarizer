@@ -370,7 +370,7 @@ class ServiceWorker {
           this.contextMenuService.createFullMenu(tabUrl, doesArticleExist);
         }
       } catch (error) {
-        logger.error('🧑‍🍳📃', '[ContextMenuService.tsx]', '[createMenu]', 'Failed to create context menu:', error);
+        logger.error('🧑‍🍳📃', '[ServiceWorker.tsx]', '[toggleUIState]', 'Failed to create context menu:', error);
       }
 
       /** Toggle the badge */
