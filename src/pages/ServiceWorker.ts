@@ -1,7 +1,17 @@
 import { STORAGE_KEYS } from '@/constants';
-import { ArticleRecord, db } from '@/db';
-import { CleanupDBService, ContextMenuService, ServiceWorkerThemeService } from '@/features/serviceworker/services';
-import { useArticleStore, useSettingsStore } from '@/stores';
+import {
+  ArticleRecord,
+  db,
+} from '@/db';
+import {
+  CleanupDBService,
+  ContextMenuService,
+  ServiceWorkerThemeService,
+} from '@/features/serviceworker/services';
+import {
+  useArticleStore,
+  useSettingsStore,
+} from '@/stores';
 import { DEFAULT_SETTINGS } from '@/stores/SettingsStore';
 import {
   AI_SERVICE_QUERY_KEY,
@@ -15,7 +25,12 @@ import {
   MessageAction,
   TabBehavior,
 } from '@/types';
-import { isAIServiceUrl, isInvalidUrl, logger, waitForContentScriptReady } from '@/utils';
+import {
+  isAIServiceUrl,
+  isInvalidUrl,
+  logger,
+  waitForContentScriptReady,
+} from '@/utils';
 
 class ServiceWorker {
   themeService = new ServiceWorkerThemeService();
@@ -345,7 +360,18 @@ class ServiceWorker {
       const doesArticleExist = (await useArticleStore.getState().getArticleByUrl(tabUrl))?.is_success ?? false;
 
       /** Toggle the context menu */
-      await this.contextMenuService.createMenu(doesArticleExist, tabUrl);
+      // await this.contextMenuService.createMenu(doesArticleExist, tabUrl);
+      try {
+        this.contextMenuService.removeMenu();
+        const isInvalid = await isInvalidUrl(tabUrl);
+        if (!tabUrl || isInvalid) {
+          this.contextMenuService.createBasicMenu();
+        } else {
+          this.contextMenuService.createFullMenu(tabUrl, doesArticleExist);
+        }
+      } catch (error) {
+        logger.error('🧑‍🍳📃', '[ContextMenuService.tsx]', '[createMenu]', 'Failed to create context menu:', error);
+      }
 
       /** Toggle the badge */
       const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);

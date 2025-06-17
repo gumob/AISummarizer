@@ -1,5 +1,8 @@
 import { MENU_ITEMS } from '@/models';
-import { isInvalidUrl, logger } from '@/utils';
+import {
+  isInvalidUrl,
+  logger,
+} from '@/utils';
 
 export class ContextMenuService {
   constructor(onClick: (info: chrome.contextMenus.OnClickData, tab?: chrome.tabs.Tab) => void) {
@@ -20,7 +23,7 @@ export class ContextMenuService {
     }
   }
 
-  private removeMenu() {
+  public removeMenu() {
     try {
       chrome.contextMenus.removeAll();
     } catch (error) {
@@ -28,7 +31,7 @@ export class ContextMenuService {
     }
   }
 
-  private createFullMenu(tabUrl: string, isExtracted: boolean) {
+  public createFullMenu(tabUrl: string, isExtracted: boolean) {
     try {
       logger.debug('🧑‍🍳📃', '[ContextMenuService.tsx]', '[createFullMenu]', 'Creating full menu');
       const root = chrome.contextMenus.create({
@@ -93,7 +96,7 @@ export class ContextMenuService {
     }
   }
 
-  private createBasicMenu() {
+  public createBasicMenu() {
     try {
       logger.debug('🧑‍🍳📃', '[ContextMenuService.tsx]', '[createBasicMenu]', 'Creating basic menu');
       const root = chrome.contextMenus.create({
