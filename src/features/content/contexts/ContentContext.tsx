@@ -1,9 +1,21 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 
 import { useContentMessage } from '@/features/content/hooks';
 import { SettingsState } from '@/stores';
-import { ArticleExtractionResult, FloatPanelPosition } from '@/types';
-import { isExtractionDenylistUrl, logger } from '@/utils';
+import {
+  ArticleExtractionResult,
+  FloatPanelPosition,
+} from '@/types';
+import {
+  isExtractionDenylistUrl,
+  logger,
+} from '@/utils';
 
 /**
  * The context value type for ContentContext.
@@ -11,14 +23,14 @@ import { isExtractionDenylistUrl, logger } from '@/utils';
  * @property tabId - The tab id.
  * @property tabUrl - The tab url.
  * @property article - The article data.
- * @property isFloatPanelVisible - The is float button visible.
+ * @property shouldShowFloatUI - The is float button visible.
  * @property settings - The settings data.
  */
 interface ContentContextValue {
   currentTabId: number | null;
   currentTabUrl: string | null;
   currentArticle: ArticleExtractionResult | null;
-  isFloatPanelVisible: boolean;
+  shouldShowFloatUI: boolean;
   settings: SettingsState;
 }
 
@@ -49,7 +61,7 @@ export const ContentContextProvider: React.FC<ContentContextProviderProps> = ({ 
    *******************************************************/
 
   const { currentTabId, currentTabUrl, currentArticle, settings } = useContentMessage();
-  const [isFloatPanelVisible, setIsFloatPanelVisible] = useState(false);
+  const [shouldShowFloatUI, setShouldShowFloatUI] = useState(false);
 
   /*******************************************************
    * Lifecycle
@@ -58,19 +70,19 @@ export const ContentContextProvider: React.FC<ContentContextProviderProps> = ({ 
   useEffect(() => {
     const toggleFloatPanelVisibility = async () => {
       if (!currentTabUrl) {
-        setIsFloatPanelVisible(false);
+        setShouldShowFloatUI(false);
         return;
       }
       const isDenied = await isExtractionDenylistUrl(currentTabUrl);
       logger.debug('🗣️🎁', '[ContentContext.tsx]', '[toggleFloatPanelVisibility]', 'isDenied', isDenied);
       if (isDenied) {
-        setIsFloatPanelVisible(false);
+        setShouldShowFloatUI(false);
         return;
       }
       const isArticleExtracted = currentArticle != null && currentArticle.isSuccess;
       const state = isArticleExtracted && settings.floatPanelPosition !== FloatPanelPosition.HIDE;
       logger.debug('🗣️🎁', '[ContentContext.tsx]', '[toggleFloatPanelVisibility]', 'state', state);
-      setIsFloatPanelVisible(state);
+      setShouldShowFloatUI(state);
     };
     toggleFloatPanelVisibility();
   }, [currentTabId, currentTabUrl, currentArticle, settings]);
@@ -84,10 +96,10 @@ export const ContentContextProvider: React.FC<ContentContextProviderProps> = ({ 
       currentTabId,
       currentTabUrl,
       currentArticle,
-      isFloatPanelVisible,
+      shouldShowFloatUI,
       settings,
     }),
-    [currentTabId, currentTabUrl, currentArticle, isFloatPanelVisible, settings]
+    [currentTabId, currentTabUrl, currentArticle, shouldShowFloatUI, settings]
   );
 
   return <ContentContext.Provider value={value}>{children}</ContentContext.Provider>;
