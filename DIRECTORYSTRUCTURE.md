@@ -5,20 +5,22 @@ Please follow the directory structure below for implementation:
 ```
 /
 ├── src/                          # Source directory
-│   ├── api/                      # API related implementations
 │   ├── components/               # Shared UI Components
 │   ├── constants/                # Constant values and configurations
-│   ├── contexts/                 # React Context providers
+│   ├── db/                       # Database related implementations
 │   ├── features/                 # Feature-specific implementations
-│   │   └── popup/                # Popup feature specific components
-│   │       └── components/       # Popup specific UI components
-│   ├── hooks/                    # Custom React hooks
-│   ├── mappers/                  # Data transformation utilities
+│   │   ├── content/             # Content script feature
+│   │   ├── offscreen/           # Offscreen feature
+│   │   ├── options/             # Options page feature
+│   │   ├── popup/               # Popup feature
+│   │   └── serviceworker/       # Service Worker feature
 │   ├── models/                   # Data models and interfaces
 │   ├── pages/                    # Page implementations
-│   │   ├── background/           # Background script
-│   │   ├── offscreen/            # Offscreen document
-│   │   └── popup/                # Popup page
+│   │   ├── Content.tsx          # Content script page
+│   │   ├── Offscreen.ts         # Offscreen page
+│   │   ├── Options.tsx          # Options page
+│   │   ├── Popup.tsx            # Popup page
+│   │   └── ServiceWorker.ts     # Service Worker implementation
 │   ├── stores/                   # State management (Zustand)
 │   ├── styles/                   # Global styles
 │   ├── types/                    # TypeScript type definitions
@@ -26,6 +28,10 @@ Please follow the directory structure below for implementation:
 ├── public/                       # Static assets
 ├── dist/                         # Output directory
 ├── node_modules/                 # Dependency packages
+├── logs/                         # Application logs
+├── fastlane/                     # Fastlane deployment configuration
+├── .github/                      # GitHub configuration files
+├── .vscode/                      # VSCode configuration
 ├── .gitignore                    # Git ignore patterns
 ├── .prettierrc                   # Prettier configuration
 ├── .prettierignore               # Prettier ignore patterns
@@ -38,28 +44,33 @@ Please follow the directory structure below for implementation:
 ├── webpack.config.ts             # Webpack configuration
 ├── postcss.config.js             # PostCSS configuration
 ├── tailwind.config.js            # Tailwind CSS configuration
+├── jest.config.js                # Jest testing configuration
 ├── mise.toml                     # Development environment settings
 ├── TECHNOLOGSTACK.md             # Technology stack documentation
 ├── DIRECTORYSTRUCTURE.md         # Directory structure documentation
+├── PRIVACY.md                    # Privacy policy documentation
 ├── LICENSE                       # License information
 └── README.md                     # Project documentation
 
 ### Directory Descriptions
 
 #### Source Code (`src/`)
-- `api/`: API related implementations and services
 - `components/`: Shared UI component implementations
 - `constants/`: Constant values and configuration definitions
-- `contexts/`: React Context providers and implementations
+- `db/`: Database related implementations and migrations
 - `features/`: Feature-specific implementations
-  - `popup/`: Popup feature specific components and logic
-- `hooks/`: Custom React hooks
-- `mappers/`: Data transformation and mapping utilities
+  - `content/`: Content script feature implementation
+  - `offscreen/`: Offscreen feature implementation
+  - `options/`: Options page feature implementation
+  - `popup/`: Popup feature implementation
+  - `serviceworker/`: Service Worker feature implementation
 - `models/`: Data models and interfaces
 - `pages/`: Page implementations
-  - `background/`: Background script implementation
-  - `offscreen/`: Offscreen document implementation
-  - `popup/`: Popup page implementation
+  - `Content.tsx`: Content script page implementation
+  - `Offscreen.ts`: Offscreen page implementation
+  - `Options.tsx`: Options page implementation
+  - `Popup.tsx`: Popup page implementation
+  - `ServiceWorker.ts`: Service Worker implementation
 - `stores/`: State management implementations (Zustand)
 - `styles/`: Global style definitions
 - `types/`: TypeScript type definitions
@@ -72,6 +83,7 @@ Please follow the directory structure below for implementation:
 - `webpack.config.ts`: Webpack build configuration
 - `postcss.config.js`: PostCSS configuration
 - `tailwind.config.js`: Tailwind CSS configuration
+- `jest.config.js`: Jest testing configuration
 
 #### Build and Dependencies
 - `dist/`: Compiled output files
@@ -81,9 +93,13 @@ Please follow the directory structure below for implementation:
 - `pnpm-lock.yaml`: Dependency version lock file
 - `package-script.sh`: Build and development scripts
 
-#### Documentation
+#### Documentation and Configuration
 - `TECHNOLOGSTACK.md`: Technology stack specifications
 - `DIRECTORYSTRUCTURE.md`: Directory structure guide
 - `README.md`: Project overview and setup instructions
+- `PRIVACY.md`: Privacy policy documentation
 - `LICENSE`: Project license information
+- `fastlane/`: Deployment automation configuration
+- `.github/`: GitHub workflows and configuration
+- `.vscode/`: VSCode editor configuration
 ```
