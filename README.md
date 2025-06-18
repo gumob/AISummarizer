@@ -1,6 +1,6 @@
 # AI Summarizer
 
-A Chrome Extension for efficiently managing Chrome extensions. Group multiple extensions with tags and easily enable/disable them based on your needs.
+A Chrome Extension that uses AI to summarize web articles. Extract and summarize content from any webpage with just a few clicks.
 
 <div class="grid" markdown>
 
@@ -12,22 +12,20 @@ A Chrome Extension for efficiently managing Chrome extensions. Group multiple ex
 
 ### Core Features
 
-- Intuitive tag-based extension management
-- One-click tag switching
-- Quick search by extension name
-- Bulk enable/disable extensions by tag
-- Individual tag toggle
-- Tag management (create, delete, rename, reorder)
-- Extension lock feature
-- Modern and polished design
+- Extract and save article automaticlly
+- Multiple AI service support
+- Article summarization
+- Floating panel for quick access
 - Dark/Light mode support
+- Modern and polished design
 
-### Extension Management
+### Article Management
 
-- View extension details
-- Uninstall extensions
-- Open extension options page
-- Import/Export tagged extensions
+- Extract articles from any webpage
+- Re-extract articles as needed
+- Copy article content to clipboard
+- Save article content automatically
+- URL-based extraction denylist
 
 ## Installation
 
