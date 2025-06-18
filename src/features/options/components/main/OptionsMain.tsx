@@ -295,6 +295,38 @@ export const OptionsMain: React.FC = () => {
             </button>
           </div>
 
+          {/* Menu */}
+          <div className="flex flex-col gap-2">
+            <OptionCard title="Display on Menu" className="flex flex-wrap gap-2">
+              {Object.entries(AIService).map(([name, service]: [string, AIService], index) => (
+                <button
+                  key={name}
+                  className={clsx(
+                    'rounded-full px-3 py-1 font-semibold',
+                    'text-zinc-900 dark:text-zinc-50',
+                    'bg-zinc-300 dark:bg-zinc-700',
+                    'opacity-30 dark:opacity-30',
+                    'hover:opacity-100',
+                    inputServiceStatus?.[service] && '!bg-blue-600 !opacity-100',
+                    'focus:outline-none',
+                    'transition-opacity'
+                  )}
+                  onClick={async () => {
+                    const newStatus = !(inputServiceStatus?.[service] ?? false);
+                    setInputServiceStatus(prev => {
+                      const newServiceStatus = { ...(prev ?? DEFAULT_SETTINGS.serviceStatus) };
+                      newServiceStatus[service] = newStatus;
+                      return newServiceStatus;
+                    });
+                    await setStoredServiceStatus(service, newStatus);
+                  }}
+                >
+                  {getAIServiceLabel(service)}
+                </button>
+              ))}
+            </OptionCard>
+          </div>
+
           {/* Prompt */}
           <OptionCard title="Prompt">
             <TabGroup selectedIndex={inputPromptsIndex} onChange={setInputPromptsIndex}>
@@ -348,7 +380,7 @@ export const OptionsMain: React.FC = () => {
                         }}
                       />
                     </Field>
-                    <div className="flex flex-wrap gap-2 items-center">
+                    {/* <div className="flex flex-wrap gap-2 items-center">
                       <label htmlFor={`service-status-${service}`} className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
                         Display on menu
                       </label>
@@ -378,7 +410,7 @@ export const OptionsMain: React.FC = () => {
                           )}
                         />
                       </Switch>
-                    </div>
+                    </div> */}
                   </TabPanel>
                 ))}
               </TabPanels>
