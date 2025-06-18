@@ -1,4 +1,6 @@
 import { MENU_ITEMS } from '@/models';
+import { useSettingsStore } from '@/stores';
+import { getAIServiceFromString } from '@/types';
 import {
   isInvalidUrl,
   logger,
@@ -31,7 +33,7 @@ export class ContextMenuService {
     }
   }
 
-  public createFullMenu(tabUrl: string, isExtracted: boolean) {
+  public async createFullMenu(tabUrl: string, isExtracted: boolean) {
     try {
       logger.debug('🧑‍🍳📃', '[ContextMenuService.tsx]', '[createFullMenu]', 'Creating full menu');
       const root = chrome.contextMenus.create({
@@ -42,12 +44,15 @@ export class ContextMenuService {
 
       /** Create AI service menu items */
       for (const service of MENU_ITEMS.AI_SERVICES) {
-        chrome.contextMenus.create({
-          id: service.id,
-          title: service.title,
-          contexts: ['page' as chrome.contextMenus.ContextType],
-          parentId: root,
-        });
+        const isServiceOnMenu = await useSettingsStore.getState().getServiceOnMenu(getAIServiceFromString(service.id));
+        if (isServiceOnMenu) {
+          chrome.contextMenus.create({
+            id: service.id,
+            title: service.title,
+            contexts: ['page' as chrome.contextMenus.ContextType],
+            parentId: root,
+          });
+        }
       }
 
       /** Create first divider */
@@ -96,7 +101,7 @@ export class ContextMenuService {
     }
   }
 
-  public createBasicMenu() {
+  public async createBasicMenu() {
     try {
       logger.debug('🧑‍🍳📃', '[ContextMenuService.tsx]', '[createBasicMenu]', 'Creating basic menu');
       const root = chrome.contextMenus.create({

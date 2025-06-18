@@ -1,14 +1,30 @@
+import React, {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+
 import clsx from 'clsx';
 import { ListMinus } from 'lucide-react';
+import {
+  IoClipboardOutline,
+  IoReloadOutline,
+  IoSettingsOutline,
+} from 'react-icons/io5';
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-
-import { IoClipboardOutline, IoReloadOutline, IoSettingsOutline } from 'react-icons/io5';
-
-import { Divider, ServiceIcon } from '@/components';
+import {
+  Divider,
+  ServiceIcon,
+} from '@/components';
 import { useContentContext } from '@/features/content/contexts';
 import { useWindowSize } from '@/features/content/hooks';
-import { AIService, FloatPanelPosition, getAIServiceLabel, MessageAction } from '@/types';
+import {
+  AIService,
+  FloatPanelPosition,
+  getAIServiceLabel,
+  MessageAction,
+} from '@/types';
 import { logger } from '@/utils';
 
 /**
@@ -112,29 +128,31 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
           }}
         >
           <div className="flex flex-col gap-[6px]">
-            {Object.entries(AIService).map(([name, service], index) => (
-              <button
-                key={index}
-                onClick={async () => {
-                  logger.debug('🫳💬', '[FloatPanel.tsx]', `Clicked ${name} button`);
-                  if (currentTabId === null || currentTabUrl === null) throw new Error('No active tab found');
-                  // logger.debug('🫳💬', '[FloatPanel.tsx]', 'Sending message to service worker script', currentTabId, currentTabUrl);
-                  try {
-                    await chrome.runtime.sendMessage({
-                      action: MessageAction.OPEN_AI_SERVICE,
-                      payload: {
-                        service: service,
-                        tabId: currentTabId,
-                        tabUrl: currentTabUrl,
-                      },
-                    });
-                    // logger.debug('🫳💬', '[FloatPanel.tsx]', 'Message sent successfully');
-                  } catch (error) {
-                    logger.error('🫳💬', '[FloatPanel.tsx]', 'Failed to send message:', error);
-                  }
-                  setIsPanelVisible(false);
-                }}
-                className={`
+            {Object.entries(AIService)
+              .filter(([_, service]) => settings.serviceOnMenu[service])
+              .map(([name, service], index) => (
+                <button
+                  key={index}
+                  onClick={async () => {
+                    logger.debug('🫳💬', '[FloatPanel.tsx]', `Clicked ${name} button`);
+                    if (currentTabId === null || currentTabUrl === null) throw new Error('No active tab found');
+                    // logger.debug('🫳💬', '[FloatPanel.tsx]', 'Sending message to service worker script', currentTabId, currentTabUrl);
+                    try {
+                      await chrome.runtime.sendMessage({
+                        action: MessageAction.OPEN_AI_SERVICE,
+                        payload: {
+                          service: service,
+                          tabId: currentTabId,
+                          tabUrl: currentTabUrl,
+                        },
+                      });
+                      // logger.debug('🫳💬', '[FloatPanel.tsx]', 'Message sent successfully');
+                    } catch (error) {
+                      logger.error('🫳💬', '[FloatPanel.tsx]', 'Failed to send message:', error);
+                    }
+                    setIsPanelVisible(false);
+                  }}
+                  className={`
                 flex items-center gap-[8px] p-[6px]
                 text-[12px]
                 text-zinc-900 dark:text-zinc-100
@@ -142,11 +160,11 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
                 rounded-[4px]
                 transition-colors duration-200
               `}
-              >
-                <ServiceIcon service={service} className="w-[16px] h-[16px]" />
-                <span>{getAIServiceLabel(service)}</span>
-              </button>
-            ))}
+                >
+                  <ServiceIcon service={service} className="w-[16px] h-[16px]" />
+                  <span>{getAIServiceLabel(service)}</span>
+                </button>
+              ))}
 
             {/* Divider */}
             <div className="px-[4px]">

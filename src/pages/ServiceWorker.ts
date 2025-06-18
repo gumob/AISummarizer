@@ -365,9 +365,9 @@ class ServiceWorker {
         this.contextMenuService.removeMenu();
         const isInvalid = await isInvalidUrl(tabUrl);
         if (!tabUrl || isInvalid) {
-          this.contextMenuService.createBasicMenu();
+          await this.contextMenuService.createBasicMenu();
         } else {
-          this.contextMenuService.createFullMenu(tabUrl, doesArticleExist);
+          await this.contextMenuService.createFullMenu(tabUrl, doesArticleExist);
         }
       } catch (error) {
         logger.error('🧑‍🍳📃', '[ServiceWorker.tsx]', '[toggleUIState]', 'Failed to create context menu:', error);

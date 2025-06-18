@@ -1,11 +1,29 @@
-import React, { useEffect, useState } from 'react';
+import React, {
+  useEffect,
+  useState,
+} from 'react';
 
-import { IoClipboardOutline, IoReloadOutline, IoSettingsOutline } from 'react-icons/io5';
+import {
+  IoClipboardOutline,
+  IoReloadOutline,
+  IoSettingsOutline,
+} from 'react-icons/io5';
 
-import { Divider, ServiceIcon } from '@/components';
+import {
+  Divider,
+  ServiceIcon,
+} from '@/components';
 import { ServiceListMenu } from '@/features/popup/components/main';
-import { AIService, getAIServiceLabel, MessageAction } from '@/types';
-import { isInvalidUrl, logger } from '@/utils';
+import { useGlobalContext } from '@/stores';
+import {
+  AIService,
+  getAIServiceLabel,
+  MessageAction,
+} from '@/types';
+import {
+  isInvalidUrl,
+  logger,
+} from '@/utils';
 
 /**
  * The component for managing extensions.
@@ -13,6 +31,7 @@ import { isInvalidUrl, logger } from '@/utils';
  */
 export const PopupMain: React.FC = () => {
   const [shouldShowFullMenu, setShouldShowFullMenu] = useState(false);
+  const { serviceOnMenu } = useGlobalContext();
 
   useEffect(() => {
     const init = async () => {
@@ -50,33 +69,35 @@ export const PopupMain: React.FC = () => {
       <main className="h-screen flex flex-col overflow-hidden bg-white dark:bg-zinc-900">
         <div className="container mx-auto h-full flex flex-col items-start gap-1 px-2 pt-2">
           <ServiceListMenu>Summarize this page</ServiceListMenu>
-          {Object.entries(AIService).map(([_, service], index) => (
-            <ServiceListMenu
-              key={index}
-              onClick={async () => {
-                logger.debug('📦🍿', '[PopupMain.tsx]', '[render]', 'service', service);
-                /** Check if the content script is injected */
-                const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-                if (!tab.id || !tab.url) throw new Error('No active tab found');
+          {Object.entries(AIService)
+            .filter(([_, service]) => serviceOnMenu[service])
+            .map(([_, service], index) => (
+              <ServiceListMenu
+                key={index}
+                onClick={async () => {
+                  logger.debug('📦🍿', '[PopupMain.tsx]', '[render]', 'service', service);
+                  /** Check if the content script is injected */
+                  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+                  if (!tab.id || !tab.url) throw new Error('No active tab found');
 
-                /** Send the message to the content script */
-                await chrome.runtime.sendMessage({
-                  action: MessageAction.OPEN_AI_SERVICE,
-                  payload: {
-                    service: service,
-                    tabId: tab.id,
-                    tabUrl: tab.url!,
-                  },
-                });
+                  /** Send the message to the content script */
+                  await chrome.runtime.sendMessage({
+                    action: MessageAction.OPEN_AI_SERVICE,
+                    payload: {
+                      service: service,
+                      tabId: tab.id,
+                      tabUrl: tab.url!,
+                    },
+                  });
 
-                /** Close the popup */
-                window.close();
-              }}
-            >
-              <ServiceIcon service={service} className="w-4 h-4 translate-y-[2px] " />
-              {getAIServiceLabel(service)}
-            </ServiceListMenu>
-          ))}
+                  /** Close the popup */
+                  window.close();
+                }}
+              >
+                <ServiceIcon service={service} className="w-4 h-4 translate-y-[2px] " />
+                {getAIServiceLabel(service)}
+              </ServiceListMenu>
+            ))}
           <Divider />
           <ServiceListMenu
             onClick={async () => {
