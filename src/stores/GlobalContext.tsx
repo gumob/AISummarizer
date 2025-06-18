@@ -23,6 +23,11 @@ interface GlobalContextValue {
   };
   setPromptFor: (service: AIService, prompt: string) => Promise<void>;
   getPromptFor: (service: AIService) => Promise<string>;
+  serviceStatus: {
+    [key in AIService]: boolean;
+  };
+  setServiceStatus: (service: AIService, status: boolean) => Promise<void>;
+  getServiceStatus: (service: AIService) => Promise<boolean>;
   tabBehavior: TabBehavior;
   setTabBehavior: (tabBehavior: TabBehavior) => Promise<void>;
   getTabBehavior: () => Promise<TabBehavior>;

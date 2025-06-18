@@ -1,14 +1,25 @@
+import React, {
+  Fragment,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
+
 import clsx from 'clsx';
-
-import React, { Fragment, useCallback, useEffect, useState } from 'react';
-
 import { IoClose } from 'react-icons/io5';
 
-import { Field, Switch, Tab, TabGroup, TabList, TabPanel, TabPanels, Textarea } from '@headlessui/react';
-
-import { toast, Toaster } from '@/features/content/components/main/Toaster';
-import { ConfirmDialog, OptionCard } from '@/features/options/components/main';
-import { DEFAULT_SETTINGS, useGlobalContext } from '@/stores';
+import {
+  toast,
+  Toaster,
+} from '@/features/content/components/main/Toaster';
+import {
+  ConfirmDialog,
+  OptionCard,
+} from '@/features/options/components/main';
+import {
+  DEFAULT_SETTINGS,
+  useGlobalContext,
+} from '@/stores';
 import {
   AIService,
   ContentExtractionTiming,
@@ -26,6 +37,16 @@ import {
   TabBehavior,
 } from '@/types';
 import { logger } from '@/utils';
+import {
+  Field,
+  Switch,
+  Tab,
+  TabGroup,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Textarea,
+} from '@headlessui/react';
 
 /**
  * The main component for the options page.
@@ -43,6 +64,10 @@ export const OptionsMain: React.FC = () => {
     prompts: storedPrompts,
     getPromptFor: storedPromptFor,
     setPromptFor: setStoredPromptFor,
+    /** serviceStatus */
+    serviceStatus: storedServiceStatus,
+    setServiceStatus: setStoredServiceStatus,
+    getServiceStatus: getStoredServiceStatus,
     /** tabBehavior */
     tabBehavior: storedTabBehavior,
     setTabBehavior: setStoredTabBehavior,
@@ -74,6 +99,8 @@ export const OptionsMain: React.FC = () => {
   const [inputPromptsIndex, setInputPromptsIndex] = useState<number>(0);
   const [inputPrompts, setInputPrompts] = useState<{ [key in AIService]?: string } | undefined>(undefined);
 
+  const [inputServiceStatus, setInputServiceStatus] = useState<{ [key in AIService]: boolean } | undefined>(undefined);
+
   const [inputTabBehavior, setInputTabBehavior] = useState<number | undefined>(undefined);
   const [inputFloatPanel, setInputFloatPanel] = useState<number | undefined>(undefined);
   const [inputContentExtractionTiming, setInputContentExtractionTiming] = useState<number | undefined>(undefined);
@@ -101,6 +128,18 @@ export const OptionsMain: React.FC = () => {
       loadPrompts();
     }
   }, [inputPrompts, storedPrompts]);
+
+  useEffect(() => {
+    if (inputServiceStatus === undefined) {
+      const loadServiceStatus = async () => {
+        const values: [AIService, boolean][] = await Promise.all(
+          Object.values(AIService).map(async (service: AIService) => [service, await getStoredServiceStatus(service)] as const)
+        );
+        setInputServiceStatus(Object.fromEntries(values) as { [key in AIService]: boolean });
+      };
+      loadServiceStatus();
+    }
+  }, [inputServiceStatus, storedServiceStatus]);
 
   useEffect(() => {
     if (inputTabBehavior === undefined) setInputTabBehavior(getTabBehaviorIndex(storedTabBehavior));
@@ -142,6 +181,11 @@ export const OptionsMain: React.FC = () => {
       prompts: Object.fromEntries(Object.values(AIService).map(service => [service, inputPrompts?.[service] ?? DEFAULT_SETTINGS.prompts[service]])) as {
         [key in AIService]: string;
       },
+      serviceStatus: Object.fromEntries(
+        Object.values(AIService).map(service => [service, inputServiceStatus?.[service] ?? DEFAULT_SETTINGS.serviceStatus[service]])
+      ) as {
+        [key in AIService]: boolean;
+      },
       tabBehavior: getTabBehaviorFromIndex(inputTabBehavior ?? getTabBehaviorIndex(DEFAULT_SETTINGS.tabBehavior)),
       floatPanelPosition: getFloatPanelPositionFromIndex(inputFloatPanel ?? getFloatPanelPositionIndex(DEFAULT_SETTINGS.floatPanelPosition)),
       contentExtractionTiming: getContentExtractionTimingFromIndex(
@@ -160,6 +204,7 @@ export const OptionsMain: React.FC = () => {
   const unsetInputValues = useCallback(async () => {
     await setInputPromptsIndex(0);
     await setInputPrompts(undefined);
+    await setInputServiceStatus(undefined);
     await setInputTabBehavior(undefined);
     await setInputFloatPanel(undefined);
     await setInputContentExtractionTiming(undefined);
@@ -274,7 +319,7 @@ export const OptionsMain: React.FC = () => {
               </TabList>
               <TabPanels className="mt-3">
                 {Object.entries(AIService).map(([name, service]: [string, AIService]) => (
-                  <TabPanel key={name} className="">
+                  <TabPanel key={name} className="flex flex-col gap-2">
                     <Field>
                       <Textarea
                         name="prompt"
@@ -303,6 +348,37 @@ export const OptionsMain: React.FC = () => {
                         }}
                       />
                     </Field>
+                    <div className="flex flex-wrap gap-2 items-center">
+                      <label htmlFor={`service-status-${service}`} className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+                        Display on menu
+                      </label>
+                      <Switch
+                        key={name}
+                        checked={inputServiceStatus?.[service] ?? false}
+                        onChange={async () => {
+                          const newStatus = !(inputServiceStatus?.[service] ?? false);
+                          setInputServiceStatus(prev => {
+                            const newServiceStatus = { ...(prev ?? DEFAULT_SETTINGS.serviceStatus) };
+                            newServiceStatus[service] = newStatus;
+                            return newServiceStatus;
+                          });
+                          await setStoredServiceStatus(service, newStatus);
+                        }}
+                        className={clsx(
+                          'group inline-flex h-6 w-11 items-center rounded-full',
+                          (inputServiceStatus?.[service] ?? false) ? 'bg-blue-600' : 'bg-zinc-200 dark:bg-zinc-700'
+                        )}
+                      >
+                        <span className="sr-only">Display on menu</span>
+                        <span
+                          className={clsx(
+                            'size-4 rounded-full transition',
+                            'bg-white',
+                            (inputServiceStatus?.[service] ?? false) ? 'translate-x-6' : 'translate-x-1'
+                          )}
+                        />
+                      </Switch>
+                    </div>
                   </TabPanel>
                 ))}
               </TabPanels>
