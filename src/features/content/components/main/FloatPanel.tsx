@@ -1,29 +1,14 @@
-import React, {
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
-
 import clsx from 'clsx';
 import { ListMinus } from 'lucide-react';
-import {
-  IoClipboardOutline,
-  IoReloadOutline,
-  IoSettingsOutline,
-} from 'react-icons/io5';
 
-import {
-  Divider,
-  ServiceIcon,
-} from '@/components';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+
+import { IoClipboardOutline, IoReloadOutline, IoSettingsOutline } from 'react-icons/io5';
+
+import { Divider, ServiceIcon } from '@/components';
 import { useContentContext } from '@/features/content/contexts';
 import { useWindowSize } from '@/features/content/hooks';
-import {
-  AIService,
-  FloatPanelPosition,
-  getAIServiceLabel,
-  MessageAction,
-} from '@/types';
+import { AIService, FloatPanelPosition, getAIServiceLabel, MessageAction } from '@/types';
 import { logger } from '@/utils';
 
 /**
@@ -67,64 +52,67 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
     setIsPanelVisible(false);
   }, [settings.floatPanelPosition, windowWidth, windowHeight]);
 
-  const panelPositionClasses = clsx(
-    'fixed z-[777777777777]',
-    settings.floatPanelPosition === FloatPanelPosition.TOP_LEFT && '!top-4 !left-4',
-    settings.floatPanelPosition === FloatPanelPosition.TOP_CENTER && '!top-4 !left-1/2 -translate-x-1/2',
-    settings.floatPanelPosition === FloatPanelPosition.TOP_RIGHT && '!top-4 !right-4',
-    settings.floatPanelPosition === FloatPanelPosition.MIDDLE_LEFT && '!left-4 !top-1/2 -translate-y-1/2',
-    settings.floatPanelPosition === FloatPanelPosition.MIDDLE_RIGHT && '!right-4 !top-1/2 -translate-y-1/2',
-    settings.floatPanelPosition === FloatPanelPosition.BOTTOM_LEFT && '!bottom-4 !left-4',
-    settings.floatPanelPosition === FloatPanelPosition.BOTTOM_CENTER && '!bottom-4 !left-1/2 -translate-x-1/2',
-    settings.floatPanelPosition === FloatPanelPosition.BOTTOM_RIGHT && '!bottom-4 !right-4'
+  const panelPositionClasses = useMemo(
+    () =>
+      clsx(
+        'fixed z-[777777777777]',
+        settings.floatPanelPosition === FloatPanelPosition.TOP_LEFT && '!top-4 !left-4',
+        settings.floatPanelPosition === FloatPanelPosition.TOP_CENTER && '!top-4 !left-1/2 -translate-x-1/2',
+        settings.floatPanelPosition === FloatPanelPosition.TOP_RIGHT && '!top-4 !right-4',
+        settings.floatPanelPosition === FloatPanelPosition.MIDDLE_LEFT && '!left-4 !top-1/2 -translate-y-1/2',
+        settings.floatPanelPosition === FloatPanelPosition.MIDDLE_RIGHT && '!right-4 !top-1/2 -translate-y-1/2',
+        settings.floatPanelPosition === FloatPanelPosition.BOTTOM_LEFT && '!bottom-4 !left-4',
+        settings.floatPanelPosition === FloatPanelPosition.BOTTOM_CENTER && '!bottom-4 !left-1/2 -translate-x-1/2',
+        settings.floatPanelPosition === FloatPanelPosition.BOTTOM_RIGHT && '!bottom-4 !right-4'
+      ),
+    [settings.floatPanelPosition, isPanelVisible, shouldShowFloatUI]
   );
 
   return (
     shouldShowFloatUI && (
       <>
-        <div
+        <button
+          ref={buttonRef}
+          onMouseEnter={() => setIsPanelVisible(true)}
           className={clsx(
-            panelPositionClasses,
+            'flex items-center justify-center',
+            'rounded-full',
+            'p-[12px]',
+            'bg-white/50 dark:bg-zinc-900/50',
+            'text-zinc-900 dark:text-zinc-100',
+            'font-semibold',
+            'shadow-[0_0_24px_rgba(0,0,0,0.1)] dark:shadow-[0_0_24px_rgba(0,0,0,0.4)]',
             'transition-all duration-500 ease-in-out',
-            !shouldShowFloatUI || isPanelVisible ? 'opacity-0 scale-95 invisible' : 'opacity-100 scale-100 visible'
+            'will-change-transform transform-gpu subpixel-antialiased',
+            // 'backdrop-blur-md',
+            // 'backdrop-invert-50',
+            !shouldShowFloatUI || isPanelVisible ? 'opacity-0 scale-95 invisible' : 'opacity-100 scale-100 visible',
+            panelPositionClasses
           )}
+          style={{
+            backdropFilter: 'blur(16px) invert(0.2)',
+          }}
         >
-          <button
-            ref={buttonRef}
-            onMouseEnter={() => setIsPanelVisible(true)}
-            className={clsx(
-              `
-            flex items-center justify-center
-            rounded-full
-            p-[12px]
-            backdrop-blur-md
-            bg-white/80 dark:bg-zinc-900/80
-            text-zinc-900 dark:text-zinc-100
-            font-semibold
-            border border-white/10 dark:border-zinc-800/10
-            shadow-[0_0_24px_rgba(0,0,0,0.1)] dark:shadow-[0_0_24px_rgba(0,0,0,0.4)]
-            `
-            )}
-          >
-            <ListMinus className="w-[16px] h-[16px]" />
-          </button>
-        </div>
+          <ListMinus className="w-[16px] h-[16px]" />
+        </button>
         <div
           ref={panelRef}
           className={clsx(
-            panelPositionClasses,
+            'text-[12px]',
+            'rounded-[8px]',
+            'p-[6px] min-w-[140px]',
+            'bg-white/50 dark:bg-zinc-900/50',
+            'shadow-[0_0_24px_rgba(0,0,0,0.1)] dark:shadow-[0_0_24px_rgba(0,0,0,0.4)]',
             'transition-all duration-200 ease-in-out',
+            'will-change-transform transform-gpu subpixel-antialiased',
+            // 'backdrop-blur-md',
+            // 'backdrop-invert-50',
             isPanelVisible ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible',
-            `
-          text-[12px]
-          rounded-[8px]
-          p-[6px] min-w-[140px]
-          backdrop-blur-md
-          bg-white/80 dark:bg-zinc-900/80
-          shadow-[0_0_24px_rgba(0,0,0,0.1)] dark:shadow-[0_0_24px_rgba(0,0,0,0.4)]
-          border border-white/10 dark:border-zinc-800/10
-          `
+            panelPositionClasses
           )}
+          style={{
+            backdropFilter: 'blur(16px) invert(0.2)',
+          }}
         >
           <div className="flex flex-col gap-[6px]">
             {Object.entries(AIService).map(([name, service], index) => (
@@ -153,7 +141,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
                 flex items-center gap-[8px] p-[6px]
                 text-[12px]
                 text-zinc-900 dark:text-zinc-100
-                hover:bg-zinc-500/80 dark:hover:bg-zinc-500/80
+                hover:bg-zinc-400/80 dark:hover:bg-zinc-500/80
                 rounded-[4px]
                 transition-colors duration-200
               `}
@@ -164,7 +152,9 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
             ))}
 
             {/* Divider */}
-            <Divider />
+            <div className="px-[4px]">
+              <Divider />
+            </div>
 
             {/* Copy to clipboard */}
             <button
@@ -180,7 +170,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
                 flex items-center gap-[8px] p-[6px]
                 text-[12px]
                 text-zinc-900 dark:text-zinc-100
-                hover:bg-zinc-500/80 dark:hover:bg-zinc-500/80
+                hover:bg-zinc-400/80 dark:hover:bg-zinc-500/80
                 rounded-[4px]
                 transition-colors duration-200
               `}
@@ -203,7 +193,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
                 flex items-center gap-[8px] p-[6px]
                 text-[12px]
                 text-zinc-900 dark:text-zinc-100
-                hover:bg-zinc-500/80 dark:hover:bg-zinc-500/80
+                hover:bg-zinc-400/80 dark:hover:bg-zinc-500/80
                 rounded-[4px]
                 transition-colors duration-200
               `}
@@ -213,7 +203,9 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
             </button>
 
             {/* Divider */}
-            <Divider />
+            <div className="px-[4px]">
+              <Divider />
+            </div>
 
             {/* Settings */}
             <button
@@ -230,7 +222,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
                 flex items-center gap-[8px] p-[6px]
                 text-[12px]
                 text-zinc-900 dark:text-zinc-100
-                hover:bg-zinc-500/80 dark:hover:bg-zinc-500/80
+                hover:bg-zinc-400/80 dark:hover:bg-zinc-500/80
                 rounded-[4px]
                 transition-colors duration-200
               `}
