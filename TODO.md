@@ -3,7 +3,7 @@
 ## Article Extraction
 
 - [✓] Start extracting articles automatically after the page has finished loading
-- [ ] Automatically insert prompts and execute in AI services
+- [✓] Automatically insert prompts and execute in AI services
 - [✓] Implement a denylist to automatically prohibit article extraction
   - Sanitize regex
   - Fix state management for Textarea
