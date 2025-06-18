@@ -55,7 +55,6 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
   const panelPositionClasses = useMemo(
     () =>
       clsx(
-        'fixed z-[777777777777]',
         settings.floatPanelPosition === FloatPanelPosition.TOP_LEFT && '!top-4 !left-4',
         settings.floatPanelPosition === FloatPanelPosition.TOP_CENTER && '!top-4 !left-1/2 -translate-x-1/2',
         settings.floatPanelPosition === FloatPanelPosition.TOP_RIGHT && '!top-4 !right-4',
@@ -65,7 +64,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
         settings.floatPanelPosition === FloatPanelPosition.BOTTOM_CENTER && '!bottom-4 !left-1/2 -translate-x-1/2',
         settings.floatPanelPosition === FloatPanelPosition.BOTTOM_RIGHT && '!bottom-4 !right-4'
       ),
-    [settings.floatPanelPosition, isPanelVisible, shouldShowFloatUI]
+    [settings, isPanelVisible, shouldShowFloatUI, currentTabId, currentTabUrl, windowWidth, windowHeight]
   );
 
   return (
@@ -75,6 +74,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
           ref={buttonRef}
           onMouseEnter={() => setIsPanelVisible(true)}
           className={clsx(
+            'fixed z-[777777777777]',
             'flex items-center justify-center',
             'rounded-full',
             'p-[12px]',
@@ -84,8 +84,6 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
             'shadow-[0_0_24px_rgba(0,0,0,0.1)] dark:shadow-[0_0_24px_rgba(0,0,0,0.4)]',
             'transition-all duration-500 ease-in-out',
             'will-change-transform transform-gpu subpixel-antialiased',
-            // 'backdrop-blur-md',
-            // 'backdrop-invert-50',
             !shouldShowFloatUI || isPanelVisible ? 'opacity-0 scale-95 invisible' : 'opacity-100 scale-100 visible',
             panelPositionClasses
           )}
@@ -98,6 +96,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
         <div
           ref={panelRef}
           className={clsx(
+            'fixed z-[777777777777]',
             'text-[12px]',
             'rounded-[8px]',
             'p-[6px] min-w-[140px]',
@@ -105,8 +104,6 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
             'shadow-[0_0_24px_rgba(0,0,0,0.1)] dark:shadow-[0_0_24px_rgba(0,0,0,0.4)]',
             'transition-all duration-200 ease-in-out',
             'will-change-transform transform-gpu subpixel-antialiased',
-            // 'backdrop-blur-md',
-            // 'backdrop-invert-50',
             isPanelVisible ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible',
             panelPositionClasses
           )}
@@ -121,7 +118,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
                 onClick={async () => {
                   logger.debug('🫳💬', '[FloatPanel.tsx]', `Clicked ${name} button`);
                   if (currentTabId === null || currentTabUrl === null) throw new Error('No active tab found');
-                  logger.debug('🫳💬', '[FloatPanel.tsx]', 'Sending message to service worker script', currentTabId, currentTabUrl);
+                  // logger.debug('🫳💬', '[FloatPanel.tsx]', 'Sending message to service worker script', currentTabId, currentTabUrl);
                   try {
                     await chrome.runtime.sendMessage({
                       action: MessageAction.OPEN_AI_SERVICE,
@@ -131,7 +128,7 @@ export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
                         tabUrl: currentTabUrl,
                       },
                     });
-                    logger.debug('🫳💬', '[FloatPanel.tsx]', 'Message sent successfully');
+                    // logger.debug('🫳💬', '[FloatPanel.tsx]', 'Message sent successfully');
                   } catch (error) {
                     logger.error('🫳💬', '[FloatPanel.tsx]', 'Failed to send message:', error);
                   }
