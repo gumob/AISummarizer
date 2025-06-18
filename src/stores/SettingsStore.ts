@@ -2,14 +2,20 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 import { STORAGE_KEYS } from '@/constants';
-import { AIService, ContentExtractionTiming, FloatPanelPosition, MessageAction, TabBehavior } from '@/types';
+import {
+  AIService,
+  ContentExtractionTiming,
+  FloatPanelPosition,
+  MessageAction,
+  TabBehavior,
+} from '@/types';
 import { logger } from '@/utils';
 
 export interface SettingsState {
   prompts: {
     [key in AIService]: string;
   };
-  serviceStatus: {
+  serviceOnMenu: {
     [key in AIService]: boolean;
   };
   tabBehavior: TabBehavior;
@@ -42,7 +48,7 @@ export const DEFAULT_SETTINGS: SettingsState = {
     [AIService.PERPLEXITY]: DEFAULT_PROMPT,
     [AIService.DEEPSEEK]: DEFAULT_PROMPT,
   },
-  serviceStatus: {
+  serviceOnMenu: {
     [AIService.CHATGPT]: true,
     [AIService.GEMINI]: true,
     [AIService.AI_STUDIO]: true,
@@ -68,8 +74,8 @@ export interface SettingsStore extends SettingsState {
   updateSettings: (settings: Partial<SettingsState>) => Promise<void>;
   setPromptFor: (service: AIService, prompt: string) => Promise<void>;
   getPromptFor: (service: AIService) => Promise<string>;
-  setServiceStatus: (service: AIService, status: boolean) => Promise<void>;
-  getServiceStatus: (service: AIService) => Promise<boolean>;
+  setServiceOnMenu: (service: AIService, status: boolean) => Promise<void>;
+  getServiceOnMenu: (service: AIService) => Promise<boolean>;
   setTabBehavior: (tabBehavior: TabBehavior) => Promise<void>;
   getTabBehavior: () => Promise<TabBehavior>;
   setFloatPanelPosition: (floatPanelPosition: FloatPanelPosition) => Promise<void>;
@@ -112,18 +118,18 @@ export const useSettingsStore = create<SettingsStore>()(
         const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
         return settings[STORAGE_KEYS.SETTINGS]?.state?.prompts?.[service] ?? DEFAULT_SETTINGS.prompts[service];
       },
-      setServiceStatus: async (service: AIService, status: boolean) => {
+      setServiceOnMenu: async (service: AIService, status: boolean) => {
         await get().updateSettings({
-          serviceStatus: {
-            ...get().serviceStatus,
+          serviceOnMenu: {
+            ...get().serviceOnMenu,
             [service]: status,
           },
         });
         await sendSettingsUpdate();
       },
-      getServiceStatus: async (service: AIService) => {
+      getServiceOnMenu: async (service: AIService) => {
         const settings = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
-        return settings[STORAGE_KEYS.SETTINGS]?.state?.serviceStatus?.[service] ?? DEFAULT_SETTINGS.serviceStatus[service];
+        return settings[STORAGE_KEYS.SETTINGS]?.state?.serviceOnMenu?.[service] ?? DEFAULT_SETTINGS.serviceOnMenu[service];
       },
       setTabBehavior: async (tabBehavior: TabBehavior) => {
         await get().updateSettings({ tabBehavior });
@@ -326,7 +332,7 @@ const sendSettingsUpdate = async () => {
       action: MessageAction.SETTINGS_UPDATED,
       payload: {
         prompts: settings.prompts,
-        serviceStatus: settings.serviceStatus,
+        serviceOnMenu: settings.serviceOnMenu,
         tabBehavior: settings.tabBehavior,
         floatPanelPosition: settings.floatPanelPosition,
         contentExtractionTiming: settings.contentExtractionTiming,

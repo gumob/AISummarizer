@@ -1,9 +1,24 @@
-import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import { db } from '@/db';
 import { ArticleModel } from '@/models';
-import { SettingsState, useSettingsStore } from '@/stores';
-import { AIService, ContentExtractionTiming, FloatPanelPosition, TabBehavior } from '@/types';
+import {
+  SettingsState,
+  useSettingsStore,
+} from '@/stores';
+import {
+  AIService,
+  ContentExtractionTiming,
+  FloatPanelPosition,
+  TabBehavior,
+} from '@/types';
 import { logger } from '@/utils';
 
 /**
@@ -23,11 +38,11 @@ interface GlobalContextValue {
   };
   setPromptFor: (service: AIService, prompt: string) => Promise<void>;
   getPromptFor: (service: AIService) => Promise<string>;
-  serviceStatus: {
+  serviceOnMenu: {
     [key in AIService]: boolean;
   };
-  setServiceStatus: (service: AIService, status: boolean) => Promise<void>;
-  getServiceStatus: (service: AIService) => Promise<boolean>;
+  setServiceOnMenu: (service: AIService, status: boolean) => Promise<void>;
+  getServiceOnMenu: (service: AIService) => Promise<boolean>;
   tabBehavior: TabBehavior;
   setTabBehavior: (tabBehavior: TabBehavior) => Promise<void>;
   getTabBehavior: () => Promise<TabBehavior>;

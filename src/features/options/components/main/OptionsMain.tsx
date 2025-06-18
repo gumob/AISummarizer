@@ -64,10 +64,10 @@ export const OptionsMain: React.FC = () => {
     prompts: storedPrompts,
     getPromptFor: storedPromptFor,
     setPromptFor: setStoredPromptFor,
-    /** serviceStatus */
-    serviceStatus: storedServiceStatus,
-    setServiceStatus: setStoredServiceStatus,
-    getServiceStatus: getStoredServiceStatus,
+    /** serviceOnMenu */
+    serviceOnMenu: storedServiceStatus,
+    setServiceOnMenu: setStoredServiceStatus,
+    getServiceOnMenu: getStoredServiceStatus,
     /** tabBehavior */
     tabBehavior: storedTabBehavior,
     setTabBehavior: setStoredTabBehavior,
@@ -181,8 +181,8 @@ export const OptionsMain: React.FC = () => {
       prompts: Object.fromEntries(Object.values(AIService).map(service => [service, inputPrompts?.[service] ?? DEFAULT_SETTINGS.prompts[service]])) as {
         [key in AIService]: string;
       },
-      serviceStatus: Object.fromEntries(
-        Object.values(AIService).map(service => [service, inputServiceStatus?.[service] ?? DEFAULT_SETTINGS.serviceStatus[service]])
+      serviceOnMenu: Object.fromEntries(
+        Object.values(AIService).map(service => [service, inputServiceStatus?.[service] ?? DEFAULT_SETTINGS.serviceOnMenu[service]])
       ) as {
         [key in AIService]: boolean;
       },
@@ -295,38 +295,6 @@ export const OptionsMain: React.FC = () => {
             </button>
           </div>
 
-          {/* Menu */}
-          <div className="flex flex-col gap-2">
-            <OptionCard title="Display on Menu" className="flex flex-wrap gap-2">
-              {Object.entries(AIService).map(([name, service]: [string, AIService], index) => (
-                <button
-                  key={name}
-                  className={clsx(
-                    'rounded-full px-3 py-1 font-semibold',
-                    'text-zinc-900 dark:text-zinc-50',
-                    'bg-zinc-300 dark:bg-zinc-700',
-                    'opacity-30 dark:opacity-30',
-                    'hover:opacity-100',
-                    inputServiceStatus?.[service] && '!bg-blue-600 !opacity-100',
-                    'focus:outline-none',
-                    'transition-opacity'
-                  )}
-                  onClick={async () => {
-                    const newStatus = !(inputServiceStatus?.[service] ?? false);
-                    setInputServiceStatus(prev => {
-                      const newServiceStatus = { ...(prev ?? DEFAULT_SETTINGS.serviceStatus) };
-                      newServiceStatus[service] = newStatus;
-                      return newServiceStatus;
-                    });
-                    await setStoredServiceStatus(service, newStatus);
-                  }}
-                >
-                  {getAIServiceLabel(service)}
-                </button>
-              ))}
-            </OptionCard>
-          </div>
-
           {/* Prompt */}
           <OptionCard title="Prompt">
             <TabGroup selectedIndex={inputPromptsIndex} onChange={setInputPromptsIndex}>
@@ -390,7 +358,7 @@ export const OptionsMain: React.FC = () => {
                         onChange={async () => {
                           const newStatus = !(inputServiceStatus?.[service] ?? false);
                           setInputServiceStatus(prev => {
-                            const newServiceStatus = { ...(prev ?? DEFAULT_SETTINGS.serviceStatus) };
+                            const newServiceStatus = { ...(prev ?? DEFAULT_SETTINGS.serviceOnMenu) };
                             newServiceStatus[service] = newStatus;
                             return newServiceStatus;
                           });
@@ -416,6 +384,38 @@ export const OptionsMain: React.FC = () => {
               </TabPanels>
             </TabGroup>
           </OptionCard>
+
+          {/* Menu */}
+          <div className="flex flex-col gap-2">
+            <OptionCard title="Display on Menu" className="flex flex-wrap gap-2">
+              {Object.entries(AIService).map(([name, service]: [string, AIService], index) => (
+                <button
+                  key={name}
+                  className={clsx(
+                    'rounded-full px-3 py-1 font-semibold',
+                    'text-zinc-900 dark:text-zinc-50',
+                    'bg-zinc-300 dark:bg-zinc-700',
+                    'opacity-30 dark:opacity-30',
+                    'hover:opacity-100',
+                    inputServiceStatus?.[service] && '!bg-blue-600 !opacity-100',
+                    'focus:outline-none',
+                    'transition-opacity'
+                  )}
+                  onClick={async () => {
+                    const newStatus = !(inputServiceStatus?.[service] ?? false);
+                    setInputServiceStatus(prev => {
+                      const newServiceStatus = { ...(prev ?? DEFAULT_SETTINGS.serviceOnMenu) };
+                      newServiceStatus[service] = newStatus;
+                      return newServiceStatus;
+                    });
+                    await setStoredServiceStatus(service, newStatus);
+                  }}
+                >
+                  {getAIServiceLabel(service)}
+                </button>
+              ))}
+            </OptionCard>
+          </div>
 
           {/* Open AI Service in */}
           <OptionCard title="Open AI Service in">
