@@ -1,6 +1,13 @@
-import { DBSchema, IDBPDatabase, openDB } from 'idb';
+import {
+  DBSchema,
+  IDBPDatabase,
+  openDB,
+} from 'idb';
 
-import { isInvalidUrl, logger } from '@/utils';
+import {
+  isInvalidUrl,
+  logger,
+} from '@/utils';
 
 /**
  * ArticleRecord
@@ -46,7 +53,7 @@ interface AISummarizerDB extends DBSchema {
   };
 }
 
-const DB_NAME = 'ai-summarizer-db';
+const DB_NAME = 'free-ai-summarizer-db';
 const DB_VERSION = 1;
 const MAX_RECORDS = 200;
 

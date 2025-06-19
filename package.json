@@ -1,5 +1,5 @@
 {
-  "name": "ai-summarizer",
+  "name": "Free AI Summarizer",
   "version": "0.0.1",
   "description": "A Chrome extension to manage other extensions",
   "type": "module",
@@ -18,8 +18,19 @@
   "keywords": [
     "chrome-extension",
     "ai-summarizer",
-    "typescript",
-    "react"
+    "news-summarizer",
+    "youtube-summarizer",
+    "youtube",
+    "transcript",
+    "news",
+    "ai",
+    "chatgpt",
+    "gemini",
+    "ai-studio",
+    "claude",
+    "grok",
+    "perplexity",
+    "deepseek"
   ],
   "author": "",
   "license": "MIT",

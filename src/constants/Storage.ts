@@ -6,7 +6,7 @@ export const STORAGE_KEYS = {
   /**
    * Key for storing settings
    */
-  SETTINGS: 'ai-summarizer-settings',
+  SETTINGS: 'free-ai-summarizer-settings',
 } as const;
 
 /**

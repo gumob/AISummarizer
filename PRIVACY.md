@@ -4,7 +4,7 @@ Last updated: Thursday, June 19, 2025
 
 ## Overview
 
-AI Summarizer ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we handle information when you use our Chrome extension.
+Free AI Summarizer ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we handle information when you use our Chrome extension.
 
 ## Information We Collect
 

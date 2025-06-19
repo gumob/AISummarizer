@@ -66,26 +66,26 @@ jobs:
           fi
 
           # Remove existing zip file
-          rm -f ai-summarizer-*.zip
+          rm -f free-ai-summarizer-*.zip
 
           # Create ZIP file
           cd dist/prod
-          zip -r "../../ai-summarizer-${VERSION}.zip" .
+          zip -r "../../free-ai-summarizer-${VERSION}.zip" .
           cd ../..
 
-          echo "Successfully created ai-summarizer-${VERSION}.zip"
+          echo "Successfully created free-ai-summarizer-${VERSION}.zip"
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
           name: extension-build
-          path: ai-summarizer-${VERSION}.zip
+          path: free-ai-summarizer-${VERSION}.zip
 
       - name: Create Release
         id: create_release
         uses: softprops/action-gh-release@v1
         with:
-          files: ai-summarizer-${VERSION}.zip
+          files: free-ai-summarizer-${VERSION}.zip
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -101,4 +101,4 @@ jobs:
           client_secret: ${{ secrets.CLIENT_SECRET }}
           refresh_token: ${{ secrets.REFRESH_TOKEN }}
           extension_id: ${{ secrets.EXTENSION_ID }}
-          zip_file: ai-summarizer-${VERSION}.zip
+          zip_file: free-ai-summarizer-${VERSION}.zip

@@ -24,11 +24,11 @@ const Content: React.FC = () => {
           :host {
             all: initial;
           }
-          #ai-summarizer-root {
+          #free-ai-summarizer-root {
             all: initial;
             font-family: system-ui, -apple-system, sans-serif;
           }
-          #ai-summarizer-react-root {
+          #free-ai-summarizer-react-root {
             all: initial;
             font-family: system-ui, -apple-system, sans-serif;
           }
@@ -36,7 +36,7 @@ const Content: React.FC = () => {
         `;
 
         /** Create a shadow root */
-        const shadowRoot = document.getElementById('ai-summarizer-root')?.shadowRoot;
+        const shadowRoot = document.getElementById('free-ai-summarizer-root')?.shadowRoot;
 
         /** Append elements to the shadow DOM */
         shadowRoot?.prepend(style);
@@ -56,12 +56,12 @@ const Content: React.FC = () => {
 
 /** Create a container for the React app */
 const rootContainer = document.createElement('div');
-rootContainer.id = 'ai-summarizer-root';
+rootContainer.id = 'free-ai-summarizer-root';
 document.body.appendChild(rootContainer);
 
 /** Create a container for the React app inside the shadow DOM */
 const reactContainer = document.createElement('div');
-reactContainer.id = 'ai-summarizer-react-root';
+reactContainer.id = 'free-ai-summarizer-react-root';
 
 const shadowRoot = rootContainer.attachShadow({ mode: process.env.NODE_ENV === 'development' ? 'open' : 'closed' });
 shadowRoot?.appendChild(reactContainer);

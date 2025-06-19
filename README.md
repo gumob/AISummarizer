@@ -1,4 +1,4 @@
-# AI Summarizer
+# Free AI Summarizer
 
 A Chrome Extension that uses AI to summarize web articles. Extract and summarize content from any webpage with just a few clicks.
 
@@ -31,7 +31,7 @@ A Chrome Extension that uses AI to summarize web articles. Extract and summarize
 
 ### From Chrome Web Store
 
-1. Visit [Chrome Web Store](https://chrome.google.com/webstore/detail/ai-summarizer/...)
+1. Visit [Chrome Web Store](https://chrome.google.com/webstore/detail/free-ai-summarizer/...)
 2. Click "Add to Chrome"
 3. Click "Add Extension" in the confirmation dialog
 

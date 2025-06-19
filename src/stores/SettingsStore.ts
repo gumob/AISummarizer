@@ -220,7 +220,7 @@ export const useSettingsStore = create<SettingsStore>()(
             now.getHours().toString().padStart(2, '0') +
             now.getMinutes().toString().padStart(2, '0') +
             now.getSeconds().toString().padStart(2, '0');
-          a.download = `ai-summarizer-settings-${dateStr}.json`;
+          a.download = `free-ai-summarizer-settings-${dateStr}.json`;
 
           /** Download the backup file */
           document.body.appendChild(a);

@@ -127,10 +127,10 @@ lane :create_package do
   # Get version from package.json
   package_json = JSON.parse(File.read("../package.json"))
   version = package_json["version"]
-  zip_file_name = "ai-summarizer-#{version}.zip"
+  zip_file_name = "free-ai-summarizer-#{version}.zip"
 
   # Remove existing zip file
-  sh("rm -f ../ai-summarizer-*.zip")
+  sh("rm -f ../free-ai-summarizer-*.zip")
 
   # Create ZIP file
   Dir.chdir("../dist/prod") do

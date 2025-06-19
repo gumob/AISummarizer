@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "AI Summarizer",
+  "name": "Free AI Summarizer",
   "version": "0.0.1",
   "description": "A Chrome extension to manage other extensions",
   "permissions": ["storage", "tabs", "scripting", "activeTab", "offscreen", "contextMenus", "sidePanel", "alarms", "clipboardWrite"],
