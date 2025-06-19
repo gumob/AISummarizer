@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-import { ArticleRecord, db } from '@/db/Database';
+import { ArticleRecord, db } from '@/db';
 import { logger } from '@/utils';
 
 interface ArticleStore {
@@ -44,11 +44,7 @@ export const useArticleStore = create<ArticleStore>((set, get) => ({
     }
   },
   getLastCleanupDate: async () => {
-    try {
-      // logger.debug('🏪🖼️', '[useArticleStore.ts]', '[getLastCleanupDate]', 'Getting last cleanup date');
-      return await db.getLastCleanupDate();
-    } catch (error) {
-      throw error;
-    }
+    // logger.debug('🏪🖼️', '[useArticleStore.ts]', '[getLastCleanupDate]', 'Getting last cleanup date');
+    return await db.getLastCleanupDate();
   },
 }));

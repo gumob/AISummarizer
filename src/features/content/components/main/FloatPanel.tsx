@@ -15,13 +15,7 @@ import { logger } from '@/utils';
  * FloatPanel
  * @returns The FloatPanel component
  */
-interface FloatPanelProps {}
-
-/**
- * FloatPanel
- * @returns The FloatPanel component
- */
-export const FloatPanel: React.FC<FloatPanelProps> = ({}) => {
+export const FloatPanel: React.FC = () => {
   const { shouldShowFloatUI, settings, currentTabId, currentTabUrl } = useContentContext();
   const [isPanelVisible, setIsPanelVisible] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);

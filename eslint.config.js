@@ -1,4 +1,6 @@
 import globals from 'globals';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 import js from '@eslint/js';
 import tseslint from '@typescript-eslint/eslint-plugin';
@@ -12,12 +14,13 @@ export default [
       parser: tsparser,
       parserOptions: {
         project: './tsconfig.json',
-        tsconfigRootDir: __dirname,
+        tsconfigRootDir: path.dirname(fileURLToPath(import.meta.url)),
       },
       globals: {
         ...globals.browser,
         ...globals.node,
         ...globals.webextensions,
+        ...globals.jest,
         chrome: 'readonly',
         window: 'readonly',
         document: 'readonly',

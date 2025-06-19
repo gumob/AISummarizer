@@ -1,4 +1,4 @@
-import { ArticleRecord } from '@/db/Database';
+import { ArticleRecord } from '@/db';
 
 export interface ArticleExtractionResult {
   title: string | null;
@@ -13,9 +13,6 @@ export interface ArticleInjectionResult {
   error?: Error | undefined;
 }
 
-// Function overload declarations
-export function formatArticleForClipboard(article: ArticleRecord): string;
-export function formatArticleForClipboard(article: ArticleExtractionResult): string;
 // Function implementation
 export function formatArticleForClipboard(article: ArticleRecord | ArticleExtractionResult): string {
   return `# Title
