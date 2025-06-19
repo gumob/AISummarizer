@@ -1,6 +1,6 @@
 # Privacy Policy
 
-Last updated: [Current Date]
+Last updated: Thursday, June 19, 2025
 
 ## Overview
 
@@ -14,10 +14,11 @@ We do not collect any personal information. The extension operates entirely loca
 
 The extension uses Chrome's local storage to save your preferences and settings, including:
 
-- Extension states (enabled/disabled)
-- Tag configurations
-- Extension locks
+- Article extraction settings and preferences
+- AI service configurations
 - Theme preferences
+- Extraction denylist settings
+- Clipboard copy settings
 
 All data is stored locally on your device and is not shared with any third parties.
 
@@ -25,12 +26,15 @@ All data is stored locally on your device and is not shared with any third parti
 
 The extension requires the following permissions to function:
 
-- `management`: To manage other Chrome extensions, including enabling/disabling them and accessing their information for tag-based organization.
-- `storage`: To save your preferences and settings locally on the device. No data is transmitted to external servers.
-- `tabs`: To open extension options pages when requested by the user, allowing direct access to extension settings.
-- `scripting`: To detect system color scheme changes in the background, ensuring the extension's appearance matches the user's system preferences. It is also used to interact with web pages when necessary for extension management functionality.
-- `activeTab`: To access the current tab when detecting system color scheme changes and for extension management operations. This ensures proper theme synchronization across the extension.
+- `storage`: To save your preferences, settings, and extracted articles locally on the device. No data is transmitted to external servers.
+- `tabs`: To access tab information, create new tabs for AI services, and communicate with content scripts for article extraction and injection.
+- `scripting`: To inject content scripts into web pages for article extraction and to communicate between different parts of the extension.
+- `activeTab`: To access the current active tab for article extraction, clipboard operations, and UI state management.
 - `offscreen`: To detect system color scheme changes for theme synchronization, ensuring the extension's appearance matches the user's system preferences.
+- `contextMenus`: To create right-click context menus that allow users to extract articles, copy to clipboard, and access AI services directly from web pages.
+- `sidePanel`: To display the settings panel in Chrome's side panel interface, providing easy access to extension configuration.
+- `alarms`: To schedule periodic database cleanup tasks that remove old articles to maintain optimal performance.
+- `clipboardWrite`: To copy extracted articles to the user's clipboard when requested, enabling easy sharing and note-taking.
 
 ## Third-Party Services
 
