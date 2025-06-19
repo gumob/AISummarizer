@@ -12,13 +12,14 @@ We do not collect any personal information. The extension operates entirely loca
 
 ## Data Storage
 
-The extension uses Chrome's local storage to save your preferences and settings, including:
+The extension uses Chrome's local storage to save your preferences, settings and cache data, including:
 
 - Article extraction settings and preferences
 - AI service configurations
 - Theme preferences
 - Extraction denylist settings
 - Clipboard copy settings
+- Extracted articles to cache data
 
 All data is stored locally on your device and is not shared with any third parties.
 
