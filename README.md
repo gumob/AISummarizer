@@ -28,7 +28,7 @@ This extension does not require an API key or login access.
 
 ### From Chrome Web Store
 
-1. Visit [Chrome Web Store](https://chrome.google.com/webstore/detail/free-ai-summarizer/...)
+1. Visit [Chrome Web Store](https://chromewebstore.google.com/detail/free-ai-summarizer/ojofnhnjhhjfpgenkakhpajjeidplidd)
 2. Click "Add to Chrome"
 3. Click "Add Extension" in the confirmation dialog
 
