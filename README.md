@@ -1,10 +1,11 @@
-# Free AI Summarizer
+# [Free AI Summarizer](https://github.com/gumob/AISummarizer)
 
-A Chrome Extension that uses AI to summarize web articles. Extract and summarize content from any webpage with just a few clicks.
+A Chrome Extension that uses AI to summarize web articles. Extract and summarize content from any webpage with just a few clicks. <br/>
+This extension does not require an API key or login access.
 
 <div class="grid" markdown>
 
-![Screenshot](screenshot.webp)
+![Screenshot](screenshot.png)
 
 </div>
 
