@@ -52,11 +52,17 @@ export const PopupMain: React.FC = () => {
   useEffect(() => {
     logger.debug('📦🍿', '[PopupMain.tsx]', '[useEffect]', 'shouldShowFullMenu', shouldShowFullMenu);
     if (shouldShowFullMenu) {
-      document.body.classList.add('popup-full-menu');
-      document.body.classList.remove('popup-minimal-menu');
+      const count = Object.values(serviceOnMenu).filter(Boolean).length;
+      const height = 142 + 30 * count;
+      logger.debug('📦🍿', '[PopupMain.tsx]', '[useEffect]', 'count', count);
+
+      document.body.style.minHeight = `${height}px`;
+      // document.body.classList.add('popup-full-menu');
+      // document.body.classList.remove('popup-minimal-menu');
     } else {
-      document.body.classList.add('popup-minimal-menu');
-      document.body.classList.remove('popup-full-menu');
+      document.body.style.minHeight = '76px';
+      // document.body.classList.add('popup-minimal-menu');
+      // document.body.classList.remove('popup-full-menu');
     }
   }, [shouldShowFullMenu]);
 
