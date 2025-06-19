@@ -1,25 +1,14 @@
-import React, {
-  Fragment,
-  useCallback,
-  useEffect,
-  useState,
-} from 'react';
-
 import clsx from 'clsx';
+
+import React, { Fragment, useCallback, useEffect, useState } from 'react';
+
 import { IoClose } from 'react-icons/io5';
 
-import {
-  toast,
-  Toaster,
-} from '@/features/content/components/main/Toaster';
-import {
-  ConfirmDialog,
-  OptionCard,
-} from '@/features/options/components/main';
-import {
-  DEFAULT_SETTINGS,
-  useGlobalContext,
-} from '@/stores';
+import { Field, Switch, Tab, TabGroup, TabList, TabPanel, TabPanels, Textarea } from '@headlessui/react';
+
+import { toast, Toaster } from '@/features/content/components/main/Toaster';
+import { ConfirmDialog, OptionCard } from '@/features/options/components/main';
+import { DEFAULT_SETTINGS, useGlobalContext } from '@/stores';
 import {
   AIService,
   ContentExtractionTiming,
@@ -37,16 +26,6 @@ import {
   TabBehavior,
 } from '@/types';
 import { logger } from '@/utils';
-import {
-  Field,
-  Switch,
-  Tab,
-  TabGroup,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Textarea,
-} from '@headlessui/react';
 
 /**
  * The main component for the options page.

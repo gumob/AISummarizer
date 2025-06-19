@@ -1,17 +1,7 @@
 import { STORAGE_KEYS } from '@/constants';
-import {
-  ArticleRecord,
-  db,
-} from '@/db';
-import {
-  CleanupDBService,
-  ContextMenuService,
-  ServiceWorkerThemeService,
-} from '@/features/serviceworker/services';
-import {
-  useArticleStore,
-  useSettingsStore,
-} from '@/stores';
+import { ArticleRecord, db } from '@/db';
+import { CleanupDBService, ContextMenuService, ServiceWorkerThemeService } from '@/features/serviceworker/services';
+import { useArticleStore, useSettingsStore } from '@/stores';
 import { DEFAULT_SETTINGS } from '@/stores/SettingsStore';
 import {
   AI_SERVICE_QUERY_KEY,
@@ -25,12 +15,7 @@ import {
   MessageAction,
   TabBehavior,
 } from '@/types';
-import {
-  isAIServiceUrl,
-  isInvalidUrl,
-  logger,
-  waitForContentScriptReady,
-} from '@/utils';
+import { isAIServiceUrl, isInvalidUrl, logger, waitForContentScriptReady } from '@/utils';
 
 class ServiceWorker {
   themeService = new ServiceWorkerThemeService();

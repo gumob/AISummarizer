@@ -1,21 +1,9 @@
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 
 import { useContentMessage } from '@/features/content/hooks';
 import { SettingsState } from '@/stores';
-import {
-  ArticleExtractionResult,
-  FloatPanelPosition,
-} from '@/types';
-import {
-  isExtractionDenylistUrl,
-  logger,
-} from '@/utils';
+import { ArticleExtractionResult, FloatPanelPosition } from '@/types';
+import { isExtractionDenylistUrl, logger } from '@/utils';
 
 /**
  * The context value type for ContentContext.
