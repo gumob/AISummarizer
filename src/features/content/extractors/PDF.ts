@@ -1,10 +1,9 @@
-import { PDFDocument } from 'pdf-lib';
 import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist';
 
 import { ArticleExtractionResult } from '@/types';
 import { fileNameFromUrl, logger } from '@/utils';
 
-GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
+GlobalWorkerOptions.workerSrc = chrome.runtime.getURL('pdf.worker.min.mjs');
 
 export async function extractPDF(url: string): Promise<ArticleExtractionResult> {
   try {
@@ -18,22 +17,23 @@ export async function extractPDF(url: string): Promise<ArticleExtractionResult> 
     const pdfData = new Uint8Array(buffer);
     /* Extract text from PDF */
     const pdf = await getDocument(pdfData).promise;
+    const metadata = await pdf.getMetadata();
+    const title = (metadata.info as Record<string, any>)?.Title || metadata.metadata?.get('dc:title') || fileNameFromUrl(url);
+    logger.debug('📕', '[PDF.tsx]', '[extractPDF]', 'metadata:', metadata);
     const maxPages = pdf.numPages;
     let text = '';
     for (let i = 1; i <= maxPages; i++) {
       const page = await pdf.getPage(i);
       const content = await page.getTextContent();
-      const pageText = content.items.map(item => ('str' in item ? item.str : '')).join('\n');
-      text += pageText + '\n';
+      const pageText = content.items
+        .map(item => ('str' in item ? item.str : ''))
+        .join(' ')
+        .replace(/\s+/g, ' ');
+      text += pageText;
     }
     logger.debug('📕', '[PDF.tsx]', '[extractPDF]', 'text:', text);
-
-    /**
-     * Extract title from PDF
-     */
-    const pdfDoc = await PDFDocument.load(buffer);
-    const title = pdfDoc.getTitle() || fileNameFromUrl(url);
     logger.debug('📕', '[PDF.tsx]', '[extractPDF]', 'title:', title);
+    pdf.destroy();
 
     return {
       title: title,

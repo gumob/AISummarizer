@@ -10,6 +10,9 @@ const __dirname = path.dirname(__filename);
 
 const isDev = process.env.NODE_ENV === 'development';
 
+// pdf.worker.min.mjs の絶対パスを取得
+const pdfWorkerPath = path.resolve(__dirname, 'node_modules/pdfjs-dist/build/pdf.worker.min.mjs');
+
 const config: Configuration = {
   mode: isDev ? 'development' : 'production',
   entry: {
@@ -87,6 +90,11 @@ const config: Configuration = {
           },
         },
         { from: 'manifest.json', to: '.' },
+        // pdfjs worker を public ディレクトリにコピー
+        {
+          from: pdfWorkerPath,
+          to: 'pdf.worker.min.mjs',
+        },
       ],
     }),
   ],
