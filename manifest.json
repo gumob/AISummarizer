@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Free AI Summarizer",
   "version": "0.0.1",
-  "description": "A Chrome extension to manage other extensions",
+  "description": "Summarize YouTube videos and news articles with AI without any cost. This extension does not require an API key or login access.",
   "permissions": ["storage", "tabs", "scripting", "activeTab", "offscreen", "contextMenus", "sidePanel", "alarms", "clipboardWrite"],
   "host_permissions": ["<all_urls>"],
   "action": {

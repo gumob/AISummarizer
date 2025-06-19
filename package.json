@@ -1,7 +1,7 @@
 {
-  "name": "Free AI Summarizer",
+  "name": "free-ai-summarizer",
   "version": "0.0.1",
-  "description": "A Chrome extension to manage other extensions",
+  "description": "Summarize YouTube videos and news articles with AI without any cost. This extension does not require an API key or login access.",
   "type": "module",
   "scripts": {
     "dev": "NODE_ENV=development node --loader ts-node/esm node_modules/webpack/bin/webpack.js --config webpack.config.ts --mode=development --watch",
@@ -16,6 +16,7 @@
     "test": "jest"
   },
   "keywords": [
+    "open-source",
     "chrome-extension",
     "ai-summarizer",
     "news-summarizer",
