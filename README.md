@@ -3,11 +3,7 @@
 A Chrome Extension that uses AI to summarize web articles. Extract and summarize content from any webpage with just a few clicks. <br/>
 This extension does not require an API key or login access.
 
-<div class="grid" markdown>
-
-![Screenshot](https://raw.githubusercontent.com/gumob/AISummarizer/refs/heads/main/screenshot.png)
-
-</div>
+<img src="https://raw.githubusercontent.com/gumob/AISummarizer/refs/heads/main/screenshot.png" alt="Banner">
 
 ## Features
 
