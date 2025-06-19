@@ -49,6 +49,7 @@
     "html-dom-parser": "^5.1.1",
     "idb": "^8.0.3",
     "lucide-react": "^0.511.0",
+    "pdf-text-reader": "^5.1.0",
     "pdfreader": "^3.0.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

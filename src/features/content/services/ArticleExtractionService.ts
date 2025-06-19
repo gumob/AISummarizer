@@ -1,4 +1,4 @@
-import { extractReadability, extractYoutube } from '@/features/content/extractors';
+import { extractPDF, extractReadability, extractYoutube } from '@/features/content/extractors';
 import { ArticleExtractionResult } from '@/types';
 import { isInvalidUrl, logger } from '@/utils';
 
@@ -35,6 +35,25 @@ export class ArticleExtractionService {
           url: url,
           content: null,
           error: error instanceof Error ? error : new Error('Failed to extract article'),
+        };
+      }
+    }
+
+    /**
+     * PDF
+     */
+    if (url.endsWith('.pdf')) {
+      logger.debug('🧑‍🍳📖', '[ArticleExtractionService.tsx]', '[execute]', 'Extracting pdf');
+      try {
+        return await extractPDF(url);
+      } catch (error: any) {
+        logger.error('🧑‍🍳📖', '[ArticleExtractionService.tsx]', '[execute]', 'Failed to extract pdf:', error);
+        return {
+          isSuccess: false,
+          title: null,
+          url: url,
+          content: null,
+          error: error instanceof Error ? error : new Error('Failed to extract pdf'),
         };
       }
     }

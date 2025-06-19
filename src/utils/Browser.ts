@@ -122,3 +122,8 @@ export const updateExtensionIcon = async (isDarkMode: boolean) => {
     logger.error('🎨', '[ThemeUtils.ts]', '[updateExtensionIcon]', 'Failed to update extension icon', error);
   }
 };
+
+export const fileNameFromUrl = (url: string): string => {
+  const urlObj = new URL(url);
+  return urlObj.pathname.split('/').pop() || '';
+};
