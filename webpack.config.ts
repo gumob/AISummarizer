@@ -23,6 +23,7 @@ const config: Configuration = {
     content: './src/pages/Content.tsx',
   },
   output: {
+    publicPath: '',
     path: path.resolve(__dirname, isDev ? 'dist/dev' : 'dist/prod'),
     filename: '[name].js',
     clean: true,
