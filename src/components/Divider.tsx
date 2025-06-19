@@ -5,5 +5,5 @@ import React from 'react';
  * @returns
  */
 export const Divider: React.FC<{ className?: string }> = ({ className = '' }) => {
-  return <div className={`w-full h-[1px] bg-zinc-800/10 dark:bg-zinc-100/10 ${className}`} />;
+  return <div className={`w-full h-[1px] bg-zinc-800/20 dark:bg-zinc-100/20 ${className}`} />;
 };
