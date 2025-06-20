@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Open Source](https://img.shields.io/badge/Open%20Source-Yes-green.svg)](https://github.com/gumob/AISummarizer)
 
-A free and open-source Chrome Extension that uses AI to summarize web articles. Extract and summarize content from any webpage with just a few clicks.
+A free and open-source Chrome Extension that uses AI to summarize web articles. Get instant summaries with just a few clicks.
 
 <img src="https://raw.githubusercontent.com/gumob/AISummarizer/refs/heads/main/screenshot.png" alt="Banner">
 
@@ -21,9 +21,19 @@ A free and open-source Chrome Extension that uses AI to summarize web articles. 
 
 ### Supported Content Types
 
-- **Web Content** - Extract and summarize news articles, blog posts, and general web pages
-- **YouTube Transcripts** - Extract and summarize video transcripts automatically
-- **PDF Documents** - Extract and summarize content from PDF files
+- Web Content - News articles, blog posts, and general web pages
+- YouTube - Video transcripts
+- PDF Documents - PDF files
+
+### Supported AI services
+
+- ChatGPT
+- Gemini
+- Google AI Studio
+- Claude
+- Grok
+- Perplexity
+- Deekseek
 
 ## Installation
 
