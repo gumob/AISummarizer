@@ -36,6 +36,7 @@ The extension requires the following permissions to function:
 - `sidePanel`: To display the settings panel in Chrome's side panel interface, providing easy access to extension configuration.
 - `alarms`: To schedule periodic database cleanup tasks that remove old articles to maintain optimal performance.
 - `clipboardWrite`: To copy extracted articles to the user's clipboard when requested, enabling easy sharing and note-taking.
+- `host_permissions`: To allow the extension to access and extract content from any website you visit. This is necessary for article extraction, content script injection, and providing AI summarization features on a wide range of web pages. No data is transmitted to external servers.
 
 ## Third-Party Services
 
