@@ -1,7 +1,13 @@
-import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist';
+import {
+  getDocument,
+  GlobalWorkerOptions,
+} from 'pdfjs-dist';
 
 import { ArticleExtractionResult } from '@/types';
-import { fileNameFromUrl, logger } from '@/utils';
+import {
+  fileNameFromUrl,
+  logger,
+} from '@/utils';
 
 GlobalWorkerOptions.workerSrc = chrome.runtime.getURL('pdf.worker.min.mjs');
 
@@ -31,15 +37,13 @@ export async function extractPDF(url: string): Promise<ArticleExtractionResult> 
         .replace(/\s+/g, ' ');
       text += pageText;
     }
-    logger.debug('📕', '[PDF.tsx]', '[extractPDF]', 'text:', text);
-    logger.debug('📕', '[PDF.tsx]', '[extractPDF]', 'title:', title);
     pdf.destroy();
 
     return {
       title: title,
       url: url,
       content: text,
-      isSuccess: false,
+      isSuccess: true,
     };
   } catch (error: unknown) {
     logger.error('📕', '[PDF.tsx]', '[extractPDF]', 'Failed to extract PDF:', error);
