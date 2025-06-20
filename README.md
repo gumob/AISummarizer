@@ -1,7 +1,9 @@
 # [Free AI Summarizer](https://github.com/gumob/AISummarizer)
 
-A Chrome Extension that uses AI to summarize web articles. Extract and summarize content from any webpage with just a few clicks. <br/>
-This extension does not require an API key or login access.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Open Source](https://img.shields.io/badge/Open%20Source-Yes-green.svg)](https://github.com/gumob/AISummarizer)
+
+A free and open-source Chrome Extension that uses AI to summarize web articles. Extract and summarize content from any webpage with just a few clicks.
 
 <img src="https://raw.githubusercontent.com/gumob/AISummarizer/refs/heads/main/screenshot.png" alt="Banner">
 
@@ -9,20 +11,19 @@ This extension does not require an API key or login access.
 
 ### Core Features
 
-- Extract and save article automaticlly
-- Multiple AI service support
-- Article summarization
+- No charge, no API key, no login required
+- Extract articles automatically from webpages
+- Summarize articles with multiple AI services
 - Floating panel for quick access
+- Context menu support
 - Dark/Light mode support
 - Modern and polished design
 
-### Article Management
+### Supported Content Types
 
-- Extract articles from any webpage
-- Re-extract articles as needed
-- Copy article content to clipboard
-- Save article content automatically
-- URL-based extraction denylist
+- **Web Content** - Extract and summarize news articles, blog posts, and general web pages
+- **YouTube Transcripts** - Extract and summarize video transcripts automatically
+- **PDF Documents** - Extract and summarize content from PDF files
 
 ## Installation
 
