@@ -1,13 +1,7 @@
-import {
-  getDocument,
-  GlobalWorkerOptions,
-} from 'pdfjs-dist';
+import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist';
 
 import { ArticleExtractionResult } from '@/types';
-import {
-  fileNameFromUrl,
-  logger,
-} from '@/utils';
+import { fileNameFromUrl, logger } from '@/utils';
 
 GlobalWorkerOptions.workerSrc = chrome.runtime.getURL('pdf.worker.min.mjs');
 
