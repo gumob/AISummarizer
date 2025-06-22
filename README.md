@@ -45,7 +45,7 @@ A free and open-source Chrome Extension that uses AI to summarize web articles. 
 3. Click "Add Extension" in the confirmation dialog
    c
 
-4. Download [release version](https://github.com/gumob/TagExtensionManager/releases) and upzip
+4. Download [release version](https://github.com/gumob/TagExtensionManager/releases) and unzip
 5. Open `chrome://extensions` in Chrome
 6. Enable "Developer mode" in the top right
 7. Click "Load unpacked"
