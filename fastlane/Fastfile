@@ -10,71 +10,110 @@
 #     https://docs.fastlane.tools/plugins/available-plugins
 #
 
+# Helper method to ensure we're on develop branch
+def ensure_develop_branch
+  current_branch = sh("git branch --show-current", log: false).strip
+
+  if current_branch != "develop"
+    UI.important("Current branch is '#{current_branch}', but 'develop' is required.")
+
+    unless UI.confirm("Do you want to switch to the develop branch?")
+      UI.user_error!("Operation cancelled. Please switch to develop branch manually.")
+    end
+
+    sh("git checkout develop")
+    UI.success("Switched to develop branch")
+  else
+    UI.success("Already on develop branch")
+  end
+end
+
 desc "Build extension in development mode"
 lane :build_dev do
+  ensure_develop_branch
   sh("pnpm run dev")
 end
 
 desc "Build extension for production"
 lane :build do
+  ensure_develop_branch
   sh("pnpm run build")
 end
 
 desc "Build extension and create package"
 lane :build_and_package do
+  ensure_develop_branch
   build
   create_package
 end
 
 desc "Check format with prettier"
 lane :format_check do
+  ensure_develop_branch
   sh("pnpm prettier-check")
 end
 
 desc "Fix format with prettier"
 lane :format_fix do
+  ensure_develop_branch
   sh("pnpm prettier-fix")
 end
 
 desc "Check eslint"
 lane :eslint_check do
+  ensure_develop_branch
   sh("pnpm eslint-check")
 end
 
 desc "Fix eslint"
 lane :eslint_fix do
+  ensure_develop_branch
   sh("pnpm eslint-fix")
 end
 
 desc "Check security"
 lane :security_check do
+  ensure_develop_branch
   sh("pnpm audit --audit-level high")
 end
 
 desc "Run type check"
 lane :type_check do
+  ensure_develop_branch
   sh("pnpm type-check")
 end
 
 desc "Bump version number"
 lane :bump_version do
+  ensure_develop_branch
+
+  # Read package.json to get current version
+  package_json = JSON.parse(File.read("../package.json"))
+  current_version = package_json["version"]
+  major, minor, patch = current_version.split('.')
+
+  # Calculate new versions for each type
+  patch_version = "#{major}.#{minor}.#{patch.to_i + 1}"
+  minor_version = "#{major}.#{minor.to_i + 1}.0"
+  major_version = "#{major.to_i + 1}.0.0"
+
   # Show version selection dialog
   version_type = UI.select(
     "How would you like to update the version?",
     [
-      "Major version (e.g. 1.0.0 -> 2.0.0)",
-      "Minor version (e.g. 1.0.0 -> 1.1.0)",
-      "Patch version (e.g. 1.0.0 -> 1.0.1)",
-      "No version change"
+      "No version change",
+      "Patch version (#{current_version} -> #{patch_version})",
+      "Minor version (#{current_version} -> #{minor_version})",
+      "Major version (#{current_version} -> #{major_version})",
     ]
   )
 
   # Map selection to version type
   version_type = case version_type
-    when "Major version (e.g. 1.0.0 -> 2.0.0)" then "major"
-    when "Minor version (e.g. 1.0.0 -> 1.1.0)" then "minor"
-    when "Patch version (e.g. 1.0.0 -> 1.0.1)" then "patch"
     when "No version change" then "never"
+    when "Patch version (#{current_version} -> #{patch_version})" then "patch"
+    when "Minor version (#{current_version} -> #{minor_version})" then "minor"
+    when "Major version (#{current_version} -> #{major_version})" then "major"
   end
 
   # If version is not changed, exit
@@ -111,14 +150,16 @@ lane :bump_version do
 
   UI.success("Version bumped to #{new_version}")
   UI.message("Please run the following commands to complete the release:")
-  UI.message("1. git add package.json manifest.json")
-  UI.message("2. git commit -m \"chore: bump version to #{new_version}\"")
+  UI.message("1. git add ../package.json ../manifest.json")
+  UI.message("2. git commit -m \"feat: bump version to #{new_version}\"")
   UI.message("3. git tag -a v#{new_version} -m \"Release v#{new_version}\"")
   UI.message("4. git push && git push --tags")
 end
 
 desc "Create extension package"
 lane :create_package do
+  ensure_develop_branch
+
   # Check if dist/prod directory exists
   unless File.directory?("../dist/prod")
     UI.user_error!("dist/prod directory not found. Please run build first.")
@@ -127,10 +168,10 @@ lane :create_package do
   # Get version from package.json
   package_json = JSON.parse(File.read("../package.json"))
   version = package_json["version"]
-  zip_file_name = "free-ai-summarizer-#{version}.zip"
+  zip_file_name = "tag-extension-manager-#{version}.zip"
 
   # Remove existing zip file
-  sh("rm -f ../free-ai-summarizer-*.zip")
+  sh("rm -f ../tag-extension-manager-*.zip")
 
   # Create ZIP file
   Dir.chdir("../dist/prod") do
@@ -139,8 +180,40 @@ lane :create_package do
   UI.success("Successfully created #{zip_file_name}")
 end
 
+desc "Merge develop branch to main"
+lane :merge_to_main do
+  UI.important("Merging develop branch to main...")
+
+  unless UI.confirm("Do you want to merge develop branch to main?")
+    UI.important("Merge to main cancelled by user")
+    next
+  end
+
+  # Switch to main branch
+  sh("git checkout main")
+  UI.success("Switched to main branch")
+
+  # Pull latest changes
+  sh("git pull origin main")
+  UI.success("Pulled latest changes from main")
+
+  # Merge develop branch
+  sh("git merge develop")
+  UI.success("Merged develop branch to main")
+
+  # Push to main
+  sh("git push origin main")
+  UI.success("Pushed changes to main branch")
+
+  # Switch back to develop
+  sh("git checkout develop")
+  UI.success("Switched back to develop branch")
+end
+
 desc "Create release"
 lane :release do
+  ensure_develop_branch
+
   # Update version if not "never"
   bump_version()
 
@@ -176,10 +249,28 @@ lane :release do
     next
   end
 
-  sh("git add package.json manifest.json")
-  sh("git commit -m \"chore: bump version to #{version}\"")
+  # Check if there are changes to commit
+  git_status = sh("git status --porcelain ../package.json ../manifest.json", log: false).strip
+
+  if git_status.empty?
+    UI.important("No changes detected in package.json or manifest.json. Skipping commit.")
+  else
+    UI.message("Changes detected:")
+    UI.message(git_status)
+
+    sh("git add ../package.json ../manifest.json")
+    sh("git commit -m \"feat: bump version to #{version}\"")
+  end
+
+  # Delete existing tag if it exists
+  sh("git tag -d v#{version} 2>/dev/null || true")
+  sh("git push origin :refs/tags/v#{version} 2>/dev/null || true")
+
   sh("git tag -a v#{version} -m \"Release v#{version}\"")
   sh("git push && git push --tags")
+
+  # Merge develop to main
+  merge_to_main
 
   UI.success("Release completed successfully!")
 end
