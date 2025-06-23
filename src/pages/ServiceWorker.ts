@@ -225,6 +225,13 @@ class ServiceWorker {
   async executeExtraction(tabId: number, tabUrl: string, forcibly: boolean = false) {
     logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[executeExtraction]', 'tabId:', tabId, 'tabUrl:', tabUrl);
     try {
+      /** Check if the tab exists before proceeding */
+      const tab = await chrome.tabs.get(tabId).catch(() => null);
+      if (!tab) {
+        logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[executeExtraction]', 'Tab not found:', tabId);
+        return;
+      }
+
       /** Get the article from the database */
       const doesArticleExist: boolean = (await useArticleStore.getState().getArticleByUrl(tabUrl))?.is_success ?? false;
 
@@ -323,6 +330,13 @@ class ServiceWorker {
   async executeInjection(tabId: number, tabUrl: string) {
     logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[executeInjection]', 'tabId:', tabId, 'tabUrl:', tabUrl);
     try {
+      /** Check if the tab exists before proceeding */
+      const tab = await chrome.tabs.get(tabId).catch(() => null);
+      if (!tab) {
+        logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[executeInjection]', 'Tab not found:', tabId);
+        return;
+      }
+
       /** If the URL is an AI service URL, manipulate the web page to inject article */
       if (!isAIServiceUrl(tabUrl)) return;
 
@@ -355,6 +369,13 @@ class ServiceWorker {
   async toggleUIState(tabId: number, tabUrl?: string) {
     try {
       logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[toggleUIState]');
+
+      /** Check if the tab exists before proceeding */
+      const tab = await chrome.tabs.get(tabId).catch(() => null);
+      if (!tab) {
+        logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[toggleUIState]', 'Tab not found:', tabId);
+        return;
+      }
 
       /** Get the article from the database */
       const doesArticleExist = (await useArticleStore.getState().getArticleByUrl(tabUrl))?.is_success ?? false;
@@ -389,6 +410,13 @@ class ServiceWorker {
   async notifyCurrentTabState(tabId: number, tabUrl?: string) {
     logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'tabId:', tabId, 'tabUrl:', tabUrl);
     try {
+      /** Check if the tab exists before proceeding */
+      const tab = await chrome.tabs.get(tabId).catch(() => null);
+      if (!tab) {
+        logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'Tab not found:', tabId);
+        return;
+      }
+
       if (tabUrl && (await isInvalidUrl(tabUrl))) {
         logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'Ignoring content script message: tabUrl is invalid', tabUrl);
         return;
@@ -398,12 +426,12 @@ class ServiceWorker {
       const article = await db.getArticleByUrl(tabUrl);
 
       /** Send the message to the content script */
-      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'tab.id:', tab.id);
+      const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'activeTab.id:', activeTab.id);
       logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'tabId:', tabId);
-      logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'tab:', tab);
-      if (tab.id !== tabId) {
-        logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'No active tab found', tab.id, tabId);
+      logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'activeTab:', activeTab);
+      if (activeTab.id !== tabId) {
+        logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'No active tab found', activeTab.id, tabId);
         return;
       }
       const response = await chrome.tabs.sendMessage(tabId, {
@@ -425,28 +453,40 @@ class ServiceWorker {
    */
   async readArticleForClipboard(tabId: number, tabUrl: string, forcibly: boolean = false): Promise<boolean> {
     logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[readArticleForClipboard]', 'tabId:', tabId, 'tabUrl:', tabUrl, 'forcibly:', forcibly);
-    /** Check if the article should be copied to the clipboard */
-    const shouldCopy = await (async (): Promise<boolean> => {
-      const saveArticleOnClipboard = await useSettingsStore.getState().getSaveArticleOnClipboard();
-      if (forcibly) return true;
-      if (saveArticleOnClipboard) return true;
-      return false;
-    })();
+    try {
+      /** Check if the tab exists before proceeding */
+      const tab = await chrome.tabs.get(tabId).catch(() => null);
+      if (!tab) {
+        logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[readArticleForClipboard]', 'Tab not found:', tabId);
+        return false;
+      }
 
-    /** Get the article from the database */
-    const article: ArticleRecord | undefined = await db.getArticleByUrl(tabUrl);
+      /** Check if the article should be copied to the clipboard */
+      const shouldCopy = await (async (): Promise<boolean> => {
+        const saveArticleOnClipboard = await useSettingsStore.getState().getSaveArticleOnClipboard();
+        if (forcibly) return true;
+        if (saveArticleOnClipboard) return true;
+        return false;
+      })();
 
-    /** Copy the article to the clipboard */
-    if (shouldCopy && article && article.is_success) {
-      const text = formatArticleForClipboard(article);
-      const response = await chrome.tabs.sendMessage(tabId, {
-        action: MessageAction.WRITE_ARTICLE_TO_CLIPBOARD,
-        payload: { tabId: tabId, tabUrl: tabUrl, text: text },
-      });
-      logger.debug('🧑‍🍳📃🟣🟣🟣🟣🟣🟣', '[ServiceWorker.ts]', '[readArticleForClipboard]', 'response:', response);
-      return true;
-    } else {
-      logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[readArticleForClipboard]', 'Ignoring message: article is not found or not successful', article);
+      /** Get the article from the database */
+      const article: ArticleRecord | undefined = await db.getArticleByUrl(tabUrl);
+
+      /** Copy the article to the clipboard */
+      if (shouldCopy && article && article.is_success) {
+        const text = formatArticleForClipboard(article);
+        const response = await chrome.tabs.sendMessage(tabId, {
+          action: MessageAction.WRITE_ARTICLE_TO_CLIPBOARD,
+          payload: { tabId: tabId, tabUrl: tabUrl, text: text },
+        });
+        logger.debug('🧑‍🍳📃🟣🟣🟣🟣🟣🟣', '[ServiceWorker.ts]', '[readArticleForClipboard]', 'response:', response);
+        return true;
+      } else {
+        logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[readArticleForClipboard]', 'Ignoring message: article is not found or not successful', article);
+        return false;
+      }
+    } catch (error: any) {
+      logger.error('🧑‍🍳📃', '[ServiceWorker.ts]', '[readArticleForClipboard]', 'Failed to read article for clipboard:', error);
       return false;
     }
   }

@@ -48,6 +48,13 @@ const isContentScriptReady = async (): Promise<boolean> => {
     if (!tab.id) {
       return false;
     }
+
+    /** Check if the tab exists before sending message */
+    const tabExists = await chrome.tabs.get(tab.id).catch(() => null);
+    if (!tabExists) {
+      return false;
+    }
+
     await chrome.tabs.sendMessage(tab.id, { action: MessageAction.PING_CONTENT_SCRIPT });
     return true;
   } catch (error) {

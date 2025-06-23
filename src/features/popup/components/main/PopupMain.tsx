@@ -1,12 +1,29 @@
-import React, { useEffect, useState } from 'react';
+import React, {
+  useEffect,
+  useState,
+} from 'react';
 
-import { IoClipboardOutline, IoReloadOutline, IoSettingsOutline } from 'react-icons/io5';
+import {
+  IoClipboardOutline,
+  IoReloadOutline,
+  IoSettingsOutline,
+} from 'react-icons/io5';
 
-import { Divider, ServiceIcon } from '@/components';
+import {
+  Divider,
+  ServiceIcon,
+} from '@/components';
 import { ServiceListMenu } from '@/features/popup/components/main';
 import { useGlobalContext } from '@/stores';
-import { AIService, getAIServiceLabel, MessageAction } from '@/types';
-import { isInvalidUrl, logger } from '@/utils';
+import {
+  AIService,
+  getAIServiceLabel,
+  MessageAction,
+} from '@/types';
+import {
+  isInvalidUrl,
+  logger,
+} from '@/utils';
 
 /**
  * The component for managing extensions.
@@ -111,6 +128,13 @@ export const PopupMain: React.FC = () => {
               /** Check if the content script is injected */
               const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
               if (!tab.id || !tab.url) throw new Error('No active tab found');
+
+              /** Check if the tab exists before sending message */
+              const tabExists = await chrome.tabs.get(tab.id).catch(() => null);
+              if (!tabExists) {
+                logger.warn('📦🍿', '[PopupMain.tsx]', '[render]', 'Tab not found:', tab.id);
+                return;
+              }
 
               /** Send the message to the content script */
               await chrome.tabs.sendMessage(tab.id, {
