@@ -160,7 +160,12 @@ class ServiceWorker {
         break;
 
       case MessageAction.OPEN_SETTINGS:
-        chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
+        chrome.tabs.query({ active: true, currentWindow: true }, async ([tab]) => {
+          /** Check if the tab exists before proceeding */
+          if (!(await chrome.tabs.get(tab.id ?? 0).catch(() => null))) {
+            logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleServiceWorkerMessage]', 'Tab not found:', sender.tab?.id);
+            return;
+          }
           if (tab.id && tab.windowId) {
             chrome.sidePanel.setOptions({ path: 'options.html', enabled: true });
             chrome.sidePanel.open({ windowId: tab.windowId });
@@ -232,8 +237,7 @@ class ServiceWorker {
     logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[executeExtraction]', 'tabId:', tabId, 'tabUrl:', tabUrl);
     try {
       /** Check if the tab exists before proceeding */
-      const tab = await chrome.tabs.get(tabId).catch(() => null);
-      if (!tab) {
+      if (!(await chrome.tabs.get(tabId).catch(() => null))) {
         logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[executeExtraction]', 'Tab not found:', tabId);
         return;
       }
@@ -291,8 +295,7 @@ class ServiceWorker {
       logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[openAIService]', service, tabId, tabUrl);
 
       /** Check if the tab exists before proceeding */
-      const tab = await chrome.tabs.get(tabId).catch(() => null);
-      if (!tab) {
+      if (!(await chrome.tabs.get(tabId).catch(() => null))) {
         logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[openAIService]', 'Tab not found:', tabId);
         return false;
       }
@@ -346,8 +349,7 @@ class ServiceWorker {
     logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[executeInjection]', 'tabId:', tabId, 'tabUrl:', tabUrl);
     try {
       /** Check if the tab exists before proceeding */
-      const tab = await chrome.tabs.get(tabId).catch(() => null);
-      if (!tab) {
+      if (!(await chrome.tabs.get(tabId).catch(() => null))) {
         logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[executeInjection]', 'Tab not found:', tabId);
         return;
       }
@@ -386,8 +388,7 @@ class ServiceWorker {
       logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[toggleUIState]');
 
       /** Check if the tab exists before proceeding */
-      const tab = await chrome.tabs.get(tabId).catch(() => null);
-      if (!tab) {
+      if (!(await chrome.tabs.get(tabId).catch(() => null))) {
         logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[toggleUIState]', 'Tab not found:', tabId);
         return;
       }
@@ -426,8 +427,7 @@ class ServiceWorker {
     logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'tabId:', tabId, 'tabUrl:', tabUrl);
     try {
       /** Check if the tab exists before proceeding */
-      const tab = await chrome.tabs.get(tabId).catch(() => null);
-      if (!tab) {
+      if (!(await chrome.tabs.get(tabId).catch(() => null))) {
         logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'Tab not found:', tabId);
         return;
       }
@@ -470,8 +470,7 @@ class ServiceWorker {
     logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[readArticleForClipboard]', 'tabId:', tabId, 'tabUrl:', tabUrl, 'forcibly:', forcibly);
     try {
       /** Check if the tab exists before proceeding */
-      const tab = await chrome.tabs.get(tabId).catch(() => null);
-      if (!tab) {
+      if (!(await chrome.tabs.get(tabId).catch(() => null))) {
         logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[readArticleForClipboard]', 'Tab not found:', tabId);
         return false;
       }

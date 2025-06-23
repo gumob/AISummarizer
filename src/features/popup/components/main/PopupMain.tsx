@@ -130,8 +130,7 @@ export const PopupMain: React.FC = () => {
               if (!tab.id || !tab.url) throw new Error('No active tab found');
 
               /** Check if the tab exists before sending message */
-              const tabExists = await chrome.tabs.get(tab.id).catch(() => null);
-              if (!tabExists) {
+              if (!(await chrome.tabs.get(tab.id).catch(() => null))) {
                 logger.warn('📦🍿', '[PopupMain.tsx]', '[render]', 'Tab not found:', tab.id);
                 return;
               }

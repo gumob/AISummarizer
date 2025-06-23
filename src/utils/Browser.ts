@@ -50,8 +50,8 @@ const isContentScriptReady = async (): Promise<boolean> => {
     }
 
     /** Check if the tab exists before sending message */
-    const tabExists = await chrome.tabs.get(tab.id).catch(() => null);
-    if (!tabExists) {
+    if (!(await chrome.tabs.get(tab.id).catch(() => null))) {
+      logger.warn('🎨', '[Browser.ts]', '[isContentScriptReady]', 'Tab not found:', tab.id);
       return false;
     }
 
