@@ -367,11 +367,17 @@ class ServiceWorker {
       const article = await db.getArticleById(articleId);
       if (!article) return;
       logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[executeInjection]', 'article:', article);
-      const response = await chrome.tabs.sendMessage(tabId, {
-        action: MessageAction.INJECT_ARTICLE,
-        payload: { tabId: tabId, tabUrl: tabUrl, article: article },
-      });
-      logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[executeInjection]', 'response:', response);
+      await chrome.tabs
+        .sendMessage(tabId, {
+          action: MessageAction.INJECT_ARTICLE,
+          payload: { tabId: tabId, tabUrl: tabUrl, article: article },
+        })
+        .then(response => {
+          logger.debug('🧑‍🍳📃🔵', '[ServiceWorker.ts]', '[executeInjection]', 'response:', response);
+        })
+        .catch(error => {
+          logger.warn('🧑‍🍳📃🔴', '[ServiceWorker.ts]', '[executeInjection]', 'Failed to send message to content script:', error);
+        });
       /** Insert the article into the web page */
     } catch (error: any) {
       logger.error('🧑‍🍳📃', '[ServiceWorker.ts]', '[executeInjection]', 'Failed to execute summarization:', error);
@@ -442,20 +448,26 @@ class ServiceWorker {
 
       /** Send the message to the content script */
       const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'activeTab.id:', activeTab.id);
-      logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'tabId:', tabId);
-      logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'activeTab:', activeTab);
+      // logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'activeTab.id:', activeTab.id);
+      // logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'tabId:', tabId);
+      // logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'activeTab:', activeTab);
       if (activeTab.id !== tabId) {
         logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'No active tab found', activeTab.id, tabId);
         return;
       }
-      const response = await chrome.tabs.sendMessage(tabId, {
-        action: MessageAction.TAB_UPDATED,
-        payload: { tabId: tabId, tabUrl: tabUrl, article: article },
-      });
-      logger.debug('🧑‍🍳📃🟣🟣🟣🟣🟣🟣', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'response:', response);
+      await chrome.tabs
+        .sendMessage(tabId, {
+          action: MessageAction.TAB_UPDATED,
+          payload: { tabId: tabId, tabUrl: tabUrl, article: article },
+        })
+        .then(response => {
+          logger.debug('🧑‍🍳📃🔵', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'response:', response);
+        })
+        .catch(error => {
+          logger.warn('🧑‍🍳📃🔴', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'Failed to send message to content script:', error);
+        });
     } catch (error) {
-      logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'Failed to notify current tab state:', error);
+      logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[notifyCurrentTabState]', 'Failed to notify current tab state', error);
     }
   }
 
@@ -489,11 +501,17 @@ class ServiceWorker {
       /** Copy the article to the clipboard */
       if (shouldCopy && article && article.is_success) {
         const text = formatArticleForClipboard(article);
-        const response = await chrome.tabs.sendMessage(tabId, {
-          action: MessageAction.WRITE_ARTICLE_TO_CLIPBOARD,
-          payload: { tabId: tabId, tabUrl: tabUrl, text: text },
-        });
-        logger.debug('🧑‍🍳📃🟣🟣🟣🟣🟣🟣', '[ServiceWorker.ts]', '[readArticleForClipboard]', 'response:', response);
+        await chrome.tabs
+          .sendMessage(tabId, {
+            action: MessageAction.WRITE_ARTICLE_TO_CLIPBOARD,
+            payload: { tabId: tabId, tabUrl: tabUrl, text: text },
+          })
+          .then(response => {
+            logger.debug('🧑‍🍳📃🔵', '[ServiceWorker.ts]', '[readArticleForClipboard]', 'response:', response);
+          })
+          .catch(error => {
+            logger.warn('🧑‍🍳📃🔴', '[ServiceWorker.ts]', '[readArticleForClipboard]', 'Failed to send message to content script:', error);
+          });
         return true;
       } else {
         logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[readArticleForClipboard]', 'Ignoring message: article is not found or not successful', article);
