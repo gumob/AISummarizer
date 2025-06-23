@@ -1,7 +1,17 @@
 import { STORAGE_KEYS } from '@/constants';
-import { ArticleRecord, db } from '@/db';
-import { CleanupDBService, ContextMenuService, ServiceWorkerThemeService } from '@/features/serviceworker/services';
-import { useArticleStore, useSettingsStore } from '@/stores';
+import {
+  ArticleRecord,
+  db,
+} from '@/db';
+import {
+  CleanupDBService,
+  ContextMenuService,
+  ServiceWorkerThemeService,
+} from '@/features/serviceworker/services';
+import {
+  useArticleStore,
+  useSettingsStore,
+} from '@/stores';
 import { DEFAULT_SETTINGS } from '@/stores/SettingsStore';
 import {
   AI_SERVICE_QUERY_KEY,
@@ -15,7 +25,12 @@ import {
   MessageAction,
   TabBehavior,
 } from '@/types';
-import { isAIServiceUrl, isInvalidUrl, logger, waitForContentScriptReady } from '@/utils';
+import {
+  isAIServiceUrl,
+  isInvalidUrl,
+  logger,
+  waitForContentScriptReady,
+} from '@/utils';
 
 class ServiceWorker {
   themeService = new ServiceWorkerThemeService();
@@ -159,11 +174,11 @@ class ServiceWorker {
    * @param tab - The tab that the context menu was clicked on
    */
   private async handleContextMenuClicked(info: chrome.contextMenus.OnClickData, tab?: chrome.tabs.Tab) {
-    logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleContextMenuClicked]', info);
     if (!tab?.id || !tab?.url) {
       logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleContextMenuClicked]', 'No active tab found');
       return;
     }
+    logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleContextMenuClicked]', info);
 
     switch (info.menuItemId) {
       case 'chatgpt':
@@ -247,7 +262,7 @@ class ServiceWorker {
         }
       }
     } catch (error: any) {
-      logger.error('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleContextMenuClicked]', 'Failed to send message to content script:', error);
+      logger.error('🧑‍🍳📃', '[ServiceWorker.ts]', '[executeExtraction]', 'Failed to execute extraction:', error);
     }
   }
 
@@ -347,13 +362,7 @@ class ServiceWorker {
       /** Toggle the context menu */
       // await this.contextMenuService.createMenu(doesArticleExist, tabUrl);
       try {
-        this.contextMenuService.removeMenu();
-        const isInvalid = await isInvalidUrl(tabUrl);
-        if (!tabUrl || isInvalid) {
-          await this.contextMenuService.createBasicMenu();
-        } else {
-          await this.contextMenuService.createFullMenu(tabUrl, doesArticleExist);
-        }
+        await this.contextMenuService.createMenu(doesArticleExist, tabUrl);
       } catch (error) {
         logger.error('🧑‍🍳📃', '[ServiceWorker.tsx]', '[toggleUIState]', 'Failed to create context menu:', error);
       }

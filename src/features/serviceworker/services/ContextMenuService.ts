@@ -1,7 +1,10 @@
 import { MENU_ITEMS } from '@/models';
 import { useSettingsStore } from '@/stores';
 import { getAIServiceFromString } from '@/types';
-import { isInvalidUrl, logger } from '@/utils';
+import {
+  isInvalidUrl,
+  logger,
+} from '@/utils';
 
 export class ContextMenuService {
   constructor(onClick: (info: chrome.contextMenus.OnClickData, tab?: chrome.tabs.Tab) => void) {
@@ -10,7 +13,8 @@ export class ContextMenuService {
 
   async createMenu(isExtracted: boolean, tabUrl?: string) {
     try {
-      this.removeMenu();
+      await chrome.contextMenus.removeAll();
+      await new Promise(resolve => setTimeout(resolve, 300));
       const isInvalid = await isInvalidUrl(tabUrl);
       if (!tabUrl || isInvalid) {
         this.createBasicMenu();
@@ -22,20 +26,12 @@ export class ContextMenuService {
     }
   }
 
-  public removeMenu() {
-    try {
-      chrome.contextMenus.removeAll();
-    } catch (error) {
-      logger.error('🧑‍🍳📃', '[ContextMenuService.tsx]', '[removeMenu]', 'Failed to remove context menu:', error);
-    }
-  }
-
-  public async createFullMenu(tabUrl: string, isExtracted: boolean) {
+  private async createFullMenu(tabUrl: string, isExtracted: boolean) {
     try {
       logger.debug('🧑‍🍳📃', '[ContextMenuService.tsx]', '[createFullMenu]', 'Creating full menu');
       const root = chrome.contextMenus.create({
-        id: MENU_ITEMS.ROOT.id,
-        title: MENU_ITEMS.ROOT.title,
+        id: MENU_ITEMS.ROOT_ACTIVE.id,
+        title: MENU_ITEMS.ROOT_ACTIVE.title,
         contexts: ['page' as chrome.contextMenus.ContextType],
       });
 
@@ -98,12 +94,12 @@ export class ContextMenuService {
     }
   }
 
-  public async createBasicMenu() {
+  private async createBasicMenu() {
     try {
       logger.debug('🧑‍🍳📃', '[ContextMenuService.tsx]', '[createBasicMenu]', 'Creating basic menu');
       const root = chrome.contextMenus.create({
-        id: MENU_ITEMS.NOT_AVAILABLE.id,
-        title: MENU_ITEMS.NOT_AVAILABLE.title,
+        id: MENU_ITEMS.ROOT_INACTIVE.id,
+        title: MENU_ITEMS.ROOT_INACTIVE.title,
         contexts: ['page' as chrome.contextMenus.ContextType],
       });
       chrome.contextMenus.create({
