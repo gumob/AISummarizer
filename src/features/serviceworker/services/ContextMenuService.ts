@@ -11,8 +11,48 @@ export class ContextMenuService {
     chrome.contextMenus.onClicked.addListener(onClick.bind(this));
   }
 
+  private async _removeMenu(): Promise<{ result: boolean; error: Error | null }> {
+    return new Promise(resolve => {
+      try {
+        chrome.contextMenus.removeAll(() => {
+          logger.debug('🧑‍🍳📃', '[ContextMenuService.tsx]', '[removeMenu]', '🗑️ Context menu removed');
+          this._checkRuntimeError();
+          resolve({ result: true, error: null });
+        });
+        this._checkRuntimeError();
+      } catch (error) {
+        logger.error('🧑‍🍳📃', '[ContextMenuService.tsx]', '[removeMenu]', '🗑️ Failed to remove context menu:', error);
+        resolve({ result: false, error: error as Error });
+      }
+    });
+  }
+
+  private async _createContextMenu(
+    createProperties: chrome.contextMenus.CreateProperties
+  ): Promise<{ result: number | string | undefined; error: Error | null }> {
+    return new Promise(resolve => {
+      try {
+        const id = chrome.contextMenus.create(createProperties, () => {
+          this._checkRuntimeError();
+          resolve({ result: id, error: null });
+        });
+        this._checkRuntimeError();
+      } catch (error) {
+        logger.error('🧑‍🍳📃', '[ContextMenuService.tsx]', '[createContextMenu]', '+ Failed to create context menu:', error);
+        resolve({ result: undefined, error: error as Error });
+      }
+    });
+  }
+
+  private _checkRuntimeError() {
+    if (chrome.runtime.lastError) {
+      logger.warn('🧑‍🍳📃', '[ContextMenuService.tsx]', '[createBasicMenu]', 'Runtime error:', chrome.runtime.lastError);
+      chrome.runtime.lastError = undefined;
+    }
+  }
+
   async createMenu(isExtracted: boolean, tabUrl?: string) {
-    const { result, error } = await this.removeMenu();
+    const { result, error } = await this._removeMenu();
 
     if (error) {
       logger.error('🧑‍🍳📃', '[ContextMenuService.tsx]', '[createMenu]', 'Failed to remove context menu:', error);
@@ -27,24 +67,10 @@ export class ContextMenuService {
     }
   }
 
-  private async removeMenu(): Promise<{ result: boolean; error: Error | null }> {
-    return new Promise(resolve => {
-      try {
-        chrome.contextMenus.removeAll(() => {
-          logger.debug('🧑‍🍳📃', '[ContextMenuService.tsx]', '[removeMenu]', '🗑️ Context menu removed');
-          resolve({ result: true, error: null });
-        });
-      } catch (error) {
-        logger.error('🧑‍🍳📃', '[ContextMenuService.tsx]', '[removeMenu]', '🗑️ Failed to remove context menu:', error);
-        resolve({ result: false, error: error as Error });
-      }
-    });
-  }
-
   private async createFullMenu(tabUrl: string, isExtracted: boolean) {
     try {
       logger.debug('🧑‍🍳📃', '[ContextMenuService.tsx]', '[createFullMenu]', '+ Creating full menu');
-      const root = chrome.contextMenus.create({
+      const { result: root, error: rootError } = await this._createContextMenu({
         id: MENU_ITEMS.ROOT_ACTIVE.id,
         title: MENU_ITEMS.ROOT_ACTIVE.title,
         contexts: ['page' as chrome.contextMenus.ContextType],
@@ -54,7 +80,7 @@ export class ContextMenuService {
       for (const service of MENU_ITEMS.AI_SERVICES) {
         const isServiceOnMenu = await useSettingsStore.getState().getServiceOnMenu(getAIServiceFromString(service.id));
         if (isServiceOnMenu) {
-          chrome.contextMenus.create({
+          await this._createContextMenu({
             id: service.id,
             title: service.title,
             contexts: ['page' as chrome.contextMenus.ContextType],
@@ -64,7 +90,7 @@ export class ContextMenuService {
       }
 
       /** Create first divider */
-      chrome.contextMenus.create({
+      await this._createContextMenu({
         type: 'separator',
         contexts: ['page' as chrome.contextMenus.ContextType],
         parentId: root,
@@ -73,7 +99,7 @@ export class ContextMenuService {
 
       /** Create copy option */
       if (tabUrl && isExtracted) {
-        chrome.contextMenus.create({
+        await this._createContextMenu({
           id: MENU_ITEMS.COPY.id,
           title: MENU_ITEMS.COPY.title,
           contexts: ['page' as chrome.contextMenus.ContextType],
@@ -82,7 +108,7 @@ export class ContextMenuService {
       }
 
       /** Create extract option */
-      chrome.contextMenus.create({
+      await this._createContextMenu({
         id: MENU_ITEMS.EXTRACT.id,
         title: MENU_ITEMS.EXTRACT.title,
         contexts: ['page' as chrome.contextMenus.ContextType],
@@ -90,7 +116,7 @@ export class ContextMenuService {
       });
 
       /** Create second divider */
-      chrome.contextMenus.create({
+      await this._createContextMenu({
         type: 'separator',
         contexts: ['page' as chrome.contextMenus.ContextType],
         parentId: root,
@@ -98,7 +124,7 @@ export class ContextMenuService {
       });
 
       /** Create settings option */
-      chrome.contextMenus.create({
+      await this._createContextMenu({
         id: MENU_ITEMS.SETTINGS.id,
         title: MENU_ITEMS.SETTINGS.title,
         contexts: ['page' as chrome.contextMenus.ContextType],
@@ -112,12 +138,12 @@ export class ContextMenuService {
   private async createBasicMenu() {
     try {
       logger.debug('🧑‍🍳📃', '[ContextMenuService.tsx]', '[createBasicMenu]', '+ Creating basic menu');
-      const root = chrome.contextMenus.create({
+      const { result: root, error: rootError } = await this._createContextMenu({
         id: MENU_ITEMS.ROOT_INACTIVE.id,
         title: MENU_ITEMS.ROOT_INACTIVE.title,
         contexts: ['page' as chrome.contextMenus.ContextType],
       });
-      chrome.contextMenus.create({
+      await this._createContextMenu({
         id: MENU_ITEMS.SETTINGS.id,
         title: MENU_ITEMS.SETTINGS.title,
         contexts: ['page' as chrome.contextMenus.ContextType],
