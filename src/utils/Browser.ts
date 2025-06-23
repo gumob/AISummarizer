@@ -14,6 +14,7 @@ const isServiceWorkerScriptReady = async (): Promise<boolean> => {
     await chrome.runtime.sendMessage({ action: MessageAction.PING_SERVICE_WORKER });
     return true;
   } catch (error) {
+    logger.debug('🔧', '[Browser.ts]', '[isServiceWorkerScriptReady]', 'Service worker not ready:', error);
     return false;
   }
 };
@@ -36,6 +37,30 @@ export const waitForServiceWorkerScriptReady = async (maxAttempts = 10, signal?:
     await new Promise(resolve => setTimeout(resolve, 1000));
   }
   return false;
+};
+
+/**
+ * Send message to service worker with retry mechanism
+ * @param message - The message to send
+ * @param maxRetries - Maximum number of retry attempts
+ * @returns Promise that resolves with the response or rejects with error
+ */
+export const sendMessageToServiceWorker = async (message: any, maxRetries = 3): Promise<any> => {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await chrome.runtime.sendMessage(message);
+      return response;
+    } catch (error) {
+      logger.warn('🔧', '[Browser.ts]', '[sendMessageToServiceWorker]', `Attempt ${attempt} failed:`, error);
+
+      if (attempt === maxRetries) {
+        throw error;
+      }
+
+      // Wait before retrying
+      await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+    }
+  }
 };
 
 /**

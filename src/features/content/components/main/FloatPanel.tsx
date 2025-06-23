@@ -1,15 +1,34 @@
+import React, {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+
 import clsx from 'clsx';
 import { ListMinus } from 'lucide-react';
+import {
+  IoClipboardOutline,
+  IoReloadOutline,
+  IoSettingsOutline,
+} from 'react-icons/io5';
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-
-import { IoClipboardOutline, IoReloadOutline, IoSettingsOutline } from 'react-icons/io5';
-
-import { Divider, ServiceIcon } from '@/components';
+import {
+  Divider,
+  ServiceIcon,
+} from '@/components';
 import { useContentContext } from '@/features/content/contexts';
 import { useWindowSize } from '@/features/content/hooks';
-import { AIService, FloatPanelPosition, getAIServiceLabel, MessageAction } from '@/types';
-import { logger } from '@/utils';
+import {
+  AIService,
+  FloatPanelPosition,
+  getAIServiceLabel,
+  MessageAction,
+} from '@/types';
+import {
+  logger,
+  sendMessageToServiceWorker,
+} from '@/utils';
 
 /**
  * FloatPanel
@@ -18,6 +37,7 @@ import { logger } from '@/utils';
 export const FloatPanel: React.FC = () => {
   const { shouldShowFloatUI, settings, currentTabId, currentTabUrl } = useContentContext();
   const [isPanelVisible, setIsPanelVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const { windowWidth, windowHeight } = useWindowSize();
@@ -60,6 +80,28 @@ export const FloatPanel: React.FC = () => {
       ),
     [settings, isPanelVisible, shouldShowFloatUI, currentTabId, currentTabUrl, windowWidth, windowHeight]
   );
+
+  const handleServiceWorkerMessage = async (message: any) => {
+    if (currentTabId === null || currentTabUrl === null) {
+      throw new Error('No active tab found');
+    }
+
+    try {
+      setIsLoading(true);
+      await sendMessageToServiceWorker(message);
+      logger.debug('🫳💬', '[FloatPanel.tsx]', 'Message sent successfully');
+    } catch (error) {
+      logger.error('🫳💬', '[FloatPanel.tsx]', 'Failed to send message after retries:', error);
+
+      // Show user-friendly error message
+      if (error instanceof Error && error.message.includes('Extension context invalidated')) {
+        // Service worker is invalidated, suggest reloading the extension
+        logger.warn('🫳💬', '[FloatPanel.tsx]', 'Service worker context invalidated, extension may need to be reloaded');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     shouldShowFloatUI && (
@@ -113,31 +155,28 @@ export const FloatPanel: React.FC = () => {
                   key={index}
                   onClick={async () => {
                     logger.debug('🫳💬', '[FloatPanel.tsx]', `Clicked ${name} button`);
-                    if (currentTabId === null || currentTabUrl === null) throw new Error('No active tab found');
-                    // logger.debug('🫳💬', '[FloatPanel.tsx]', 'Sending message to service worker script', currentTabId, currentTabUrl);
-                    try {
-                      await chrome.runtime.sendMessage({
-                        action: MessageAction.OPEN_AI_SERVICE,
-                        payload: {
-                          service: service,
-                          tabId: currentTabId,
-                          tabUrl: currentTabUrl,
-                        },
-                      });
-                      // logger.debug('🫳💬', '[FloatPanel.tsx]', 'Message sent successfully');
-                    } catch (error) {
-                      logger.error('🫳💬', '[FloatPanel.tsx]', 'Failed to send message:', error);
-                    }
+                    await handleServiceWorkerMessage({
+                      action: MessageAction.OPEN_AI_SERVICE,
+                      payload: {
+                        service: service,
+                        tabId: currentTabId,
+                        tabUrl: currentTabUrl,
+                      },
+                    });
                     setIsPanelVisible(false);
                   }}
-                  className={`
-                flex items-center gap-[8px] p-[6px]
-                text-[12px]
-                text-zinc-900 dark:text-zinc-100
-                hover:bg-zinc-400/80 dark:hover:bg-zinc-500/80
-                rounded-[4px]
-                transition-colors duration-200
-              `}
+                  disabled={isLoading}
+                  className={clsx(
+                    `
+                    flex items-center gap-[8px] p-[6px]
+                    text-[12px]
+                    text-zinc-900 dark:text-zinc-100
+                    hover:bg-zinc-400/80 dark:hover:bg-zinc-500/80
+                    rounded-[4px]
+                    transition-colors duration-200
+                  `,
+                    isLoading && 'opacity-50 cursor-not-allowed'
+                  )}
                 >
                   <ServiceIcon service={service} className="w-[16px] h-[16px]" />
                   <span>{getAIServiceLabel(service)}</span>
@@ -152,21 +191,24 @@ export const FloatPanel: React.FC = () => {
             {/* Copy to clipboard */}
             <button
               onClick={async () => {
-                if (currentTabId === null || currentTabUrl === null) throw new Error('No active tab found');
-                await chrome.runtime.sendMessage({
+                await handleServiceWorkerMessage({
                   action: MessageAction.READ_ARTICLE_FOR_CLIPBOARD,
                   payload: { tabId: currentTabId, tabUrl: currentTabUrl },
                 });
                 setIsPanelVisible(false);
               }}
-              className={`
+              disabled={isLoading}
+              className={clsx(
+                `
                 flex items-center gap-[8px] p-[6px]
                 text-[12px]
                 text-zinc-900 dark:text-zinc-100
                 hover:bg-zinc-400/80 dark:hover:bg-zinc-500/80
                 rounded-[4px]
                 transition-colors duration-200
-              `}
+              `,
+                isLoading && 'opacity-50 cursor-not-allowed'
+              )}
             >
               <IoClipboardOutline className="w-[16px] h-[16px]" />
               <span>Copy to clipboard</span>
@@ -176,20 +218,24 @@ export const FloatPanel: React.FC = () => {
             <button
               onClick={async () => {
                 logger.debug('📦🍿', '[FloatPanel.tsx]', '[render]', 'Extract article again');
-                await chrome.runtime.sendMessage({
+                await handleServiceWorkerMessage({
                   action: MessageAction.EXTRACT_ARTICLE,
                   payload: { tabId: currentTabId, tabUrl: currentTabUrl },
                 });
                 setIsPanelVisible(false);
               }}
-              className={`
+              disabled={isLoading}
+              className={clsx(
+                `
                 flex items-center gap-[8px] p-[6px]
                 text-[12px]
                 text-zinc-900 dark:text-zinc-100
                 hover:bg-zinc-400/80 dark:hover:bg-zinc-500/80
                 rounded-[4px]
                 transition-colors duration-200
-              `}
+              `,
+                isLoading && 'opacity-50 cursor-not-allowed'
+              )}
             >
               <IoReloadOutline className="w-[16px] h-[16px]" />
               <span>Extract article again</span>
@@ -204,21 +250,24 @@ export const FloatPanel: React.FC = () => {
             <button
               onClick={async () => {
                 logger.debug('📦🍿', '[FloatPanel.tsx]', '[render]', 'Settings clicked');
-                if (currentTabId === null || currentTabUrl === null) throw new Error('No active tab found');
-                await chrome.runtime.sendMessage({
+                await handleServiceWorkerMessage({
                   action: MessageAction.OPEN_SETTINGS,
                   payload: { tabId: currentTabId, tabUrl: currentTabUrl },
                 });
                 setIsPanelVisible(false);
               }}
-              className={`
+              disabled={isLoading}
+              className={clsx(
+                `
                 flex items-center gap-[8px] p-[6px]
                 text-[12px]
                 text-zinc-900 dark:text-zinc-100
                 hover:bg-zinc-400/80 dark:hover:bg-zinc-500/80
                 rounded-[4px]
                 transition-colors duration-200
-              `}
+              `,
+                isLoading && 'opacity-50 cursor-not-allowed'
+              )}
             >
               <IoSettingsOutline className="w-[16px] h-[16px]" />
               <span>Settings</span>
