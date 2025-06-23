@@ -12,23 +12,38 @@ export class ContextMenuService {
   }
 
   async createMenu(isExtracted: boolean, tabUrl?: string) {
-    try {
-      await chrome.contextMenus.removeAll();
-      await new Promise(resolve => setTimeout(resolve, 300));
-      const isInvalid = await isInvalidUrl(tabUrl);
-      if (!tabUrl || isInvalid) {
-        this.createBasicMenu();
-      } else {
-        this.createFullMenu(tabUrl, isExtracted);
-      }
-    } catch (error) {
-      logger.error('🧑‍🍳📃', '[ContextMenuService.tsx]', '[createMenu]', 'Failed to create context menu:', error);
+    const { result, error } = await this.removeMenu();
+
+    if (error) {
+      logger.error('🧑‍🍳📃', '[ContextMenuService.tsx]', '[createMenu]', 'Failed to remove context menu:', error);
+      return;
     }
+
+    const isInvalid = await isInvalidUrl(tabUrl);
+    if (!tabUrl || isInvalid) {
+      await this.createBasicMenu();
+    } else {
+      await this.createFullMenu(tabUrl, isExtracted);
+    }
+  }
+
+  private async removeMenu(): Promise<{ result: boolean; error: Error | null }> {
+    return new Promise(resolve => {
+      try {
+        chrome.contextMenus.removeAll(() => {
+          logger.debug('🧑‍🍳📃', '[ContextMenuService.tsx]', '[removeMenu]', '🗑️ Context menu removed');
+          resolve({ result: true, error: null });
+        });
+      } catch (error) {
+        logger.error('🧑‍🍳📃', '[ContextMenuService.tsx]', '[removeMenu]', '🗑️ Failed to remove context menu:', error);
+        resolve({ result: false, error: error as Error });
+      }
+    });
   }
 
   private async createFullMenu(tabUrl: string, isExtracted: boolean) {
     try {
-      logger.debug('🧑‍🍳📃', '[ContextMenuService.tsx]', '[createFullMenu]', 'Creating full menu');
+      logger.debug('🧑‍🍳📃', '[ContextMenuService.tsx]', '[createFullMenu]', '+ Creating full menu');
       const root = chrome.contextMenus.create({
         id: MENU_ITEMS.ROOT_ACTIVE.id,
         title: MENU_ITEMS.ROOT_ACTIVE.title,
@@ -90,13 +105,13 @@ export class ContextMenuService {
         parentId: root,
       });
     } catch (error) {
-      logger.error('🧑‍🍳📃', '[ContextMenuService.tsx]', '[createFullMenu]', 'Failed to create full menu:', error);
+      logger.error('🧑‍🍳📃', '[ContextMenuService.tsx]', '[createFullMenu]', '+ Failed to create full menu:', error);
     }
   }
 
   private async createBasicMenu() {
     try {
-      logger.debug('🧑‍🍳📃', '[ContextMenuService.tsx]', '[createBasicMenu]', 'Creating basic menu');
+      logger.debug('🧑‍🍳📃', '[ContextMenuService.tsx]', '[createBasicMenu]', '+ Creating basic menu');
       const root = chrome.contextMenus.create({
         id: MENU_ITEMS.ROOT_INACTIVE.id,
         title: MENU_ITEMS.ROOT_INACTIVE.title,
@@ -109,7 +124,7 @@ export class ContextMenuService {
         parentId: root,
       });
     } catch (error) {
-      logger.error('🧑‍🍳📃', '[ContextMenuService.tsx]', '[createBasicMenu]', 'Failed to create basic menu:', error);
+      logger.error('🧑‍🍳📃', '[ContextMenuService.tsx]', '[createBasicMenu]', '+ Failed to create basic menu:', error);
     }
   }
 }
