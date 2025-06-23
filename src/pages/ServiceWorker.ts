@@ -189,6 +189,13 @@ class ServiceWorker {
       logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleContextMenuClicked]', 'No active tab found');
       return;
     }
+
+    /** Check if the tab exists before proceeding */
+    if (!(await chrome.tabs.get(tab.id).catch(() => null))) {
+      logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleContextMenuClicked]', 'Tab not found:', tab.id);
+      return;
+    }
+
     logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleContextMenuClicked]', info);
 
     switch (info.menuItemId) {
