@@ -2,7 +2,13 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 import { STORAGE_KEYS } from '@/constants';
-import { AIService, ContentExtractionTiming, FloatPanelPosition, MessageAction, TabBehavior } from '@/types';
+import {
+  AIService,
+  ContentExtractionTiming,
+  FloatPanelPosition,
+  MessageAction,
+  TabBehavior,
+} from '@/types';
 import { logger } from '@/utils';
 
 export interface SettingsState {
@@ -314,12 +320,6 @@ export const useSettingsStore = create<SettingsStore>()(
  */
 const sendSettingsUpdate = async () => {
   try {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    if (!tab.id) {
-      logger.warn('🏪⚙️', '[SettingsStore.ts]', '[sendSettingsUpdate]', 'No active tab found');
-      return;
-    }
-
     // logger.debug('🏪⚙️', '[SettingsStore.ts]', '[sendSettingsUpdate]', 'Sending settings update message to content script');
     const settings = useSettingsStore.getState();
     await chrome.runtime.sendMessage({

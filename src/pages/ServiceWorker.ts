@@ -86,10 +86,12 @@ class ServiceWorker {
    */
   async handleTabActivated(activeInfo: chrome.tabs.TabActiveInfo) {
     logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleTabActivated]', activeInfo);
-    // this.initialize();
 
-    /** Wait for 500ms */
-    // await new Promise(resolve => setTimeout(resolve, 500));
+    /** Check if the tab exists before proceeding */
+    if (!(await chrome.tabs.get(activeInfo.tabId).catch(() => null))) {
+      logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleTabActivated]', 'Tab not found:', activeInfo.tabId);
+      return;
+    }
 
     /** Get the active tab */
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -116,7 +118,11 @@ class ServiceWorker {
     if (changeInfo.status !== 'complete' || !tab.url) return;
     logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleTabUpdated]', tab.url, tab.status);
 
-    // await new Promise(resolve => setTimeout(resolve, 500));
+    /** Check if the tab exists before proceeding */
+    if (!(await chrome.tabs.get(tabId).catch(() => null))) {
+      logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleTabUpdated]', 'Tab not found:', tabId);
+      return;
+    }
 
     /** Execute the extraction */
     if (isAIServiceUrl(tab.url)) {
@@ -283,6 +289,15 @@ class ServiceWorker {
   async openAIService(service: AIService, tabId: number, tabUrl: string): Promise<boolean> {
     try {
       logger.debug('🧑‍🍳📃', '[ServiceWorker.ts]', '[openAIService]', service, tabId, tabUrl);
+
+      /** Check if the tab exists before proceeding */
+      const tab = await chrome.tabs.get(tabId).catch(() => null);
+      if (!tab) {
+        logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[openAIService]', 'Tab not found:', tabId);
+        return false;
+      }
+
+      /** Get the article from the database */
       const article = await db.getArticleByUrl(tabUrl);
       if (!article?.is_success) {
         logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[openAIService]', 'Article not found', tabUrl);
