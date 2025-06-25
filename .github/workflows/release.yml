@@ -334,5 +334,4 @@ jobs:
             echo "    - Google Cloud Console Help:"
             echo "      https://cloud.google.com/apis/docs/getting-started"
             echo "    - OAuth2 Documentation:"
-            echo "      https://developers.google.com/identity/protocols/oauth2"
-          fi
+            echo "      https://developers.google.com/identity/prot

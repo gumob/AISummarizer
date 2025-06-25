@@ -272,5 +272,4 @@ lane :release do
   # Merge develop to main
   merge_to_main
 
-  UI.success("Release completed successfully!")
-end
+  UI.success("Release completed successfully!"
