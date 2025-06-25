@@ -29,7 +29,7 @@ The extension requires the following permissions to function:
 
 - `storage`: To save your preferences, settings, and extracted articles locally on the device. No data is transmitted to external servers.
 - `tabs`: To access tab information, create new tabs for AI services, and communicate with content scripts for article extraction and injection.
-- `scripting`: To inject content scripts into web pages for article extraction and to communicate between different parts of the extension.
+<!-- - `scripting`: To inject content scripts into web pages for article extraction and to communicate between different parts of the extension. -->
 - `activeTab`: To access the current active tab for article extraction, clipboard operations, and UI state management.
 - `offscreen`: To detect system color scheme changes for theme synchronization, ensuring the extension's appearance matches the user's system preferences.
 - `contextMenus`: To create right-click context menus that allow users to extract articles, copy to clipboard, and access AI services directly from web pages.
