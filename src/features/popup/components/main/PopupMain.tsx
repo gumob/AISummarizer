@@ -1,29 +1,12 @@
-import React, {
-  useEffect,
-  useState,
-} from 'react';
+import React, { useEffect, useState } from 'react';
 
-import {
-  IoClipboardOutline,
-  IoReloadOutline,
-  IoSettingsOutline,
-} from 'react-icons/io5';
+import { IoClipboardOutline, IoReloadOutline, IoSettingsOutline } from 'react-icons/io5';
 
-import {
-  Divider,
-  ServiceIcon,
-} from '@/components';
+import { Divider, ServiceIcon } from '@/components';
 import { ServiceListMenu } from '@/features/popup/components/main';
 import { useGlobalContext } from '@/stores';
-import {
-  AIService,
-  getAIServiceLabel,
-  MessageAction,
-} from '@/types';
-import {
-  isInvalidUrl,
-  logger,
-} from '@/utils';
+import { AIService, getAIServiceLabel, MessageAction } from '@/types';
+import { isInvalidUrl, logger } from '@/utils';
 
 /**
  * The component for managing extensions.
