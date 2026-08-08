@@ -1,11 +1,42 @@
 import { getRandomInt, logger, waitForElement } from '@/utils';
 
-export async function injectKimi(prompt: string): Promise<{ success: boolean; error?: Error }> {
+/*
+ * Select the model (Instant / K3) before injecting text.
+ * The picker opens from the .current-model chip next to the send button and lists
+ * .model-item entries; the name is matched exactly so "K3" never hits "K3 Swarm"
+ * (verified live 2026-08-08). Selecting K3 navigates to /agent, where the editor
+ * and send button keep the same selectors.
+ * Any failure is logged and swallowed so the injection itself still proceeds.
+ */
+async function selectKimiModel(model: string): Promise<void> {
+  try {
+    const trigger = await waitForElement('.current-model');
+    if (!(trigger instanceof HTMLElement)) throw new Error('Kimi model picker trigger not found');
+    trigger.click();
+
+    /* Wait for the picker popup to open */
+    await new Promise(resolve => setTimeout(resolve, getRandomInt(500, 1000)));
+
+    const target = [...document.querySelectorAll('.model-item')].find(el => el.querySelector('.model-name')?.textContent?.trim() === model);
+    if (!(target instanceof HTMLElement)) throw new Error(`Kimi model item not found: ${model}`);
+    target.click();
+
+    /* Wait for the model switch (and a possible SPA navigation) to settle */
+    await new Promise(resolve => setTimeout(resolve, getRandomInt(500, 1000)));
+  } catch (error: unknown) {
+    logger.warn('📕', '[Kimi.tsx]', '[selectKimiModel]', 'Model selection failed, continuing injection:', error);
+  }
+}
+
+export async function injectKimi(prompt: string, model?: string): Promise<{ success: boolean; error?: Error }> {
   try {
     logger.debug('📕', '[Kimi.tsx]', '[injectKimi]', 'Injecting article into Kimi\n', prompt);
 
     /** Wait for 2 to 3 seconds to ensure page is fully loaded */
     await new Promise(resolve => setTimeout(resolve, getRandomInt(2000, 3000)));
+
+    /* Select the configured model first; failures are non-fatal */
+    if (model) await selectKimiModel(model);
 
     /** Wait for the editor to be found. The chat box is a Lexical contenteditable div (verified live 2026-08-08) */
     const editor = await waitForElement('div[contenteditable="true"][data-lexical-editor="true"]');

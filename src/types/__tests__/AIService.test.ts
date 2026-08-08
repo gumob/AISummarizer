@@ -9,6 +9,8 @@ describe('supportsModelParam', () => {
     expect(supportsModelParam(AIService.DEEPSEEK)).toBe(false);
     expect(supportsModelParam(AIService.GROK)).toBe(false);
     expect(supportsModelParam(AIService.PERPLEXITY)).toBe(false);
+    expect(supportsModelParam(AIService.KIMI)).toBe(false);
+    expect(supportsModelParam(AIService.QWEN)).toBe(false);
   });
 });
 
@@ -19,6 +21,8 @@ describe('supportsModelSelection', () => {
     expect(supportsModelSelection(AIService.AI_STUDIO)).toBe(true);
     expect(supportsModelSelection(AIService.GEMINI)).toBe(true);
     expect(supportsModelSelection(AIService.DEEPSEEK)).toBe(true);
+    expect(supportsModelSelection(AIService.KIMI)).toBe(true);
+    expect(supportsModelSelection(AIService.QWEN)).toBe(true);
     expect(supportsModelSelection(AIService.GROK)).toBe(false);
     expect(supportsModelSelection(AIService.PERPLEXITY)).toBe(false);
   });
@@ -37,6 +41,11 @@ describe('getModelOptionsFor', () => {
   it('returns DOM labels for Gemini and DeepSeek', () => {
     expect(getModelOptionsFor(AIService.GEMINI).map(o => o.value)).toEqual(['Flash-Lite', 'Flash', 'Pro']);
     expect(getModelOptionsFor(AIService.DEEPSEEK).map(o => o.value)).toEqual(['Instant', 'Expert', 'Vision']);
+  });
+
+  it('returns DOM labels for Kimi and Qwen', () => {
+    expect(getModelOptionsFor(AIService.KIMI).map(o => o.value)).toEqual(['Instant', 'K3']);
+    expect(getModelOptionsFor(AIService.QWEN).map(o => o.value)).toEqual(['Qwen3.8-Max', 'Qwen3.7-Max', 'Qwen3.7-Plus']);
   });
 });
 

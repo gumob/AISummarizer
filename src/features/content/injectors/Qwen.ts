@@ -1,11 +1,41 @@
 import { getRandomInt, logger, waitForElement } from '@/utils';
 
-export async function injectQwen(prompt: string): Promise<{ success: boolean; error?: Error }> {
+/*
+ * Select the model (Qwen3.8-Max / Qwen3.7-Max / Qwen3.7-Plus) before injecting text.
+ * The header trigger carries aria-label "Select Model" and the popup lists
+ * div[role="option"] entries; module class names are hashed, so the picker is
+ * located by aria-label and role instead (verified live 2026-08-08).
+ * Any failure is logged and swallowed so the injection itself still proceeds.
+ */
+async function selectQwenModel(model: string): Promise<void> {
+  try {
+    const trigger = await waitForElement('[aria-label="Select Model"]');
+    if (!(trigger instanceof HTMLElement)) throw new Error('Qwen model picker trigger not found');
+    trigger.click();
+
+    /* Wait for the picker popup to open */
+    await new Promise(resolve => setTimeout(resolve, getRandomInt(500, 1000)));
+
+    const target = [...document.querySelectorAll('[role="option"]')].find(el => el.textContent?.includes(model));
+    if (!(target instanceof HTMLElement)) throw new Error(`Qwen model option not found: ${model}`);
+    target.click();
+
+    /* Wait for the model switch to settle */
+    await new Promise(resolve => setTimeout(resolve, getRandomInt(500, 1000)));
+  } catch (error: unknown) {
+    logger.warn('📕', '[Qwen.tsx]', '[selectQwenModel]', 'Model selection failed, continuing injection:', error);
+  }
+}
+
+export async function injectQwen(prompt: string, model?: string): Promise<{ success: boolean; error?: Error }> {
   try {
     logger.debug('📕', '[Qwen.tsx]', '[injectQwen]', 'Injecting article into Qwen\n', prompt);
 
     /** Wait for 2 to 3 seconds to ensure page is fully loaded */
     await new Promise(resolve => setTimeout(resolve, getRandomInt(2000, 3000)));
+
+    /* Select the configured model first; failures are non-fatal */
+    if (model) await selectQwenModel(model);
 
     /** Wait for the editor to be found. The chat box is the sole textarea on the page (verified live 2026-08-08) */
     const editor = await waitForElement('textarea.message-input-textarea, textarea');

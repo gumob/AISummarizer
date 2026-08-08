@@ -43,12 +43,19 @@ const AI_SERVICE_MODEL_OPTIONS: { [key in AIService]: AIServiceModelOption[] } =
     { label: 'Expert', value: 'Expert' },
     { label: 'Vision', value: 'Vision' },
   ],
-  [AIService.KIMI]: [],
-  [AIService.QWEN]: [],
+  [AIService.KIMI]: [
+    { label: 'Instant', value: 'Instant' },
+    { label: 'K3', value: 'K3' },
+  ],
+  [AIService.QWEN]: [
+    { label: 'Qwen3.8-Max', value: 'Qwen3.8-Max' },
+    { label: 'Qwen3.7-Max', value: 'Qwen3.7-Max' },
+    { label: 'Qwen3.7-Plus', value: 'Qwen3.7-Plus' },
+  ],
 };
 
 const MODEL_PARAM_SERVICES: AIService[] = [AIService.CHATGPT, AIService.CLAUDE, AIService.AI_STUDIO];
-const MODEL_DOM_SERVICES: AIService[] = [AIService.GEMINI, AIService.DEEPSEEK];
+const MODEL_DOM_SERVICES: AIService[] = [AIService.GEMINI, AIService.DEEPSEEK, AIService.KIMI, AIService.QWEN];
 
 export const getModelOptionsFor = (service: AIService): AIServiceModelOption[] => AI_SERVICE_MODEL_OPTIONS[service];
 
