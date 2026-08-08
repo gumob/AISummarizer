@@ -8,6 +8,8 @@ export enum AIService {
   GROK = 'GROK',
   PERPLEXITY = 'PERPLEXITY',
   DEEPSEEK = 'DEEPSEEK',
+  KIMI = 'KIMI',
+  QWEN = 'QWEN',
 }
 
 export interface AIServiceModelOption {
@@ -41,6 +43,8 @@ const AI_SERVICE_MODEL_OPTIONS: { [key in AIService]: AIServiceModelOption[] } =
     { label: 'Expert', value: 'Expert' },
     { label: 'Vision', value: 'Vision' },
   ],
+  [AIService.KIMI]: [],
+  [AIService.QWEN]: [],
 };
 
 const MODEL_PARAM_SERVICES: AIService[] = [AIService.CHATGPT, AIService.CLAUDE, AIService.AI_STUDIO];
@@ -70,6 +74,10 @@ export const getSummarizeUrl = (service: AIService, summarizeId: string, model?:
       return `https://www.perplexity.ai/?${AI_SERVICE_QUERY_KEY}=${summarizeId}`;
     case AIService.DEEPSEEK:
       return `https://chat.deepseek.com/?${AI_SERVICE_QUERY_KEY}=${summarizeId}`;
+    case AIService.KIMI:
+      return `https://www.kimi.com/?${AI_SERVICE_QUERY_KEY}=${summarizeId}`;
+    case AIService.QWEN:
+      return `https://chat.qwen.ai/?${AI_SERVICE_QUERY_KEY}=${summarizeId}`;
   }
 };
 
@@ -88,6 +96,10 @@ export const getAIServiceForUrl = (url: string): AIService => {
     return AIService.PERPLEXITY;
   } else if (/^https?:\/\/(?:www|chat\.)?(deepseek\.com)/.test(url)) {
     return AIService.DEEPSEEK;
+  } else if (/^https?:\/\/(?:www\.)?(kimi\.com)/.test(url)) {
+    return AIService.KIMI;
+  } else if (/^https?:\/\/(?:(?:www|chat)\.)?(qwen\.ai)/.test(url)) {
+    return AIService.QWEN;
   } else {
     throw new Error(`Invalid AI service URL: ${url}`);
   }
@@ -109,6 +121,10 @@ export const getAIServiceFromString = (id: string): AIService => {
       return AIService.PERPLEXITY;
     case 'deepseek':
       return AIService.DEEPSEEK;
+    case 'kimi':
+      return AIService.KIMI;
+    case 'qwen':
+      return AIService.QWEN;
     default:
       throw new Error(`Invalid AI service ID: ${id}`);
   }
@@ -130,5 +146,9 @@ export const getAIServiceLabel = (service: AIService): string => {
       return 'Perplexity';
     case AIService.DEEPSEEK:
       return 'DeepSeek';
+    case AIService.KIMI:
+      return 'Kimi';
+    case AIService.QWEN:
+      return 'Qwen';
   }
 };

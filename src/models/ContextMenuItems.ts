@@ -40,6 +40,16 @@ export const MENU_ITEMS = {
       title: 'Deepseek',
       contexts: ['page' as const],
     },
+    {
+      id: 'kimi',
+      title: 'Kimi',
+      contexts: ['page' as const],
+    },
+    {
+      id: 'qwen',
+      title: 'Qwen',
+      contexts: ['page' as const],
+    },
   ],
   DIVIDER: {
     type: 'separator' as chrome.contextMenus.ItemType,

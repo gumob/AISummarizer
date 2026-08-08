@@ -5,3 +5,5 @@ export * from './Claude';
 export * from './Grok';
 export * from './Perplexity';
 export * from './Deepseek';
+export * from './Kimi';
+export * from './Qwen';

@@ -44,6 +44,8 @@ export const DEFAULT_SETTINGS: SettingsState = {
     [AIService.GROK]: DEFAULT_PROMPT,
     [AIService.PERPLEXITY]: DEFAULT_PROMPT,
     [AIService.DEEPSEEK]: DEFAULT_PROMPT,
+    [AIService.KIMI]: DEFAULT_PROMPT,
+    [AIService.QWEN]: DEFAULT_PROMPT,
   },
   models: {
     [AIService.CHATGPT]: '',
@@ -53,6 +55,8 @@ export const DEFAULT_SETTINGS: SettingsState = {
     [AIService.GROK]: '',
     [AIService.PERPLEXITY]: '',
     [AIService.DEEPSEEK]: '',
+    [AIService.KIMI]: '',
+    [AIService.QWEN]: '',
   },
   serviceOnMenu: {
     [AIService.CHATGPT]: true,
@@ -62,6 +66,8 @@ export const DEFAULT_SETTINGS: SettingsState = {
     [AIService.GROK]: true,
     [AIService.PERPLEXITY]: true,
     [AIService.DEEPSEEK]: true,
+    [AIService.KIMI]: true,
+    [AIService.QWEN]: true,
   },
   tabBehavior: TabBehavior.NEW_TAB,
   contentExtractionTiming: ContentExtractionTiming.AUTOMATIC,
