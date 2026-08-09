@@ -86,7 +86,7 @@ const config: Configuration = {
           from: 'public',
           to: '.',
           globOptions: {
-            ignore: ['**/*.sketch', '**/*.html'],
+            ignore: ['**/*.sketch', '**/*.html', '**/.DS_Store'],
           },
         },
         {
