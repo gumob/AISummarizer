@@ -80,8 +80,8 @@ export const ServiceIcon = ({ service, className = 'w-4 h-4 text-zinc-900 dark:t
       </svg>
     ),
     [AIService.KIMI]: (
-      /* Brand glyph from simple-icons; padded viewBox scales the 24-unit glyph down to match the ~89% fill ratio of the other icons */
-      <svg width="36" height="36" viewBox="-1.5 -1.5 27 27" className={`translate-y-[2px] ${className}`} fill="none" xmlns="http://www.w3.org/2000/svg">
+      /* Brand glyph from simple-icons; the padded viewBox matches the ~89% fill ratio of the other icons and is skewed right/up because the K's visual mass sits bottom-left */
+      <svg width="36" height="36" viewBox="-2.5 0 27 27" className={`translate-y-[2px] ${className}`} fill="none" xmlns="http://www.w3.org/2000/svg">
         <path
           d="M21.765.351C22.998.351 24 1.353 24 2.586S22.998 4.82 21.765 4.82h-1.974c-.15 0-.26-.12-.26-.26V2.586A2.237 2.237 0 0 1 21.765.35M9.41 13.388l8.447-8.377c.16-.16.07-.471-.14-.471h-4.55s-.1.02-.14.06l-9.099 9.029c-.14.14-.35.02-.35-.21V4.81c0-.15-.1-.27-.221-.27H.22c-.12 0-.22.12-.22.27v18.57c0 .15.1.27.22.27h3.137c.12 0 .22-.12.22-.27v-3.79c0-.08.03-.16.08-.21l2.826-2.796c.07-.07.16-.08.241-.03l7.546 5.551a8.9 8.9 0 0 0 4.018 1.493c.12.01.23-.11.23-.27V19.76c0-.14-.08-.25-.19-.26a5.8 5.8 0 0 1-2.355-.942l-6.533-4.73c-.14-.09-.15-.32-.03-.441"
           fill="currentColor"
@@ -90,8 +90,8 @@ export const ServiceIcon = ({ service, className = 'w-4 h-4 text-zinc-900 dark:t
       </svg>
     ),
     [AIService.QWEN]: (
-      /* Current (2026) Qwen mark, traced from the official chat.qwen.ai favicon */
-      <svg width="36" height="36" viewBox="0 0 80 80" className={`translate-y-[2px] ${className}`} fill="none" xmlns="http://www.w3.org/2000/svg">
+      /* Current (2026) Qwen mark, traced from the official chat.qwen.ai favicon; no y-offset because the two bottom ribbons already pull the visual weight down */
+      <svg width="36" height="36" viewBox="0 0 80 80" className={`translate-y-[0px] ${className}`} fill="none" xmlns="http://www.w3.org/2000/svg">
         <path
           d="M35.2 62.9Q34 65 31.6 65.1L16.7 65.9Q14 66 12.3 63.9L11.6 63.0Q10 61 9.6 58.5L9.4 57.5Q9 55 10.1 52.7L11.6 49.9Q13 47 11.3 44.3L5.7 35.7Q4 33 5.4 30.1L7.6 25.9Q9 23 12.2 23.0L15.3 23.0Q18 23 19.7 25.1L20.3 25.9Q22 28 23.3 30.3L35.8 51.8Q37 54 37.0 56.5L37.0 57.6Q37 60 35.8 62.1ZM71.0 21.3Q71 23 69.9 24.3L68.0 26.5Q66 29 62.8 29.0L30.0 29.0Q27 29 25.3 26.5L24.2 24.7Q23 23 23.0 20.9L23.0 20.1Q23 18 24.1 16.2L30.3 6.7Q32 4 35.2 4.0L38.8 4.0Q42 4 43.4 6.9L44.6 9.1Q46 12 49.2 12.0L62.8 12.0Q66 12 67.9 14.6L70.0 17.6Q71 19 71.0 20.7ZM44.7 76.0Q42 76 40.3 73.9L39.6 73.0Q38 71 38.0 68.5L38.0 67.5Q38 65 39.2 62.8L48.4 46.8Q50 44 51.8 41.4L55.2 36.6Q57 34 60.2 34.0L63.8 34.0Q67 34 68.6 36.7L74.4 46.3Q76 49 75.0 52.0L74.0 55.0Q73 58 69.8 58.3L65.2 58.7Q62 59 60.4 61.8L53.6 73.2Q52 76 48.8 76.0Z"
           fill="currentColor"
