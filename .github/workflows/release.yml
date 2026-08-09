@@ -97,6 +97,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload to Chrome Web Store
+        id: store_upload
         run: |
           # Set environment variables for debugging
           CLIENT_ID="${{ secrets.CHROME_CLIENT_ID }}"
@@ -263,9 +264,13 @@ jobs:
       - name: Check Chrome Web Store upload result
         if: always()
         run: |
-          if [ "${{ job.status }}" == "success" ]; then
+          # job.status cannot detect the upload failure here: the upload step
+          # runs with continue-on-error, so the job stays "success" either way.
+          # steps.store_upload.outcome holds the step's own result instead.
+          if [ "${{ steps.store_upload.outcome }}" == "success" ]; then
             echo "✅ Chrome Web Store upload completed successfully"
           else
+            echo "::warning::Chrome Web Store upload failed — check the 'Upload to Chrome Web Store' step log"
             echo "⚠️ Chrome Web Store upload failed, but workflow continued"
             echo ""
             echo "🔍 Detailed Troubleshooting Guide:"
