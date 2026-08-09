@@ -31,7 +31,7 @@ Five webpack entry points, all in `src/pages/`, one per extension context:
 - `Options.tsx` — options page, also served as the side panel
 - `ServiceWorker.ts` — MV3 background service worker (context menus, scheduled DB cleanup via alarms, theme relay)
 - `Offscreen.ts` — offscreen document (detects OS color scheme, which a service worker cannot do)
-- `Content.tsx` — content script injected into all pages (floating panel UI, article extraction, injection)
+- `Content.tsx` — content script injected into all pages (toast notifications, article extraction, injection)
 
 Feature code lives in `src/features/<context>/` matching those contexts. Cross-context communication uses `chrome.runtime` messaging with the `MessageAction` enum and `Message` / `MessageResponse` types in `src/types/Message.ts`.
 
