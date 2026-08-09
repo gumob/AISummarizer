@@ -67,6 +67,28 @@ export async function injectKimi(prompt: string, model?: string): Promise<{ succ
       throw new Error('Kimi submit button not found');
     }
 
+    /*
+     * With large prompts, Kimi's Lexical editor occasionally re-applies the tail
+     * chunk of the inserted text after the send has already cleared the editor
+     * (observed live 2026-08-09). Poll briefly after sending and wipe any editor
+     * content that is a fragment of the injected prompt; user-typed text never
+     * matches and is left untouched. Clearing needs an explicit DOM selection
+     * plus an empty insertText: execCommand('selectAll'/'delete') is ignored by
+     * Lexical, and the selectionchange must settle before insertText fires.
+     */
+    for (let attempt = 0; attempt < 6; attempt++) {
+      await new Promise(resolve => setTimeout(resolve, 800));
+      const residueEditor = document.querySelector('div[contenteditable="true"][data-lexical-editor="true"]');
+      if (!(residueEditor instanceof HTMLElement)) continue;
+      const residue = residueEditor.textContent?.trim();
+      if (!residue || !prompt.includes(residue)) continue;
+      logger.debug('📕', '[Kimi.tsx]', '[injectKimi]', 'Clearing prompt residue re-applied after send:', residue.length);
+      residueEditor.focus();
+      window.getSelection()?.selectAllChildren(residueEditor);
+      await new Promise(resolve => setTimeout(resolve, 200));
+      document.execCommand('insertText', false, '');
+    }
+
     return {
       success: true,
     };
