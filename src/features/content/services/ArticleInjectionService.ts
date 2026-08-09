@@ -1,4 +1,14 @@
-import { injectAIStudio, injectChatGPT, injectClaude, injectDeepSeek, injectGemini, injectGrok, injectPerplexity } from '@/features/content/injectors';
+import {
+  injectAIStudio,
+  injectChatGPT,
+  injectClaude,
+  injectDeepSeek,
+  injectGemini,
+  injectGrok,
+  injectKimi,
+  injectPerplexity,
+  injectQwen,
+} from '@/features/content/injectors';
 import { AIService, ArticleInjectionResult, getAIServiceForUrl } from '@/types';
 import { isAIServiceUrl, logger } from '@/utils';
 
@@ -10,6 +20,8 @@ const injectors: Record<AIService, (prompt: string, model?: string) => Promise<{
   [AIService.GROK]: injectGrok,
   [AIService.PERPLEXITY]: injectPerplexity,
   [AIService.DEEPSEEK]: injectDeepSeek,
+  [AIService.KIMI]: injectKimi,
+  [AIService.QWEN]: injectQwen,
 };
 
 export class ArticleInjectionService {

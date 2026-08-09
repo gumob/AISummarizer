@@ -6,6 +6,17 @@ import { useSettingsStore } from '@/stores';
 import { AI_SERVICE_QUERY_KEY, ArticleExtractionResult, ArticleInjectionResult, getAIServiceForUrl, Message, MessageAction, MessageResponse } from '@/types';
 import { copyToClipboard, createPrompt, logger } from '@/utils';
 
+/*
+ * Article ids already injected in this document. The service worker can deliver
+ * INJECT_ARTICLE more than once for the same article because tabs.onUpdated fires
+ * 'complete' repeatedly while the aismid URL is still current during the AI
+ * service's SPA boot; a second run would re-select the model and re-fill the
+ * editor after the first send (observed live on Kimi 2026-08-09). Module scope
+ * makes the guard survive re-renders; a real page reload starts a fresh document
+ * and legitimately allows injecting again.
+ */
+const handledInjectionArticleIds = new Set<string>();
+
 /**
  * Hook for handling Chrome extension messages
  */
@@ -137,6 +148,14 @@ export const useContentMessage = () => {
               sendResponse({ success: false, error: new Error('Invalid service URL') });
               return true;
             }
+
+            /** Skip duplicate deliveries for an article already injected in this document */
+            if (handledInjectionArticleIds.has(String(message.payload.article.id))) {
+              logger.warn('🫳💬', '[useContentMessage.tsx]', '[handleMessage]', 'Skipping duplicate injection for article:', message.payload.article.id);
+              sendResponse({ success: true });
+              return true;
+            }
+            handledInjectionArticleIds.add(String(message.payload.article.id));
 
             createPrompt(service, settings, message.payload.article)
               .then(async prompt => {

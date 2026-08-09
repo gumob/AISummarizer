@@ -83,7 +83,8 @@ export const PopupMain: React.FC = () => {
                   window.close();
                 }}
               >
-                <ServiceIcon service={service} className="w-4 h-4 translate-y-[2px] " />
+                {/* No translate here: each icon's own translate class in ServiceIcon must win, and Tailwind resolves same-property class conflicts by stylesheet order, not class order */}
+                <ServiceIcon service={service} className="w-4 h-4" />
                 {getAIServiceLabel(service)}
               </ServiceListMenu>
             ))}
