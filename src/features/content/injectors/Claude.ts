@@ -4,9 +4,6 @@ export async function injectClaude(prompt: string): Promise<{ success: boolean; 
   try {
     logger.debug('📕', '[Claude.tsx]', '[injectClaude]', 'Injecting article into Claude', prompt);
 
-    /** Wait for 2 to 3 seconds */
-    new Promise(resolve => setTimeout(resolve, getRandomInt(2000, 3000)));
-
     /** Wait for the editor to be found */
     const editor = await waitForElement('div.ProseMirror[contenteditable="true"]');
     if (!editor) throw new Error('Claude container not found');

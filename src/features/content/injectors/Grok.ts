@@ -4,9 +4,6 @@ export async function injectGrok(prompt: string): Promise<{ success: boolean; er
   try {
     logger.debug('📕', '[Grok.tsx]', '[injectGrok]', 'Injecting article into Grok', prompt);
 
-    /** Wait for 2 to 3 seconds */
-    new Promise(resolve => setTimeout(resolve, getRandomInt(2000, 3000)));
-
     /** Wait for the editor to be found. Grok replaced its textarea with a Tiptap (ProseMirror) contenteditable */
     const editor = await waitForElement('div.tiptap.ProseMirror[contenteditable="true"]');
     if (!editor) throw new Error('Grok container not found');
