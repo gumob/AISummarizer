@@ -1,11 +1,8 @@
-import { getRandomInt, logger, waitForElement } from '@/utils';
+import { logger, waitForElement } from '@/utils';
 
 export async function injectChatGPT(promptText: string): Promise<{ success: boolean; error?: Error }> {
   try {
     logger.debug('📕', '[ChatGPT.tsx]', '[injectChatGPT]', 'Injecting article into ChatGPT', promptText);
-
-    /** Wait for 2 to 3 seconds */
-    new Promise(resolve => setTimeout(resolve, getRandomInt(2000, 3000)));
 
     /*
      * Wait for the editor to be found. The logged-in composer is a ProseMirror
@@ -16,9 +13,6 @@ export async function injectChatGPT(promptText: string): Promise<{ success: bool
     const editor = await waitForElement('#prompt-textarea, form textarea[name="prompt"]');
     if (!editor) throw new Error('ChatGPT container not found');
     logger.debug('📕', '[ChatGPT.tsx]', '[injectChatGPT]', 'ChatGPT editor found', editor);
-
-    /** Wait for 0.5 to 1 second */
-    new Promise(resolve => setTimeout(resolve, getRandomInt(500, 1000)));
 
     if (editor instanceof HTMLTextAreaElement) {
       /** Set the value through the native setter so the framework value tracker registers the change */
@@ -39,9 +33,6 @@ export async function injectChatGPT(promptText: string): Promise<{ success: bool
       editor.innerHTML = paragraphs.join('');
       editor.dispatchEvent(new Event('input', { bubbles: true }));
     }
-
-    /** Wait for 0.5 to 1 second */
-    new Promise(resolve => setTimeout(resolve, getRandomInt(500, 1000)));
 
     /*
      * Wait for the submit button to be found. The logged-in composer exposes
