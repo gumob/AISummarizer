@@ -19,6 +19,7 @@
 | リリース | 初回は手動提出、2回目以降は CI から自動提出 | 掲載情報の初期登録は手作業が確実 |
 | 分岐方式 | 差分のみ platform モジュールに切り出し、ビルド時に切り替え | 呼び出し側から分岐を消す。使わない実装はバンドルから除去される |
 | gecko id | `free-ai-summarizer@futamura.dev` | メールアドレス形式。**公開後は変更不可** |
+| Firefox 版の name | `Free AI Summarizer - ChatGPT, Claude, Gemini` (44 文字) | Firefox は manifest の `name` を 45 文字までに制限する (`web-ext lint` の `JSON_INVALID`)。Chrome 版の name は変えない |
 
 ## 対象外
 
@@ -68,6 +69,7 @@ export const transformManifest = (manifest: Manifest, options: { isDev: boolean;
 
 `toFirefoxManifest` の変換内容:
 
+- `name`: `Free AI Summarizer - ChatGPT, Claude, Gemini` に置き換える。Firefox の上限 45 文字に収めるため (Chrome 用の name は 78 文字)
 - `background`: `{ service_worker, type }` を `{ scripts: ['service-worker.js'] }` に置き換える。ファイル名は webpack の変更を避けるため据え置く
 - `permissions`: `offscreen` と `sidePanel` を除く
 - `side_panel` を削除し、`sidebar_action` を追加する

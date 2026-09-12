@@ -1,5 +1,5 @@
 import manifestJson from '../../manifest.json';
-import { FIREFOX_ADDON_ID, FIREFOX_STRICT_MIN_VERSION, Manifest, toDevManifest, toFirefoxManifest, transformManifest } from '../manifest';
+import { FIREFOX_ADDON_ID, FIREFOX_NAME, FIREFOX_STRICT_MIN_VERSION, Manifest, toDevManifest, toFirefoxManifest, transformManifest } from '../manifest';
 
 /* Fresh deep copy of the real manifest so each test can mutate or compare freely */
 const source = (): Manifest => JSON.parse(JSON.stringify(manifestJson)) as Manifest;
@@ -53,10 +53,17 @@ describe('toFirefoxManifest', () => {
     });
   });
 
+  it('uses a name within the Firefox 45-character limit', () => {
+    expect(FIREFOX_NAME).toBe('Free AI Summarizer - ChatGPT, Claude, Gemini');
+    const result = toFirefoxManifest(source());
+    expect(result.name).toBe(FIREFOX_NAME);
+    expect(result.name.length).toBeLessThanOrEqual(45);
+  });
+
   it('keeps unrelated keys', () => {
     const input = source();
     const result = toFirefoxManifest(input);
-    for (const key of ['manifest_version', 'name', 'version', 'description', 'host_permissions', 'action', 'icons', 'content_scripts', 'options_page', 'web_accessible_resources']) {
+    for (const key of ['manifest_version', 'version', 'description', 'host_permissions', 'action', 'icons', 'content_scripts', 'options_page', 'web_accessible_resources']) {
       expect(result[key]).toEqual(input[key]);
     }
   });

@@ -27,6 +27,9 @@ export const FIREFOX_ADDON_ID = 'free-ai-summarizer@futamura.dev';
 /* Minimum version that understands data_collection_permissions (also covers ESR 140) */
 export const FIREFOX_STRICT_MIN_VERSION = '140.0';
 
+/* Firefox caps the manifest name at 45 characters; the Chrome name in manifest.json is longer */
+export const FIREFOX_NAME = 'Free AI Summarizer - ChatGPT, Claude, Gemini';
+
 /* Short label shown in Firefox's sidebar switcher; the manifest name is too long there */
 const FIREFOX_SIDEBAR_TITLE = 'Free AI Summarizer';
 
@@ -60,6 +63,7 @@ export const toFirefoxManifest = (manifest: Manifest): Manifest => {
   const { side_panel, ...rest } = manifest;
   return {
     ...rest,
+    name: FIREFOX_NAME,
     permissions: (manifest.permissions ?? []).filter(permission => !FIREFOX_UNSUPPORTED_PERMISSIONS.includes(permission)),
     background: { scripts: [serviceWorker] },
     sidebar_action: {
