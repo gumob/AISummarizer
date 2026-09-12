@@ -33,31 +33,14 @@ export const PopupMain: React.FC = () => {
     };
   }, []);
 
-  useEffect(() => {
-    logger.debug('📦🍿', '[PopupMain.tsx]', '[useEffect]', 'shouldShowFullMenu', shouldShowFullMenu);
-    if (shouldShowFullMenu) {
-      const count = Object.values(serviceOnMenu).filter(Boolean).length;
-      const height = 142 + 30 * count;
-      logger.debug('📦🍿', '[PopupMain.tsx]', '[useEffect]', 'count', count);
-
-      document.body.style.minHeight = `${height}px`;
-      // document.body.classList.add('popup-full-menu');
-      // document.body.classList.remove('popup-minimal-menu');
-    } else {
-      document.body.style.minHeight = '76px';
-      // document.body.classList.add('popup-minimal-menu');
-      // document.body.classList.remove('popup-full-menu');
-    }
-  }, [shouldShowFullMenu]);
-
   /**
    * The main component.
    * @returns
    */
   return (
     (shouldShowFullMenu && (
-      <main className="h-screen flex flex-col overflow-hidden bg-white dark:bg-zinc-900">
-        <div className="container mx-auto h-full flex flex-col items-start gap-1 px-2 pt-2">
+      <main className="flex flex-col bg-white dark:bg-zinc-900">
+        <div className="container mx-auto flex flex-col items-start gap-1 px-2 pt-2">
           <ServiceListMenu>Summarize this page</ServiceListMenu>
           {Object.entries(AIService)
             .filter(([_, service]) => serviceOnMenu[service])
@@ -150,8 +133,8 @@ export const PopupMain: React.FC = () => {
         </div>
       </main>
     )) || (
-      <main className="h-screen flex flex-col overflow-hidden bg-white dark:bg-zinc-900">
-        <div className="container mx-auto h-full flex flex-col items-start gap-1 px-2 pt-2">
+      <main className="flex flex-col bg-white dark:bg-zinc-900">
+        <div className="container mx-auto flex flex-col items-start gap-1 px-2 pt-2">
           <ServiceListMenu>Not available on this page</ServiceListMenu>
           <Divider />
           <ServiceListMenu
