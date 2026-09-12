@@ -91,6 +91,6 @@ export default [
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
     },
-    ignores: ['node_modules/**', '.pnp/**', '.pnp.js', 'dist/**', 'out/**', 'build/**', 'fastlane/**', 'log/**', 'public/**'],
+    ignores: ['node_modules/**', '.pnp/**', '.pnp.js', 'dist/**', 'out/**', 'fastlane/**', 'log/**', 'public/**'],
   },
 ];

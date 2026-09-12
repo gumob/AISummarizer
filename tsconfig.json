@@ -32,6 +32,7 @@
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
+    "build/**/*.ts",
     "webpack.config.ts"
   ],
   "exclude": [
