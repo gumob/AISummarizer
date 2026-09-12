@@ -150,6 +150,8 @@ To load the development build:
 
 > **Private tabs:** the "New private tab" option only works after allowing the extension in private windows: `about:addons` → Free AI Summarizer → "Run in Private Windows" → Allow.
 
+> **Limitation:** PDF summarization is not supported in the Firefox version. Firefox opens PDFs in its built-in viewer, where extensions cannot inject content scripts.
+
 #### Building for Firefox (AMO reviewers)
 
 The submitted package is built from this repository with webpack. To reproduce it:
@@ -165,7 +167,7 @@ The submitted package is built from this repository with webpack. To reproduce i
 
 1. Create a developer account on [addons.mozilla.org](https://addons.mozilla.org/developers/)
 2. On `develop`, run `bundle exec fastlane build_firefox`, `bundle exec fastlane create_firefox_package`, and `bundle exec fastlane create_source_package`
-3. In the AMO Developer Hub, submit `free-ai-summarizer-firefox-<version>.zip` as a new add-on ("On this site"), upload `free-ai-summarizer-source-<version>.zip` as the source code, and fill in the listing (description, screenshots, categories, privacy policy)
+3. In the AMO Developer Hub, submit `free-ai-summarizer-firefox-<version>.zip` as a new add-on ("On this site"), upload `free-ai-summarizer-source-<version>.zip` as the source code, and fill in the listing (description, screenshots, categories, privacy policy); the description must state that PDF files are not supported in the Firefox version
 4. Generate API credentials at <https://addons.mozilla.org/developers/addon/api/key/>
 5. Add them to the GitHub repository secrets as `AMO_JWT_ISSUER` and `AMO_JWT_SECRET`
 

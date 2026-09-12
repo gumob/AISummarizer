@@ -236,7 +236,7 @@ Claude in Chrome は Firefox を操作できない。Claude は `dist/firefox-de
 
 | リスク | 内容 | 対応 |
 |---|---|---|
-| PDF 抽出 | `PDF.ts:16` は content script から `fetch(url)` する。Firefox は PDF を内蔵ビューア (pdf.js) で表示し、そのページには content script が注入されないため、動作しない可能性が高い | 動作確認で失敗した場合、チェックポイントで (a) Firefox 版では PDF 非対応と明記する か (b) background 側で fetch・解析する方式に変える かを決める |
+| PDF 抽出 | `PDF.ts:16` は content script から `fetch(url)` する。Firefox は PDF を内蔵ビューア (pdf.js) で表示し、そのページには content script が注入されないため、動作しない可能性が高い | 動作確認で失敗した場合、チェックポイントで (a) Firefox 版では PDF 非対応と明記する か (b) background 側で fetch・解析する方式に変える かを決める **結論 (2026-09-12 チェックポイント③)**: 動作確認で失敗したため (a) を採用。Firefox 版は PDF 非対応と README と AMO の説明文に明記する。background 側での抽出 (b) は後日別タスクとする |
 | 注入の挙動差 | contenteditable / ProseMirror 等への貼り付けや input イベントが、Firefox では挙動が異なる場合がある | 該当する injector だけを修正する。修正範囲が大きい場合はチェックポイントで相談する |
 | host permission | Firefox MV3 の `<all_urls>` の許可タイミングは Chrome と異なる | 手動確認の項目1で確かめる。許可されない場合は、許可を求める導線をチェックポイントで検討する |
 | AMO 審査 | 手動審査に回ると公開まで数日〜数週間かかる | Claude の側では制御できない。公開日を約束しない |
