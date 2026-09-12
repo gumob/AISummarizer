@@ -3,12 +3,25 @@ import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import webpack from 'webpack';
 import type { Configuration } from 'webpack';
+
+import { Manifest, Target, transformManifest } from './build/manifest';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const isDev = process.env.NODE_ENV === 'development';
+
+/* Build target: chrome (default) or firefox */
+const target = (process.env.TARGET ?? 'chrome') as Target;
+if (target !== 'chrome' && target !== 'firefox') {
+  throw new Error(`Unknown TARGET: ${process.env.TARGET} (expected "chrome" or "firefox")`);
+}
+const isFirefox = target === 'firefox';
+
+/* Chrome keeps dist/dev and dist/prod; Firefox builds go to dist/firefox-dev and dist/firefox-prod */
+const outputDir = `${isFirefox ? 'firefox-' : ''}${isDev ? 'dev' : 'prod'}`;
 
 // pdf.worker.min.mjs の絶対パスを取得
 const pdfWorkerPath = path.resolve(__dirname, 'node_modules/pdfjs-dist/build/pdf.worker.min.mjs');
@@ -22,12 +35,13 @@ const config: Configuration = {
       filename: 'options.js',
     },
     'service-worker': './src/pages/ServiceWorker.ts',
-    offscreen: './src/pages/Offscreen.ts',
+    /* Firefox has no offscreen API; theme detection runs in the background page instead */
+    ...(!isFirefox && { offscreen: './src/pages/Offscreen.ts' }),
     content: './src/pages/Content.tsx',
   },
   output: {
     publicPath: '',
-    path: path.resolve(__dirname, isDev ? 'dist/dev' : 'dist/prod'),
+    path: path.resolve(__dirname, 'dist', outputDir),
     filename: '[name].js',
     clean: true,
   },
@@ -62,6 +76,9 @@ const config: Configuration = {
     },
   },
   plugins: [
+    new webpack.DefinePlugin({
+      __TARGET__: JSON.stringify(target),
+    }),
     new MiniCssExtractPlugin({
       filename: 'globals.css',
     }),
@@ -75,11 +92,15 @@ const config: Configuration = {
       filename: 'options.html',
       chunks: ['options'],
     }),
-    new HtmlWebpackPlugin({
-      template: './public/offscreen.html',
-      filename: 'offscreen.html',
-      chunks: ['offscreen'],
-    }),
+    ...(isFirefox
+      ? []
+      : [
+          new HtmlWebpackPlugin({
+            template: './public/offscreen.html',
+            filename: 'offscreen.html',
+            chunks: ['offscreen'],
+          }),
+        ]),
     new CopyPlugin({
       patterns: [
         {
@@ -93,16 +114,12 @@ const config: Configuration = {
           from: 'manifest.json',
           to: '.',
           transform: (content: Buffer) => {
-            if (!isDev) {
+            /* Keep the Chrome production manifest byte-identical to the source */
+            if (!isDev && !isFirefox) {
               return content;
             }
-            /* Point manifest icons at the DEV-badged variants for development builds */
-            const manifest = JSON.parse(content.toString());
-            const toDevIcons = (icons: Record<string, string>) =>
-              Object.fromEntries(Object.entries(icons).map(([size, iconPath]) => [size, (iconPath as string).replace(/\.png$/, '-dev.png')]));
-            manifest.icons = toDevIcons(manifest.icons);
-            manifest.action.default_icon = toDevIcons(manifest.action.default_icon);
-            return JSON.stringify(manifest, null, 2);
+            const manifest = JSON.parse(content.toString()) as Manifest;
+            return JSON.stringify(transformManifest(manifest, { isDev, target }), null, 2);
           },
         },
         // pdfjs worker を public ディレクトリにコピー
