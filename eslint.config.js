@@ -22,6 +22,7 @@ export default [
         ...globals.webextensions,
         ...globals.jest,
         chrome: 'readonly',
+        __TARGET__: 'readonly',
         window: 'readonly',
         document: 'readonly',
         navigator: 'readonly',
