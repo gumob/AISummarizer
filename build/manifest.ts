@@ -30,6 +30,9 @@ export const FIREFOX_STRICT_MIN_VERSION = '140.0';
 /* Firefox caps the manifest name at 45 characters; the Chrome name in manifest.json is longer */
 export const FIREFOX_NAME = 'Free AI Summarizer - ChatGPT, Claude, Gemini';
 
+/* The manifest.json description says "Chrome Extension"; Firefox gets a browser-neutral one */
+export const FIREFOX_DESCRIPTION = 'A free and open-source browser extension that uses AI to summarize web articles. Get instant summaries with just a few clicks.';
+
 /* Short label shown in Firefox's sidebar switcher; the manifest name is too long there */
 const FIREFOX_SIDEBAR_TITLE = 'Free AI Summarizer';
 
@@ -64,6 +67,7 @@ export const toFirefoxManifest = (manifest: Manifest): Manifest => {
   return {
     ...rest,
     name: FIREFOX_NAME,
+    description: FIREFOX_DESCRIPTION,
     permissions: (manifest.permissions ?? []).filter(permission => !FIREFOX_UNSUPPORTED_PERMISSIONS.includes(permission)),
     background: { scripts: [serviceWorker] },
     sidebar_action: {
