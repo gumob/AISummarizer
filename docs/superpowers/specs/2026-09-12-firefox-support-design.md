@@ -1,7 +1,7 @@
 # Firefox 対応 設計書
 
 日付: 2026-09-12
-ステータス: レビュー待ち
+ステータス: 承認済み (2026-09-12)。実装計画作成時の差分を反映済み
 
 ## 目的
 
@@ -45,7 +45,7 @@
 - `dev:firefox`: `TARGET=firefox` で watch 付き開発ビルド。出力先は `dist/firefox-dev`
 - `build:firefox`: `TARGET=firefox` で本番ビルド。出力先は `dist/firefox-prod`
 - 既存の `dev` / `build` は変更しない。`TARGET` 未指定時は `chrome` とみなし、出力先 `dist/dev` / `dist/prod` も変わらない
-- `eslint-check` / `eslint-fix` / `prettier-check` / `prettier-fix` の対象に `build/**/*.ts` を加える
+- `eslint-check` / `eslint-fix` / `prettier-check` / `prettier-fix` の対象に `build/**/*.ts` を加える。あわせて `eslint.config.js` の `ignores` から `build/**` を外す (外さないと `build/*.ts` が TS パーサなしで解析されて失敗する)
 
 ### webpack (`webpack.config.ts`)
 
@@ -102,7 +102,7 @@ src/platform/
 export interface Platform {
   openSettingsPanel(windowId?: number): Promise<void>;
   closeSettingsPanel(): Promise<void>;
-  initThemeDetection(): Promise<void>;
+  initThemeDetection(onColorSchemeChange: (isDarkMode: boolean) => void): Promise<void>;
 }
 ```
 
@@ -112,13 +112,13 @@ export interface Platform {
 
 - `openSettingsPanel(windowId?)`: `windowId` が未指定なら `tabs.query({ active: true, currentWindow: true })` で取得する。その後 `sidePanel.setOptions({ path: 'options.html', enabled: true })` と `sidePanel.open({ windowId })` を呼ぶ
 - `closeSettingsPanel()`: `sidePanel.setOptions({ enabled: false })`
-- `initThemeDetection()`: 現在の `ServiceWorkerThemeService.initialize()` にある offscreen の生成処理を移す
+- `initThemeDetection()`: 現在の `ServiceWorkerThemeService.initialize()` にある offscreen の生成処理を移す。コールバックは使わない (offscreen からの `COLOR_SCHEME_CHANGED` メッセージで反映される)
 
 ### Firefox 実装
 
 - `openSettingsPanel()`: 関数の**1行目で同期的に** `browser.sidebarAction.open()` を呼び、その Promise を返す。`windowId` は使わない
 - `closeSettingsPanel()`: `browser.sidebarAction.close()`
-- `initThemeDetection()`: background ページ上で `matchMedia('(prefers-color-scheme: dark)')` の初期値を `useThemeStore.getState().setDarkMode()` に直接反映し、`change` イベントを購読する
+- `initThemeDetection(onColorSchemeChange)`: background ページ上で `matchMedia('(prefers-color-scheme: dark)')` の初期値をコールバックに渡し、`change` イベントも同じコールバックに渡す。platform は store に依存しない (テストしやすくするため)
 - `browser.sidebarAction` の型は `src/types/` にローカルの d.ts として必要な分だけ宣言する (既存の `Chrome.d.ts` の offscreen 宣言と同じ方針)
 
 ### 呼び出し側の変更
@@ -129,7 +129,7 @@ export interface Platform {
 | `ServiceWorker.ts` の右クリックメニュー (`handleContextMenuClicked`) | `openSettingsPanel(tab.windowId)` に置き換える。await より前に呼ぶ現在の順序は維持する |
 | `ServiceWorker.ts` の `OPEN_SETTINGS` ハンドラ | `openSettingsPanel(tab.windowId)` に置き換える。送信元が存在しない未使用ハンドラのため、挙動確認は対象外 |
 | `OptionsMain.tsx` の閉じるボタン | `closeSettingsPanel()` に置き換える |
-| `ServiceWorkerThemeService.initialize()` | `initThemeDetection()` を呼ぶだけにする。`COLOR_SCHEME_CHANGED` / `PING_SERVICE_WORKER` のメッセージ処理は Chrome で引き続き使うため残す |
+| `ServiceWorkerThemeService.initialize()` | `initThemeDetection(isDarkMode => useThemeStore.getState().setDarkMode(isDarkMode))` を呼ぶだけにする。`COLOR_SCHEME_CHANGED` / `PING_SERVICE_WORKER` のメッセージ処理は Chrome で引き続き使うため残す |
 
 ### Firefox 固有の注意点
 
@@ -146,7 +146,8 @@ export interface Platform {
   - `build_firefox`: `pnpm run build:firefox`
   - `create_firefox_package`: `dist/firefox-prod` を `free-ai-summarizer-firefox-<version>.zip` に固める
   - `create_source_package`: `git archive --format=zip HEAD` で `free-ai-summarizer-source-<version>.zip` を作る
-- `release` レーンでは、`create_package` の後、commit / tag の確認より前に上記3レーンを実行する。タグを打つ前に Firefox ビルドの失敗を検知するため
+- `release` レーンでは、`create_package` の後に `build_firefox` と `create_firefox_package` を実行する。タグを打つ前に Firefox ビルドの失敗を検知するため
+- `create_source_package` は `release` レーンに含めない。bump コミット前の `HEAD` から作ると version がずれるため。初回の手動提出用の単独レーンとし、未コミットの変更があれば警告する (CI はタグ時点で別途作成する)
 - 既存 zip の削除 (`rm -f ../free-ai-summarizer-*.zip`) は Firefox 用・ソース用の zip も対象になる。これは意図どおり
 - `.gitignore` は既存の `*.zip` で Firefox 用・ソース用の zip もカバーされるため変更しない
 
@@ -180,7 +181,7 @@ README に「Building for Firefox (AMO reviewers)」の節を追加する:
 
 ### 初回の手動提出 (ユーザー作業)
 
-`fastlane/README.md` に手順を追記する:
+`README.md` に手順を追記する (`fastlane/README.md` は fastlane 実行のたびに自動生成で上書きされるため使わない):
 
 1. AMO (addons.mozilla.org) のデベロッパーアカウントを作成する
 2. `bundle exec fastlane build_firefox` → `create_firefox_package` → `create_source_package` で提出物を作る
@@ -198,7 +199,7 @@ README に「Building for Firefox (AMO reviewers)」の節を追加する:
   - 入力オブジェクトを変更 (mutate) しないこと
 - `src/platform/__tests__/`
   - Firefox の `openSettingsPanel`: 返り値の Promise を await する前の時点で、`sidebarAction.open` が呼ばれていること
-  - Firefox の `initThemeDetection`: `matchMedia` の初期値と `change` イベントで `setDarkMode` が呼ばれ、`runtime.sendMessage` が呼ばれないこと
+  - Firefox の `initThemeDetection`: `matchMedia` の初期値と `change` イベントでコールバックが呼ばれ、`runtime.sendMessage` が呼ばれないこと
   - Chrome の `openSettingsPanel`: `windowId` の指定あり/なしの両方で `sidePanel.setOptions` と `sidePanel.open` が呼ばれること
   - Chrome の `closeSettingsPanel`: `sidePanel.setOptions({ enabled: false })` が呼ばれること
 - jest の `globals` に `__TARGET__: 'chrome'` を設定し、既存テストが全件通ること。platform のテストは実装モジュール (`chrome.ts` / `firefox.ts`) を直接 import するので、`__TARGET__` に依存しない
@@ -221,7 +222,7 @@ Claude in Chrome は Firefox を操作できない。Claude は `dist/firefox-de
 
 ### Chrome のリグレッション確認
 
-設定パネルとテーマ検出のコードを移動するため、Chrome でも以下を確認する (Claude in Chrome で Claude が実施):
+設定パネルとテーマ検出のコードを移動するため、Chrome でも以下を確認する。Claude in Chrome ではツールバーの popup・右クリックメニュー・unpacked 拡張の読み込みを操作できないため、ユーザーが手動で確認する:
 
 - popup と右クリックメニューからサイドパネルを開けること、閉じるボタンで閉じること
 - OS のテーマ切り替えが反映されること
