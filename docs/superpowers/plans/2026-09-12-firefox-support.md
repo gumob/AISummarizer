@@ -1354,9 +1354,13 @@ Firefox (`about:debugging` から `dist/firefox-dev/manifest.json` を一時読�
 4. 右クリックメニュー、popup、sidebar の開閉 (popup の Settings / 右クリックメニューの Settings / 設定画面の閉じるボタン)
 5. OS のダーク/ライト切り替えがツールバーアイコンと UI に反映されること
 6. バッジ、タブの開き方 (現在のタブ / 新しいタブ / プライベートタブ)、クリップボードへのコピー
+7. about:debugging → 拡張の「調査 (Inspect)」で background のコンソールを開いたまま、タブを素早く切り替える・記事ページを連続で開く。`TypeError` や未処理の reject が出ないこと、右クリックメニューが毎回そろうこと
+8. Firefox を about:newtab が前面の状態で起動し、OS のテーマを切り替える。ツールバーアイコンと設定画面に反映されること
+9. about:addons → Free AI Summarizer → 設定 (Preferences) から設定画面が開くこと
 
 Chrome (`chrome://extensions` で `dist/dev` を再読み込み):
 
 1. popup の Settings と右クリックメニューの Settings でサイドパネルが開き、閉じるボタンで閉じること
 2. OS のテーマ切り替えが反映されること
 3. 1 サービス以上で、抽出から注入までの一連の流れが動くこと
+4. 設定画面を閉じるボタン (×) で閉じた後、右クリックメニューの Settings から再度開けること
