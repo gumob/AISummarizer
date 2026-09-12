@@ -44,7 +44,6 @@ export class ContextMenuService {
   private _checkRuntimeError() {
     if (chrome.runtime.lastError) {
       logger.warn('🧑‍🍳📃', '[ContextMenuService.tsx]', '[createBasicMenu]', 'Runtime error:', chrome.runtime.lastError);
-      chrome.runtime.lastError = undefined;
     }
   }
 
