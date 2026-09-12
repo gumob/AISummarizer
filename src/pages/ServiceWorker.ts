@@ -2,6 +2,7 @@ import { STORAGE_KEYS } from '@/constants';
 import { ArticleRecord, db } from '@/db';
 import { CleanupDBService, ContextMenuService, ServiceWorkerThemeService } from '@/features/serviceworker/services';
 import { MENU_ITEMS } from '@/models';
+import { openSettingsPanel } from '@/platform';
 import { useArticleStore, useSettingsStore } from '@/stores';
 import { DEFAULT_SETTINGS } from '@/stores/SettingsStore';
 import {
@@ -153,8 +154,7 @@ class ServiceWorker {
             return;
           }
           if (tab.id && tab.windowId) {
-            chrome.sidePanel.setOptions({ path: 'options.html', enabled: true });
-            chrome.sidePanel.open({ windowId: tab.windowId });
+            openSettingsPanel(tab.windowId);
           }
         });
         break;
@@ -172,11 +172,11 @@ class ServiceWorker {
    */
   private async handleContextMenuClicked(info: chrome.contextMenus.OnClickData, tab?: chrome.tabs.Tab) {
     /**
-     * sidePanel.open() must be called before any await in this handler,
+     * openSettingsPanel() must be called before any await in this handler,
      * otherwise the user gesture context is lost and the call is rejected
      */
     if (info.menuItemId === MENU_ITEMS.SETTINGS.id) {
-      if (tab?.windowId) chrome.sidePanel.open({ windowId: tab.windowId });
+      if (tab?.windowId) openSettingsPanel(tab.windowId);
       return;
     }
 

@@ -1,3 +1,4 @@
+import { initThemeDetection } from '@/platform';
 import { useThemeStore } from '@/stores/ThemeStore';
 import { Message, MessageAction, MessageResponse } from '@/types';
 import { logger } from '@/utils';
@@ -10,22 +11,8 @@ export class ServiceWorkerThemeService {
 
   async initialize() {
     try {
-      /** Close existing document if it exists */
-      if (await chrome.offscreen.hasDocument()) {
-        await chrome.offscreen.closeDocument();
-      }
-
-      /** Create new document with error handling */
-      try {
-        await chrome.offscreen.createDocument({
-          url: 'offscreen.html',
-          reasons: ['MATCH_MEDIA' as chrome.offscreen.Reason],
-          justification: 'Detect system color scheme changes',
-        });
-        logger.debug('🧑‍🍳🎨', '[ServiceWorkerThemeService.tsx]', '[initialize]', 'Offscreen document created successfully');
-      } catch (createError) {
-        logger.error('🧑‍🍳🎨', '[ServiceWorkerThemeService.tsx]', '[initialize]', 'Failed to create offscreen document', createError);
-      }
+      /** Chrome reports through the offscreen document (handleMessage); Firefox calls back directly */
+      await initThemeDetection(isDarkMode => useThemeStore.getState().setDarkMode(isDarkMode));
     } catch (error) {
       logger.error('🧑‍🍳🎨', '[ServiceWorkerThemeService.tsx]', '[initialize]', 'Error in theme service initialization', error);
     }

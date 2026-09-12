@@ -4,6 +4,7 @@ import { IoClipboardOutline, IoReloadOutline, IoSettingsOutline } from 'react-ic
 
 import { Divider, ServiceIcon } from '@/components';
 import { ServiceListMenu } from '@/features/popup/components/main';
+import { openSettingsPanel } from '@/platform';
 import { useGlobalContext } from '@/stores';
 import { AIService, getAIServiceLabel, MessageAction } from '@/types';
 import { isInvalidUrl, logger } from '@/utils';
@@ -136,12 +137,11 @@ export const PopupMain: React.FC = () => {
           <ServiceListMenu
             onClick={async () => {
               logger.debug('📦🍿', '[PopupMain.tsx]', '[render]', 'Settings clicked');
-              const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-              if (tab?.id && tab?.windowId) {
-                chrome.sidePanel.setOptions({ path: 'options.html', enabled: true });
-                chrome.sidePanel.open({ windowId: tab.windowId });
-                window.close();
-              }
+              /* Open the panel before any await: Firefox rejects sidebarAction.open() outside the synchronous part of a user gesture */
+              await openSettingsPanel();
+
+              /** Close the popup */
+              window.close();
             }}
           >
             <IoSettingsOutline className="w-4 h-4" />
@@ -157,14 +157,11 @@ export const PopupMain: React.FC = () => {
           <ServiceListMenu
             onClick={async () => {
               logger.debug('📦🍿', '[PopupMain.tsx]', '[render]', 'Settings clicked');
-              const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-              if (tab?.id && tab?.windowId) {
-                chrome.sidePanel.setOptions({ path: 'options.html', enabled: true });
-                chrome.sidePanel.open({ windowId: tab.windowId });
+              /* Open the panel before any await: Firefox rejects sidebarAction.open() outside the synchronous part of a user gesture */
+              await openSettingsPanel();
 
-                /** Close the popup */
-                window.close();
-              }
+              /** Close the popup */
+              window.close();
             }}
           >
             <IoSettingsOutline className="w-4 h-4" />
