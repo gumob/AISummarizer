@@ -17,6 +17,7 @@ export interface Platform {
   /**
    * Start detecting the OS color scheme
    * @param onColorSchemeChange - Called with the current scheme when the platform reports it directly
+   * Rejects when the platform setup fails (e.g. the offscreen document cannot be checked or closed); callers must catch.
    */
   initThemeDetection(onColorSchemeChange: (isDarkMode: boolean) => void): Promise<void>;
 }

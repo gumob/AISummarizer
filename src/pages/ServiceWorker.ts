@@ -154,7 +154,9 @@ class ServiceWorker {
             return;
           }
           if (tab.id && tab.windowId) {
-            openSettingsPanel(tab.windowId);
+            openSettingsPanel(tab.windowId).catch(error =>
+              logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleServiceWorkerMessage]', 'Failed to open settings panel:', error)
+            );
           }
         });
         break;
@@ -176,7 +178,10 @@ class ServiceWorker {
      * otherwise the user gesture context is lost and the call is rejected
      */
     if (info.menuItemId === MENU_ITEMS.SETTINGS.id) {
-      if (tab?.windowId) openSettingsPanel(tab.windowId);
+      if (tab?.windowId)
+        openSettingsPanel(tab.windowId).catch(error =>
+          logger.warn('🧑‍🍳📃', '[ServiceWorker.ts]', '[handleContextMenuClicked]', 'Failed to open settings panel:', error)
+        );
       return;
     }
 
