@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Free AI Summarizer — a Chrome Extension (Manifest V3) that summarizes web articles, YouTube transcripts, and PDFs by opening an AI service (ChatGPT, Gemini, Google AI Studio, Claude, Grok, Perplexity, Deepseek) in a tab and injecting the extracted article text into its chat UI. No API keys, no backend — all data stays local.
+Free AI Summarizer — a Chrome Extension (Manifest V3) that summarizes web articles, YouTube transcripts, and PDFs by opening an AI service (ChatGPT, Gemini, Google AI Studio, Claude, Grok, Perplexity, Deepseek) in a tab and injecting the extracted article text into its chat UI. No API keys, no backend — all data stays local. The same codebase also builds a Firefox (desktop) version, distributed on addons.mozilla.org (AMO).
 
 ## Commands
 
@@ -12,6 +12,7 @@ Package manager is pnpm (required; version pinned in `packageManager` field and 
 
 - `pnpm dev` — development build with watch; load `dist/dev` via chrome://extensions → "Load unpacked"
 - `pnpm build` — production build to `dist/prod`
+- `pnpm dev:firefox` / `pnpm build:firefox` — Firefox builds (`TARGET=firefox`) to `dist/firefox-dev` / `dist/firefox-prod`; load via `about:debugging#/runtime/this-firefox` → "Load Temporary Add-on…" → `manifest.json`
 - `pnpm test` — run all Jest tests
 - `pnpm test src/utils/__tests__/Logger.test.ts` — run a single test file
 - `pnpm test -- -t "name"` — run tests matching a name
@@ -50,6 +51,13 @@ Adding a new AI service = new injector file there + entry in `src/types/AIServic
 - Path alias `@/*` → `src/*` (configured in webpack, tsconfig, and jest)
 - `src/utils/Logger.ts` — consola-based logger; use it instead of `console.log`
 
+### Browser targets
+
+- `TARGET` (`chrome` by default, or `firefox`) selects the build; webpack injects it as the `__TARGET__` constant (jest sets it to `'chrome'`)
+- `manifest.json` is the single source of truth; `build/manifest.ts` derives the dev and Firefox manifests at build time (Firefox: `background.scripts`, `sidebar_action`, gecko settings, shorter `name` and browser-neutral `description`)
+- Browser-specific APIs live only in `src/platform/` (`openSettingsPanel` / `closeSettingsPanel` / `initThemeDetection`): Chrome uses `sidePanel` + the offscreen document, Firefox uses `sidebarAction` + `matchMedia` in the background page. Everything else uses `chrome.*`, which Firefox also provides
+- Firefox's `sidebarAction.open()` must run synchronously inside a user gesture — call `openSettingsPanel()` before any `await` in click and context-menu handlers
+
 ## Project rules
 
 From `.cursor/rules/global.mdc` (binding for this repo):
@@ -78,9 +86,13 @@ Two stages: local Fastlane, then CI triggered by the version tag.
    - Interactive version bump (patch / minor / major) — updates both `package.json` and `manifest.json`
    - Runs prettier / eslint / type-check / `pnpm audit --audit-level high`
    - Production build, then zips `dist/prod` into `free-ai-summarizer-<version>.zip`
+   - Also builds and zips the Firefox version (`free-ai-summarizer-firefox-<version>.zip`) so Firefox-only build failures surface before tagging
    - Commits `feat: bump version to <version>`, tags `v<version>` (recreating the tag if it already exists), then pushes with tags
    - Merges `develop` into `main` and pushes
 2. Pushing a `v*.*.*` tag triggers `.github/workflows/release.yml`:
    - Re-runs audit / prettier / eslint / type-check, builds, and creates a GitHub Release with the zip attached (auto-generated release notes)
    - Uploads to Chrome Web Store via `chrome-webstore-upload-cli` with `--auto-publish` (requires `CHROME_*` repository secrets)
    - The Store upload step is `continue-on-error` — a green workflow does not guarantee publication; check the "Upload to Chrome Web Store" step log
+   - Then builds `dist/firefox-prod`, runs `web-ext lint`, and submits it to AMO (listed channel) with a source zip via `web-ext sign`. Skipped with a warning until the `AMO_JWT_ISSUER` / `AMO_JWT_SECRET` secrets are set; all Firefox steps are `continue-on-error` and never block the Chrome release. AMO rejects re-uploading an existing version
+
+The first AMO submission is manual; see README → "Releasing to Firefox Add-ons (AMO)".
