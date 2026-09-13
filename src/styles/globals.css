@@ -27,6 +27,9 @@ body {
   color: var(--foreground-color);
   background: var(--background-color);
   min-width: 180px;
+  /* Chromium injects these defaults into extension pages; Firefox does not, so declare them for both */
+  font-family: system-ui, sans-serif;
+  font-size: 0.75rem;
 }
 
 body.popup-full-menu {
