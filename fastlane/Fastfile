@@ -180,6 +180,52 @@ lane :create_package do
   UI.success("Successfully created #{zip_file_name}")
 end
 
+desc "Build extension for Firefox"
+lane :build_firefox do
+  ensure_develop_branch
+  sh("pnpm run build:firefox")
+end
+
+desc "Create Firefox extension package"
+lane :create_firefox_package do
+  ensure_develop_branch
+
+  # Check if dist/firefox-prod directory exists
+  unless File.directory?("../dist/firefox-prod")
+    UI.user_error!("dist/firefox-prod directory not found. Please run build_firefox first.")
+  end
+
+  version = JSON.parse(File.read("../package.json"))["version"]
+  zip_file_name = "free-ai-summarizer-firefox-#{version}.zip"
+
+  sh("rm -f ../free-ai-summarizer-firefox-*.zip")
+
+  Dir.chdir("../dist/firefox-prod") do
+    sh("zip -r ../../#{zip_file_name} .", log: false)
+  end
+  UI.success("Successfully created #{zip_file_name}")
+end
+
+desc "Create source code package for AMO review"
+lane :create_source_package do
+  ensure_develop_branch
+
+  # git archive only includes committed files, so warn about local changes
+  unless sh("git status --porcelain", log: false).strip.empty?
+    UI.important("Working tree has uncommitted changes. They are NOT included in the source package.")
+  end
+
+  version = JSON.parse(File.read("../package.json"))["version"]
+  zip_file_name = "free-ai-summarizer-source-#{version}.zip"
+
+  sh("rm -f ../free-ai-summarizer-source-*.zip")
+
+  Dir.chdir("..") do
+    sh("git archive --format=zip -o #{zip_file_name} HEAD")
+  end
+  UI.success("Successfully created #{zip_file_name}")
+end
+
 desc "Merge develop branch to main"
 lane :merge_to_main do
   UI.important("Merging develop branch to main...")
@@ -234,6 +280,10 @@ lane :release do
 
   # Package
   create_package
+
+  # Build and package for Firefox to catch Firefox-only build failures before tagging
+  build_firefox
+  create_firefox_package
 
   # Git commit and tag
   version = JSON.parse(File.read("../package.json"))["version"]

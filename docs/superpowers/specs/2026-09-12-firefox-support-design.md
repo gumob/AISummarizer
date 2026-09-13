@@ -19,6 +19,8 @@
 | リリース | 初回は手動提出、2回目以降は CI から自動提出 | 掲載情報の初期登録は手作業が確実 |
 | 分岐方式 | 差分のみ platform モジュールに切り出し、ビルド時に切り替え | 呼び出し側から分岐を消す。使わない実装はバンドルから除去される |
 | gecko id | `free-ai-summarizer@futamura.dev` | メールアドレス形式。**公開後は変更不可** |
+| Firefox 版の name | `Free AI Summarizer - ChatGPT, Claude, Gemini` (44 文字) | Firefox は manifest の `name` を 45 文字までに制限する (`web-ext lint` の `JSON_INVALID`)。Chrome 版の name は変えない |
+| Firefox 版の description | `A free and open-source browser extension that uses AI to summarize web articles. Get instant summaries with just a few clicks.` | manifest.json の説明文は "Chrome Extension" と書いているため。Chrome 版の説明文は変えない |
 
 ## 対象外
 
@@ -68,6 +70,8 @@ export const transformManifest = (manifest: Manifest, options: { isDev: boolean;
 
 `toFirefoxManifest` の変換内容:
 
+- `name`: `Free AI Summarizer - ChatGPT, Claude, Gemini` に置き換える。Firefox の上限 45 文字に収めるため (Chrome 用の name は 78 文字)
+- `description`: "Chrome Extension" を含まない説明文 (`FIREFOX_DESCRIPTION`) に置き換える
 - `background`: `{ service_worker, type }` を `{ scripts: ['service-worker.js'] }` に置き換える。ファイル名は webpack の変更を避けるため据え置く
 - `permissions`: `offscreen` と `sidePanel` を除く
 - `side_panel` を削除し、`sidebar_action` を追加する
@@ -232,7 +236,7 @@ Claude in Chrome は Firefox を操作できない。Claude は `dist/firefox-de
 
 | リスク | 内容 | 対応 |
 |---|---|---|
-| PDF 抽出 | `PDF.ts:16` は content script から `fetch(url)` する。Firefox は PDF を内蔵ビューア (pdf.js) で表示し、そのページには content script が注入されないため、動作しない可能性が高い | 動作確認で失敗した場合、チェックポイントで (a) Firefox 版では PDF 非対応と明記する か (b) background 側で fetch・解析する方式に変える かを決める |
+| PDF 抽出 | `PDF.ts:16` は content script から `fetch(url)` する。Firefox は PDF を内蔵ビューア (pdf.js) で表示し、そのページには content script が注入されないため、動作しない可能性が高い | 動作確認で失敗した場合、チェックポイントで (a) Firefox 版では PDF 非対応と明記する か (b) background 側で fetch・解析する方式に変える かを決める **結論 (2026-09-12 チェックポイント③)**: 動作確認で失敗したため (a) を採用。Firefox 版は PDF 非対応と README と AMO の説明文に明記する。background 側での抽出 (b) は後日別タスクとする |
 | 注入の挙動差 | contenteditable / ProseMirror 等への貼り付けや input イベントが、Firefox では挙動が異なる場合がある | 該当する injector だけを修正する。修正範囲が大きい場合はチェックポイントで相談する |
 | host permission | Firefox MV3 の `<all_urls>` の許可タイミングは Chrome と異なる | 手動確認の項目1で確かめる。許可されない場合は、許可を求める導線をチェックポイントで検討する |
 | AMO 審査 | 手動審査に回ると公開まで数日〜数週間かかる | Claude の側では制御できない。公開日を約束しない |

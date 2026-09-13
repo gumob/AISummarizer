@@ -22,6 +22,7 @@ export default [
         ...globals.webextensions,
         ...globals.jest,
         chrome: 'readonly',
+        __TARGET__: 'readonly',
         window: 'readonly',
         document: 'readonly',
         navigator: 'readonly',
@@ -91,6 +92,6 @@ export default [
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
     },
-    ignores: ['node_modules/**', '.pnp/**', '.pnp.js', 'dist/**', 'out/**', 'build/**', 'fastlane/**', 'log/**', 'public/**'],
+    ignores: ['node_modules/**', '.pnp/**', '.pnp.js', 'dist/**', 'out/**', 'fastlane/**', 'log/**', 'public/**'],
   },
 ];

@@ -130,6 +130,49 @@ pnpm build
 pnpm dev
 ```
 
+### Firefox
+
+The same codebase also builds a Firefox (desktop) version. Browser-specific code lives in `src/platform/`.
+
+```bash
+# Development build for Firefox (watch mode, output: dist/firefox-dev)
+pnpm dev:firefox
+
+# Production build for Firefox (output: dist/firefox-prod)
+pnpm build:firefox
+```
+
+To load the development build:
+
+1. Open `about:debugging#/runtime/this-firefox` in Firefox
+2. Click "Load Temporary Add-on..."
+3. Select `dist/firefox-dev/manifest.json`
+
+> **Private tabs:** the "New private tab" option only works after allowing the extension in private windows: `about:addons` → Free AI Summarizer → "Run in Private Windows" → Allow.
+
+> **Limitation:** PDF summarization is not supported in the Firefox version. Firefox opens PDFs in its built-in viewer, where extensions cannot inject content scripts.
+
+#### Building for Firefox (AMO reviewers)
+
+The submitted package is built from this repository with webpack. To reproduce it:
+
+1. Install Node.js 20 and pnpm (the exact pnpm version is pinned in the `packageManager` field of `package.json`; `corepack enable` picks it up)
+2. Run `pnpm install --frozen-lockfile`
+3. Run `pnpm build:firefox`
+4. The build output is in `dist/firefox-prod`
+
+#### Releasing to Firefox Add-ons (AMO)
+
+`.github/workflows/release.yml` submits each release to AMO when a `v*.*.*` tag is pushed. The first submission is manual:
+
+1. Create a developer account on [addons.mozilla.org](https://addons.mozilla.org/developers/)
+2. On `develop`, run `bundle exec fastlane build_firefox`, `bundle exec fastlane create_firefox_package`, and `bundle exec fastlane create_source_package`
+3. In the AMO Developer Hub, submit `free-ai-summarizer-firefox-<version>.zip` as a new add-on ("On this site"), upload `free-ai-summarizer-source-<version>.zip` as the source code, and fill in the listing (description, screenshots, categories, privacy policy); the description must state that PDF files are not supported in the Firefox version
+4. Generate API credentials at <https://addons.mozilla.org/developers/addon/api/key/>
+5. Add them to the GitHub repository secrets as `AMO_JWT_ISSUER` and `AMO_JWT_SECRET`
+
+Until the secrets are set, the workflow skips the AMO submission with a warning. AMO rejects re-uploads of an existing version, so re-releasing the same version only fails the Firefox steps; the Chrome release is unaffected.
+
 ## 🔒 Privacy
 
 We respect your privacy. All data is stored locally on your device. See our [Privacy Policy](./PRIVACY.md) for details.

@@ -1,4 +1,4 @@
-name: Release Chrome Extension
+name: Release Extension
 
 on:
   push:
@@ -343,4 +343,60 @@ jobs:
             echo "      https://cloud.google.com/apis/docs/getting-started"
             echo "    - OAuth2 Documentation:"
             echo "      https://developers.google.com/identity/protocols/oauth2"
+          fi
+
+      - name: Build Firefox extension
+        id: firefox_build
+        continue-on-error: true
+        run: |
+          pnpm run build:firefox
+
+          cd dist/firefox-prod
+          zip -r "../../free-ai-summarizer-firefox-${{ env.VERSION }}.zip" .
+          cd ../..
+
+          # Source package for AMO review (tag checkout, so the version matches)
+          git archive --format=zip -o "free-ai-summarizer-source-${{ env.VERSION }}.zip" HEAD
+
+          ls -la free-ai-summarizer-firefox-*.zip free-ai-summarizer-source-*.zip
+
+      - name: Lint Firefox extension
+        id: firefox_lint
+        if: steps.firefox_build.outcome == 'success'
+        continue-on-error: true
+        run: npx --yes web-ext@10.6.0 lint --source-dir dist/firefox-prod
+
+      - name: Upload to Firefox Add-ons
+        id: amo_upload
+        if: steps.firefox_build.outcome == 'success' && steps.firefox_lint.outcome == 'success'
+        continue-on-error: true
+        env:
+          AMO_JWT_ISSUER: ${{ secrets.AMO_JWT_ISSUER }}
+          AMO_JWT_SECRET: ${{ secrets.AMO_JWT_SECRET }}
+        run: |
+          # Secrets are registered after the first manual submission; skip until then
+          if [ -z "$AMO_JWT_ISSUER" ] || [ -z "$AMO_JWT_SECRET" ]; then
+            echo "::warning::AMO_JWT_ISSUER / AMO_JWT_SECRET are not set — skipping Firefox Add-ons submission"
+            exit 0
+          fi
+
+          # Listed versions are signed only after AMO review, so do not wait for approval
+          npx --yes web-ext@10.6.0 sign \
+            --channel=listed \
+            --source-dir dist/firefox-prod \
+            --upload-source-code "free-ai-summarizer-source-${{ env.VERSION }}.zip" \
+            --approval-timeout 0 \
+            --api-key "$AMO_JWT_ISSUER" \
+            --api-secret "$AMO_JWT_SECRET"
+
+      - name: Check Firefox Add-ons upload result
+        if: always()
+        run: |
+          # continue-on-error keeps the job green, so inspect each Firefox step outcome instead
+          if [ "${{ steps.firefox_build.outcome }}" == "success" ] && [ "${{ steps.firefox_lint.outcome }}" == "success" ] && [ "${{ steps.amo_upload.outcome }}" == "success" ]; then
+            echo "✅ Firefox Add-ons steps completed (check the upload step log for a skipped submission)"
+          else
+            echo "::warning::Firefox Add-ons submission failed — build: ${{ steps.firefox_build.outcome }}, lint: ${{ steps.firefox_lint.outcome }}, upload: ${{ steps.amo_upload.outcome }}"
+            echo "  - 'Version already exists' means this version was already submitted to AMO"
+            echo "  - Re-issue API keys at https://addons.mozilla.org/developers/addon/api/key/ and update AMO_JWT_ISSUER / AMO_JWT_SECRET"
           fi

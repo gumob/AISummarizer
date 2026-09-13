@@ -8,6 +8,7 @@ import { Field, Input, Switch, Tab, TabGroup, TabList, TabPanel, TabPanels, Text
 
 import { toast, Toaster } from '@/features/content/components/main/Toaster';
 import { ConfirmDialog, OptionCard } from '@/features/options/components/main';
+import { closeSettingsPanel } from '@/platform';
 import { DEFAULT_SETTINGS, useGlobalContext } from '@/stores';
 import {
   AIService,
@@ -274,7 +275,7 @@ export const OptionsMain: React.FC = () => {
             <button
               onClick={async () => {
                 try {
-                  await chrome.sidePanel.setOptions({ enabled: false });
+                  await closeSettingsPanel();
                 } catch (error) {
                   logger.error('📦⌥', '[OptionsMain.tsx]', '[render]', 'Failed to close side panel', error);
                 }

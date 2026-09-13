@@ -21,12 +21,14 @@ Please follow the directory structure below for implementation:
 │   │   ├── Options.tsx          # Options page
 │   │   ├── Popup.tsx            # Popup page
 │   │   └── ServiceWorker.ts     # Service Worker implementation
+│   ├── platform/                 # Browser-specific implementations (Chrome / Firefox)
 │   ├── stores/                   # State management (Zustand)
 │   ├── styles/                   # Global styles
 │   ├── types/                    # TypeScript type definitions
 │   └── utils/                    # Utility functions
+├── build/                        # Build-time scripts (manifest transforms)
 ├── public/                       # Static assets
-├── dist/                         # Output directory
+├── dist/                         # Output directory (dev/prod: Chrome, firefox-dev/firefox-prod: Firefox)
 ├── node_modules/                 # Dependency packages
 ├── logs/                         # Application logs
 ├── fastlane/                     # Fastlane deployment configuration
@@ -71,6 +73,7 @@ Please follow the directory structure below for implementation:
   - `Options.tsx`: Options page implementation
   - `Popup.tsx`: Popup page implementation
   - `ServiceWorker.ts`: Service Worker implementation
+- `platform/`: Browser-specific implementations selected at build time by `__TARGET__` (settings panel, theme detection)
 - `stores/`: State management implementations (Zustand)
 - `styles/`: Global style definitions
 - `types/`: TypeScript type definitions
@@ -86,7 +89,8 @@ Please follow the directory structure below for implementation:
 - `jest.config.js`: Jest testing configuration
 
 #### Build and Dependencies
-- `dist/`: Compiled output files
+- `build/`: Build-time scripts used by webpack (manifest transforms for development and Firefox builds)
+- `dist/`: Compiled output files (`dev` / `prod` for Chrome, `firefox-dev` / `firefox-prod` for Firefox)
 - `public/`: Static assets
 - `node_modules/`: Third-party dependencies
 - `package.json`: Project metadata and dependencies

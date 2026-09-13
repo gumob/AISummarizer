@@ -4,6 +4,7 @@ import { IoClipboardOutline, IoReloadOutline, IoSettingsOutline } from 'react-ic
 
 import { Divider, ServiceIcon } from '@/components';
 import { ServiceListMenu } from '@/features/popup/components/main';
+import { openSettingsPanel } from '@/platform';
 import { useGlobalContext } from '@/stores';
 import { AIService, getAIServiceLabel, MessageAction } from '@/types';
 import { isInvalidUrl, logger } from '@/utils';
@@ -32,31 +33,14 @@ export const PopupMain: React.FC = () => {
     };
   }, []);
 
-  useEffect(() => {
-    logger.debug('📦🍿', '[PopupMain.tsx]', '[useEffect]', 'shouldShowFullMenu', shouldShowFullMenu);
-    if (shouldShowFullMenu) {
-      const count = Object.values(serviceOnMenu).filter(Boolean).length;
-      const height = 142 + 30 * count;
-      logger.debug('📦🍿', '[PopupMain.tsx]', '[useEffect]', 'count', count);
-
-      document.body.style.minHeight = `${height}px`;
-      // document.body.classList.add('popup-full-menu');
-      // document.body.classList.remove('popup-minimal-menu');
-    } else {
-      document.body.style.minHeight = '76px';
-      // document.body.classList.add('popup-minimal-menu');
-      // document.body.classList.remove('popup-full-menu');
-    }
-  }, [shouldShowFullMenu]);
-
   /**
    * The main component.
    * @returns
    */
   return (
     (shouldShowFullMenu && (
-      <main className="h-screen flex flex-col overflow-hidden bg-white dark:bg-zinc-900">
-        <div className="container mx-auto h-full flex flex-col items-start gap-1 px-2 pt-2">
+      <main className="flex flex-col bg-white dark:bg-zinc-900">
+        <div className="container mx-auto flex flex-col items-start gap-1 px-2 pt-2">
           <ServiceListMenu>Summarize this page</ServiceListMenu>
           {Object.entries(AIService)
             .filter(([_, service]) => serviceOnMenu[service])
@@ -136,12 +120,11 @@ export const PopupMain: React.FC = () => {
           <ServiceListMenu
             onClick={async () => {
               logger.debug('📦🍿', '[PopupMain.tsx]', '[render]', 'Settings clicked');
-              const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-              if (tab?.id && tab?.windowId) {
-                chrome.sidePanel.setOptions({ path: 'options.html', enabled: true });
-                chrome.sidePanel.open({ windowId: tab.windowId });
-                window.close();
-              }
+              /* Open the panel before any await: Firefox rejects sidebarAction.open() outside the synchronous part of a user gesture */
+              await openSettingsPanel();
+
+              /** Close the popup */
+              window.close();
             }}
           >
             <IoSettingsOutline className="w-4 h-4" />
@@ -150,21 +133,18 @@ export const PopupMain: React.FC = () => {
         </div>
       </main>
     )) || (
-      <main className="h-screen flex flex-col overflow-hidden bg-white dark:bg-zinc-900">
-        <div className="container mx-auto h-full flex flex-col items-start gap-1 px-2 pt-2">
+      <main className="flex flex-col bg-white dark:bg-zinc-900">
+        <div className="container mx-auto flex flex-col items-start gap-1 px-2 pt-2">
           <ServiceListMenu>Not available on this page</ServiceListMenu>
           <Divider />
           <ServiceListMenu
             onClick={async () => {
               logger.debug('📦🍿', '[PopupMain.tsx]', '[render]', 'Settings clicked');
-              const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-              if (tab?.id && tab?.windowId) {
-                chrome.sidePanel.setOptions({ path: 'options.html', enabled: true });
-                chrome.sidePanel.open({ windowId: tab.windowId });
+              /* Open the panel before any await: Firefox rejects sidebarAction.open() outside the synchronous part of a user gesture */
+              await openSettingsPanel();
 
-                /** Close the popup */
-                window.close();
-              }
+              /** Close the popup */
+              window.close();
             }}
           >
             <IoSettingsOutline className="w-4 h-4" />
